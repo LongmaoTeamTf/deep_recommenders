@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-24 17:47:36
+@LastEditTime: 2020-03-24 22:43:57
 '''
 from __future__ import print_function
 
@@ -54,16 +54,15 @@ class PositionEncoding(Layer):
         super(PositionEncoding, self).__init__(**kwargs)
 
     def call(self, inputs):
-        batch_size, seq_length = K.shape(inputs)[0], K.shape(inputs)[1]
-        postion_encodings = np.zeros((batch_size, seq_length, self._model_dim))
+        seq_length = inputs.shape[1]
+        position_encodings = np.zeros((seq_length, self._model_dim))
         for pos in range(seq_length):
             for i in range(self._model_dim):
-                postion_encodings[:, pos, i] = pos / np.power(10000, (i-i%2) / self._model_dim)
-        postion_encodings[:, :, 0::2] = np.sin(postion_encodings[:, :, 0::2]) # 2i
-        postion_encodings[:, :, 1::2] = np.cos(postion_encodings[:, :, 1::2]) # 2i+1    
-        postion_encodings = K.cast(postion_encodings, 'float32')
-
-        return postion_encodings
+                position_encodings[pos, i] = pos / np.power(10000, (i-i%2) / self._model_dim)
+        position_encodings[:, 0::2] = np.sin(position_encodings[:, 0::2]) # 2i
+        position_encodings[:, 1::2] = np.cos(position_encodings[:, 1::2]) # 2i+1
+        position_encodings = K.cast(position_encodings, 'float32')
+        return position_encodings
 
     def compute_output_shape(self, input_shape):
         return input_shape
@@ -71,17 +70,27 @@ class PositionEncoding(Layer):
 
 class ScaledDotProductAttention(Layer):
 
-    def __init__(self, masking=True, dropout_rate=0., **kwargs):
+    def __init__(self, masking=True, future=False, dropout_rate=0., **kwargs):
         self._masking = masking
+        self._future = future
         self._dropout_rate = dropout_rate
+        self._masking_num = -2**32+1
         super(ScaledDotProductAttention, self).__init__(**kwargs)
 
     def mask(self, inputs, masks):
-        masking_num=-2**32+1
         masks = K.cast(masks, 'float32')
         masks = K.tile(masks, [K.shape(inputs)[0] // K.shape(masks)[0], 1])
         masks = K.expand_dims(masks, 1)
-        return inputs + masks * masking_num
+        outputs = inputs + masks * self._masking_num
+        return outputs
+    
+    def future_mask(self, inputs):
+        diag_vals = tf.ones_like(inputs[0, :, :])
+        tril = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  
+        future_masks = tf.tile(tf.expand_dims(tril, 0), [tf.shape(inputs)[0], 1, 1])
+        paddings = tf.ones_like(future_masks) * self._masking_num
+        outputs = tf.where(tf.equal(future_masks, 0), paddings, inputs)  
+        return outputs
 
     def call(self, inputs):
         if self._masking:
@@ -96,9 +105,13 @@ class ScaledDotProductAttention(Layer):
         if K.dtype(values) != 'float32':  values = K.cast(values, 'float32')
 
         matmul = K.batch_dot(queries, tf.transpose(keys, [0, 2, 1])) # MatMul
-        scaled_matmul = matmul / int(K.shape(queries)[-1]) ** 0.5  # Scale
+        scaled_matmul = matmul / int(queries.shape[-1]) ** 0.5  # Scale
         if self._masking:
             scaled_matmul = self.mask(scaled_matmul, masks) # Mask(opt.)
+
+        if self._future:
+            scaled_matmul = self.future_mask(scaled_matmul)
+
         softmax_out = K.softmax(scaled_matmul) # SoftMax
         # Dropout
         out = K.dropout(softmax_out, self._dropout_rate)
@@ -113,10 +126,11 @@ class ScaledDotProductAttention(Layer):
 
 class MultiHeadAttention(Layer):
 
-    def __init__(self, n_heads, head_dim, masking=True, trainable=True, **kwargs):
+    def __init__(self, n_heads, head_dim, masking=True, future=False, trainable=True, **kwargs):
         self._n_heads = n_heads
         self._head_dim = head_dim
         self._masking = masking
+        self._future = future
         self._trainable = trainable
         super(MultiHeadAttention, self).__init__(**kwargs)
 
@@ -159,8 +173,8 @@ class MultiHeadAttention(Layer):
             att_inputs = [queries_multi_heads, keys_multi_heads, values_multi_heads, masks]
         else:
             att_inputs = [queries_multi_heads, keys_multi_heads, values_multi_heads]
-        
-        attention = ScaledDotProductAttention(masking=self._masking)
+            
+        attention = ScaledDotProductAttention(masking=self._masking, future=self._future)
         att_out = attention(att_inputs)
 
         outputs = tf.concat(tf.split(att_out, self._n_heads, axis=0), axis=2)
@@ -239,29 +253,4 @@ class LayerNormalization(Layer):
     def compute_output_shape(self, input_shape):
         return input_shape
 
-
-
-
-if __name__ == "__main__":
-    # emb = Embedding(500, 10)
-    # emb_out = emb(np.array([[1,2,3], [2,3,4]]))
-    # # print(emb_out)
-    # pe = PositionEncoding(10)
-    # pe_out = pe(emb_out)
-    # print(pe_out)
-    # atte = MultiHeadAttention(2, 5, masking=True)
-    # key_masks = tf.constant([[0., 0., 1.],[0., 1., 1.]])
-    # atte_out = atte([pe_out, pe_out, pe_out, key_masks])
-    
-    # ff = PositionWiseFeedForward(10, 2048)
-    # ff_out = ff(atte_out)
-    # # print(out)
-
-    # ln = LayerNormalization()
-    # ln_out = ln(ff_out)
-    # print(ln_out)
-    masks = tf.math.equal([[1,2,3,0,0,0], [1,2,2,0,0,0]], 0) # (N, T1)
-    # masks = K.equal([1,2,3,0,0,0], 0)
-    masks = K.cast(masks, 'float32')
-    print(masks)
 

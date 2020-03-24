@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-24 17:51:07
+@LastEditTime: 2020-03-24 22:46:24
 '''
 import os
 import numpy as np
@@ -78,7 +78,7 @@ class Transformer(tf.keras.layers.Layer):
     def decoder(self, inputs):
         decoder_inputs, encoder_encodings, encoder_masks = inputs
         if K.dtype(decoder_inputs) != 'int32':
-            inputs = K.cast(decoder_inputs, 'int32')
+            decoder_inputs = K.cast(decoder_inputs, 'int32')
 
         decoder_masks = K.equal(decoder_inputs, 0)
         # Embeddings
@@ -91,7 +91,7 @@ class Transformer(tf.keras.layers.Layer):
         
         for i in range(self._decoder_stack):
             # Masked-Multi-head-Attention
-            masked_attention = MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
+            masked_attention = MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads, future=True)
             masked_attention_input = [encodings, encodings, encodings, decoder_masks]
             masked_attention_out = masked_attention(masked_attention_input)
             # Add & Norm
@@ -130,8 +130,14 @@ class Transformer(tf.keras.layers.Layer):
     
 
 if __name__ == "__main__":
-    transformer = Transformer(1000, 512)
-    encoder_inputs = np.array([[1, 2, 3, 0, 0],[4, 5 ,6, 0, 0],[7, 8, 0, 0, 0]])
-    decoder_inputs = np.array([[1, 2, 3, 0, 0],[4, 5 ,6, 0, 0],[7, 8, 0, 0, 0]])
-    outputs = transformer([encoder_inputs, decoder_inputs])
-    print(outputs)
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Input
+    from tensorflow.keras.utils import plot_model
+
+    encoder_inputs = Input(shape=(256,), name='encoder_inputs')
+    decoder_inputs = Input(shape=(256,), name='decoder_inputs')
+    outputs = Transformer(1000, 512)([encoder_inputs, decoder_inputs])
+    model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
+
+    model.summary()
+    plot_model(model, 'transformer.png')
