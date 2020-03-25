@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 17:54:27
+@LastEditTime: 2020-03-25 17:57:51
 '''
 from __future__ import print_function
 
@@ -272,21 +272,20 @@ if __name__ == "__main__":
     from tensorflow.keras.preprocessing import sequence
     from tensorflow.keras.utils import to_categorical
 
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
     vocab_size = 5000
     max_len = 256
     model_dim = 512
     batch_size = 256
     epochs = 20
     
-    print("Data downloading ... ")
+    print("Data downloading and pre-processing ... ")
     (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
-    print("Data padding ... ")
     x_train = sequence.pad_sequences(x_train, maxlen=max_len)
     x_test = sequence.pad_sequences(x_test, maxlen=max_len)
-    print("Data masking ... ")
     x_train_masks = tf.equal(x_train, 0)
     x_test_masks = tf.equal(x_test, 0)
-    print("labels one-hot ... ")
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
     
