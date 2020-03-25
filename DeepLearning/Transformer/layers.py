@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-24 22:43:57
+@LastEditTime: 2020-03-25 17:22:39
 '''
 from __future__ import print_function
 
@@ -19,32 +19,29 @@ from tensorflow.keras.layers import Layer
 
 class Embedding(Layer):
 
-    def __init__(self, input_dim, output_dim, 
-                    initializer='glorot_uniform',
-                    **kwargs):
-        self._input_dim = input_dim
-        self._output_dim = output_dim
-        self._initializer = initializer
+    def __init__(self, vocab_size, model_dim, **kwargs):
+        self._vocab_size = vocab_size
+        self._model_dim = model_dim
         super(Embedding, self).__init__(**kwargs)
 
 
     def build(self, input_shape):
         self.embeddings = self.add_weight(
-            shape=(self._input_dim, self._output_dim),
-            initializer=self._initializer,
+            shape=(self._vocab_size, self._model_dim),
+            initializer='glorot_uniform',
             name="embeddings")
         super(Embedding, self).build(input_shape)
-
 
     def call(self, inputs):
         if K.dtype(inputs) != 'int32':
             inputs = K.cast(inputs, 'int32')
-        out = K.gather(self.embeddings, inputs)
-        return out
+        embeddings = K.gather(self.embeddings, inputs)
+        embeddings *= self._model_dim ** 0.5 # Scale
+        return embeddings
 
     def compute_output_shape(self, input_shape):
 
-        return input_shape + (self._output_dim,)
+        return input_shape + (self._model_dim,)
 
 
 class PositionEncoding(Layer):
@@ -89,7 +86,7 @@ class ScaledDotProductAttention(Layer):
         tril = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  
         future_masks = tf.tile(tf.expand_dims(tril, 0), [tf.shape(inputs)[0], 1, 1])
         paddings = tf.ones_like(future_masks) * self._masking_num
-        outputs = tf.where(tf.equal(future_masks, 0), paddings, inputs)  
+        outputs = tf.where(tf.equal(future_masks, 0), paddings, inputs)
         return outputs
 
     def call(self, inputs):
@@ -254,3 +251,52 @@ class LayerNormalization(Layer):
         return input_shape
 
 
+class Add(Layer):
+
+    def __init__(self, **kwargs):
+        super(Add, self).__init__(**kwargs)
+
+    def call(self, inputs):
+        input_a, input_b = inputs
+        return input_a + input_b
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[0]
+
+
+if __name__ == "__main__":
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Input, Dense, Dropout
+    from tensorflow.keras.optimizers import Adam
+    from tensorflow.keras.datasets import imdb
+    from tensorflow.keras.preprocessing import sequence
+    from tensorflow.keras.utils import to_categorical
+
+    vocab_size = 5000
+    max_len = 256
+    model_dim = 512
+    batch_size = 256
+    epochs = 20
+
+    inputs = Input(shape=(max_len,), name="inputs")
+    masks = Input(shape=(max_len,), name='masks')
+    embeddings = Embedding(vocab_size, model_dim)(inputs)
+    encodings = PositionEncoding(model_dim)(embeddings)
+    encodings = Add()([embeddings, encodings])
+    x = MultiHeadAttention(8, 64)([encodings, encodings, encodings, masks])
+    x = Dropout(0.2)(x)
+    x = Dense(10, activation='relu')(x)
+    outputs = Dense(2, activation='softmax')(x)
+
+    model = Model(inputs=[inputs, masks], outputs=outputs)
+    model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
+        loss='categorical_crossentropy', metrics=['accuracy'])
+
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
+    x_train = sequence.pad_sequences(x_train, maxlen=max_len)
+    x_test = sequence.pad_sequences(x_test, maxlen=max_len)
+    x_train_masks = np.array([tf.equal(x, 0) for x in x_train])
+    x_test_masks = np.array([tf.equal(x, 0) for x in x_test])
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
+    model.fit([x_train, x_train_masks], y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
