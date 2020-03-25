@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 18:05:37
+@LastEditTime: 2020-03-25 18:15:35
 '''
 from __future__ import print_function
 
@@ -278,8 +278,8 @@ if __name__ == "__main__":
     vocab_size = 5000
     max_len = 256
     model_dim = 512
-    batch_size = 256
-    epochs = 20
+    batch_size = 128
+    epochs = 10
     
     print("Data downloading and pre-processing ... ")
     (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
@@ -310,3 +310,6 @@ if __name__ == "__main__":
     es = EarlyStopping(patience=5)
     model.fit([x_train, x_train_masks], y_train, 
         batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[es])
+
+    test_metrics = model.evaluate(x_test, y_test, batch_size=batch_size)
+    print(test_metrics)
