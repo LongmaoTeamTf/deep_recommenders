@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 17:35:58
+@LastEditTime: 2020-03-25 17:51:05
 '''
 from __future__ import print_function
 
@@ -293,12 +293,15 @@ if __name__ == "__main__":
     model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
         loss='categorical_crossentropy', metrics=['accuracy'])
     
-    print("Data downloading and processing ... ")
+    print("Data downloading ... ")
     (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
+    print("Data padding ... ")
     x_train = sequence.pad_sequences(x_train, maxlen=max_len)
     x_test = sequence.pad_sequences(x_test, maxlen=max_len)
+    print("Data masking ... ")
     x_train_masks = np.array([tf.equal(x, 0) for x in x_train])
     x_test_masks = np.array([tf.equal(x, 0) for x in x_test])
+    print("labels one-hot ... ")
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
     
