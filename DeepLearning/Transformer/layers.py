@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 18:15:35
+@LastEditTime: 2020-03-25 18:18:39
 '''
 from __future__ import print_function
 
@@ -311,5 +311,5 @@ if __name__ == "__main__":
     model.fit([x_train, x_train_masks], y_train, 
         batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[es])
 
-    test_metrics = model.evaluate(x_test, y_test, batch_size=batch_size)
+    test_metrics = model.evaluate([x_test, x_test_masks], y_test, batch_size=batch_size)
     print(test_metrics)
