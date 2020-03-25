@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 17:51:05
+@LastEditTime: 2020-03-25 17:52:51
 '''
 from __future__ import print_function
 
@@ -299,8 +299,8 @@ if __name__ == "__main__":
     x_train = sequence.pad_sequences(x_train, maxlen=max_len)
     x_test = sequence.pad_sequences(x_test, maxlen=max_len)
     print("Data masking ... ")
-    x_train_masks = np.array([tf.equal(x, 0) for x in x_train])
-    x_test_masks = np.array([tf.equal(x, 0) for x in x_test])
+    x_train_masks = tf.equal(x_train, 0)
+    x_test_masks = tf.equal(x_test, 0)
     print("labels one-hot ... ")
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
