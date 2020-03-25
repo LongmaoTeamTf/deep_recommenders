@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 17:57:51
+@LastEditTime: 2020-03-25 18:01:12
 '''
 from __future__ import print_function
 
@@ -266,7 +266,7 @@ class Add(Layer):
 
 if __name__ == "__main__":
     from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Input, Dense, Dropout
+    from tensorflow.keras.layers import Input, Dense, Dropout, GlobalAveragePooling1D
     from tensorflow.keras.optimizers import Adam
     from tensorflow.keras.datasets import imdb
     from tensorflow.keras.preprocessing import sequence
@@ -296,6 +296,7 @@ if __name__ == "__main__":
     encodings = PositionEncoding(model_dim)(embeddings)
     encodings = Add()([embeddings, encodings])
     x = MultiHeadAttention(8, 64)([encodings, encodings, encodings, masks])
+    x = GlobalAveragePooling1D()(x)
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
     outputs = Dense(2, activation='softmax')(x)
