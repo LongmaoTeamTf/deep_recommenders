@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 18:26:26
+@LastEditTime: 2020-03-25 19:00:16
 '''
 from __future__ import print_function
 
@@ -23,7 +23,6 @@ class Embedding(Layer):
         self._vocab_size = vocab_size
         self._model_dim = model_dim
         super(Embedding, self).__init__(**kwargs)
-
 
     def build(self, input_shape):
         self.embeddings = self.add_weight(
@@ -123,9 +122,10 @@ class ScaledDotProductAttention(Layer):
 
 class MultiHeadAttention(Layer):
 
-    def __init__(self, n_heads, head_dim, masking=True, future=False, trainable=True, **kwargs):
+    def __init__(self, n_heads, head_dim, dropout_rate=.1, masking=True, future=False, trainable=True, **kwargs):
         self._n_heads = n_heads
         self._head_dim = head_dim
+        self._dropout_rate = dropout_rate
         self._masking = masking
         self._future = future
         self._trainable = trainable
@@ -171,7 +171,8 @@ class MultiHeadAttention(Layer):
         else:
             att_inputs = [queries_multi_heads, keys_multi_heads, values_multi_heads]
             
-        attention = ScaledDotProductAttention(masking=self._masking, future=self._future)
+        attention = ScaledDotProductAttention(
+            masking=self._masking, future=self._future, dropout_rate=self._dropout_rate)
         att_out = attention(att_inputs)
 
         outputs = tf.concat(tf.split(att_out, self._n_heads, axis=0), axis=2)
@@ -280,7 +281,7 @@ if __name__ == "__main__":
     model_dim = 512
     batch_size = 128
     epochs = 10
-    
+
     print("Data downloading and pre-processing ... ")
     (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
     x_train = sequence.pad_sequences(x_train, maxlen=max_len)
@@ -289,7 +290,7 @@ if __name__ == "__main__":
     x_test_masks = tf.equal(x_test, 0)
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
-    
+
     print('Model building ... ')
     inputs = Input(shape=(max_len,), name="inputs")
     masks = Input(shape=(max_len,), name='masks')
