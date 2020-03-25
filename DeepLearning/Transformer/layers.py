@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-22 17:48:05
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-25 17:52:51
+@LastEditTime: 2020-03-25 17:54:27
 '''
 from __future__ import print_function
 
@@ -277,7 +277,19 @@ if __name__ == "__main__":
     model_dim = 512
     batch_size = 256
     epochs = 20
-
+    
+    print("Data downloading ... ")
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
+    print("Data padding ... ")
+    x_train = sequence.pad_sequences(x_train, maxlen=max_len)
+    x_test = sequence.pad_sequences(x_test, maxlen=max_len)
+    print("Data masking ... ")
+    x_train_masks = tf.equal(x_train, 0)
+    x_test_masks = tf.equal(x_test, 0)
+    print("labels one-hot ... ")
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
+    
     print('Model building ... ')
     inputs = Input(shape=(max_len,), name="inputs")
     masks = Input(shape=(max_len,), name='masks')
@@ -292,18 +304,6 @@ if __name__ == "__main__":
     model = Model(inputs=[inputs, masks], outputs=outputs)
     model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
         loss='categorical_crossentropy', metrics=['accuracy'])
-    
-    print("Data downloading ... ")
-    (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_len, num_words=vocab_size)
-    print("Data padding ... ")
-    x_train = sequence.pad_sequences(x_train, maxlen=max_len)
-    x_test = sequence.pad_sequences(x_test, maxlen=max_len)
-    print("Data masking ... ")
-    x_train_masks = tf.equal(x_train, 0)
-    x_test_masks = tf.equal(x_test, 0)
-    print("labels one-hot ... ")
-    y_train = to_categorical(y_train)
-    y_test = to_categorical(y_test)
-    
+
     print("Model Training ... ")
     model.fit([x_train, x_train_masks], y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
