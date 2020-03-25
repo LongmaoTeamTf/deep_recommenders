@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-24 22:46:24
+@LastEditTime: 2020-03-25 14:18:28
 '''
 import os
 import numpy as np
@@ -19,20 +19,15 @@ from layers import LayerNormalization
 
 class Transformer(tf.keras.layers.Layer):
 
-    def __init__(self, 
-            vocab_size, 
-            model_dim, 
-            n_heads=8, 
-            encoder_stack=6, 
-            decoder_stack=6, 
-            feed_forward_size=2048, **kwargs):
+    def __init__(self, vocab_size, model_dim, 
+            n_heads=8, encoder_stack=6, decoder_stack=6, feed_forward_size=2048, dropout_rate=0.1, **kwargs):
         self._vocab_size = vocab_size
         self._model_dim = model_dim
         self._n_heads = n_heads
         self._encoder_stack = encoder_stack
         self._decoder_stack = decoder_stack
         self._feed_forward_size = feed_forward_size
-        
+        self._dropout_rate = dropout_rate
         super(Transformer, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -56,6 +51,8 @@ class Transformer(tf.keras.layers.Layer):
         position_encodings = PositionEncoding(self._model_dim)(embeddings_out)
         # Embedings + Postion-encodings
         encodings = embeddings_out + position_encodings
+        # Dropout
+        encodings = K.dropout(encodings, self._dropout_rate)
 
         for i in range(self._encoder_stack):
             # Multi-head-Attention
@@ -88,6 +85,8 @@ class Transformer(tf.keras.layers.Layer):
         position_encodings = PositionEncoding(self._model_dim)(embeddings_out)
         # Embedings + Postion-encodings
         encodings = embeddings_out + position_encodings
+        # Dropout
+        encodings = K.dropout(encodings, self._dropout_rate)
         
         for i in range(self._decoder_stack):
             # Masked-Multi-head-Attention
