@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:05:00
+@LastEditTime: 2020-03-26 18:06:28
 '''
 import os
 import re
@@ -70,9 +70,9 @@ model.compile(
     loss='categorical_crossentropy', metrics=['accuracy'])
 
 print("Model Training ... ")
-noam = Noam(model_dim, )
+noam = Noam(model_dim)
 model.fit([question_inputs, answer_inputs], decoder_targets, 
-    batch_size=batch_size, epochs=epochs, validation_split=.2, callbacks=[Noam])
+    batch_size=batch_size, epochs=epochs, validation_split=.2, callbacks=[noam])
 
 
     
