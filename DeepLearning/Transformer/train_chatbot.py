@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 16:53:22
+@LastEditTime: 2020-03-26 17:55:40
 '''
 import os
 import re
@@ -17,6 +17,8 @@ from tensorflow.keras.optimizers import Adam
 from transformer import Transformer, Noam, label_smoothing
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 dialogs_path = "xiaohuangji50w_fenciA.conv"
 dialogs_size = 20000
@@ -50,12 +52,14 @@ def load_data(data_path, dialogs_size, vocab_size=5000, max_len=10):
             if index == 0: break
     return questions_seqs, answers_seqs, decoder_targets
 
-
+print("Data loading and tokenizing ... ")
 encoder_inputs, decoder_inputs, decoder_targets = load_data(
     dialogs_path, dialogs_size, vocab_size=vocab_size, max_len=max_seq_len)
 
+print("Label smoothing ... ")
 decoder_targets = label_smoothing(decoder_targets)
 
+print("Model Building ... ")
 encoder_inputs = Input(shape=(max_seq_len,), name='encoder_inputs')
 decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
 outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
@@ -64,7 +68,8 @@ model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 model.compile(
     optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
     loss='categorical_crossentropy', metrics=['accuracy'])
-    
+
+print("Model Training ... ")
 model.fit(
     [encoder_inputs, decoder_inputs], decoder_targets, 
     batch_size=batch_size, epochs=epochs, validation_split=.2, callbacks=[Noam])
