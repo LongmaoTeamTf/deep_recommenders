@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 17:59:26
+@LastEditTime: 2020-03-26 18:02:12
 '''
 import os
 import re
@@ -53,7 +53,7 @@ def load_data(data_path, dialogs_size, vocab_size=5000, max_len=10):
     return questions_seqs, answers_seqs, decoder_targets
 
 print("Data loading and tokenizing ... ")
-encoder_inputs, decoder_inputs, decoder_targets = load_data(
+question_inputs, answer_inputs, decoder_targets = load_data(
     dialogs_path, dialogs_size, vocab_size=vocab_size, max_len=max_seq_len)
 
 print("Label smoothing ... ")
@@ -70,9 +70,8 @@ model.compile(
     loss='categorical_crossentropy', metrics=['accuracy'])
 
 print("Model Training ... ")
-model.fit(
-    [encoder_inputs, decoder_inputs], decoder_targets, 
-    batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[Noam])
+model.fit([question_inputs, answer_inputs], decoder_targets, 
+    batch_size=batch_size, epochs=epochs, validation_split=.2, callbacks=[Noam])
 
 
     
