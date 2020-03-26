@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 15:02:44
+@LastEditTime: 2020-03-26 18:05:44
 '''
 import os
 import numpy as np
@@ -130,7 +130,7 @@ class Transformer(tf.keras.layers.Layer):
 
 class Noam(Callback):
 
-    def __init__(self, model_dim, step_num, warmup_steps=4000, verbose=False, **kwargs):
+    def __init__(self, model_dim, step_num=0, warmup_steps=4000, verbose=False, **kwargs):
         self._model_dim = model_dim
         self._step_num = step_num
         self._warmup_steps = warmup_steps
