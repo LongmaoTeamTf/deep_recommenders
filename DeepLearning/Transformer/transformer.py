@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:08:59
+@LastEditTime: 2020-03-26 18:17:17
 '''
 import os
 import numpy as np
@@ -14,7 +14,7 @@ import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import Callback
 from layers import PositionEncoding
 from layers import MultiHeadAttention, PositionWiseFeedForward
-from layers import LayerNormalization
+from layers import Add, LayerNormalization
 
 
 class Transformer(tf.keras.layers.Layer):
@@ -45,12 +45,12 @@ class Transformer(tf.keras.layers.Layer):
 
         masks = K.equal(inputs, 0)
         # Embeddings
-        embeddings_out = K.gather(self.embeddings, inputs)
-        embeddings_out *= self._model_dim ** 0.5 # Scale
+        embeddings = K.gather(self.embeddings, inputs)
+        embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
-        position_encodings = PositionEncoding(self._model_dim)(embeddings_out)
+        position_encodings = PositionEncoding(self._model_dim)(embeddings)
         # Embedings + Postion-encodings
-        encodings = embeddings_out + position_encodings
+        encodings = Add()([embeddings, position_encodings])
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
 
@@ -79,12 +79,12 @@ class Transformer(tf.keras.layers.Layer):
 
         decoder_masks = K.equal(decoder_inputs, 0)
         # Embeddings
-        embeddings_out = K.gather(self.embeddings, decoder_inputs)
-        embeddings_out *= self._model_dim ** 0.5 # Scale
+        embeddings = K.gather(self.embeddings, decoder_inputs)
+        embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
-        position_encodings = PositionEncoding(self._model_dim)(embeddings_out)
+        position_encodings = PositionEncoding(self._model_dim)(embeddings)
         # Embedings + Postion-encodings
-        encodings = embeddings_out + position_encodings
+        encodings = Add()([embeddings, position_encodings])
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
         
