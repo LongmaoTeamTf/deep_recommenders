@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:17:17
+@LastEditTime: 2020-03-26 18:23:56
 '''
 import os
 import numpy as np
@@ -51,6 +51,7 @@ class Transformer(tf.keras.layers.Layer):
         position_encodings = PositionEncoding(self._model_dim)(embeddings)
         # Embedings + Postion-encodings
         encodings = Add()([embeddings, position_encodings])
+        print(encodings)
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
 
