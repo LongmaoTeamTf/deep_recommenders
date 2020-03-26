@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 17:55:40
+@LastEditTime: 2020-03-26 17:59:26
 '''
 import os
 import re
@@ -72,7 +72,7 @@ model.compile(
 print("Model Training ... ")
 model.fit(
     [encoder_inputs, decoder_inputs], decoder_targets, 
-    batch_size=batch_size, epochs=epochs, validation_split=.2, callbacks=[Noam])
+    batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[Noam])
 
 
     
