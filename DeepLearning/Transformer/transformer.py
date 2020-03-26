@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:27:42
+@LastEditTime: 2020-03-26 19:24:47
 '''
 import os
 import numpy as np
@@ -16,6 +16,7 @@ from layers import PositionEncoding
 from layers import MultiHeadAttention, PositionWiseFeedForward
 from layers import Add, LayerNormalization
 
+tf.config.experimental_run_functions_eagerly(True)
 
 class Transformer(tf.keras.layers.Layer):
 
@@ -51,7 +52,6 @@ class Transformer(tf.keras.layers.Layer):
         position_encodings = PositionEncoding(self._model_dim)(embeddings)
         # Embedings + Postion-encodings
         encodings = embeddings + position_encodings
-        print(encodings)
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
 
@@ -126,7 +126,7 @@ class Transformer(tf.keras.layers.Layer):
 
 
     def compute_output_shape(self, input_shape):
-        return input_shape
+        return  (input_shape[0][0], input_shape[0][1], self._vocab_size)
 
 
 class Noam(Callback):

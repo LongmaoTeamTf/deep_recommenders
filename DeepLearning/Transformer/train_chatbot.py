@@ -5,12 +5,13 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:06:28
+@LastEditTime: 2020-03-26 19:24:32
 '''
 import os
 import re
 import requests
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
 from tensorflow.keras.optimizers import Adam
@@ -41,9 +42,9 @@ def load_data(data_path, dialogs_size, vocab_size=5000, max_len=10):
     tokenizer = Tokenizer(num_words=vocab_size)
     tokenizer.fit_on_texts(questions + answers)
     questions_seqs = tokenizer.texts_to_sequences(questions)
-    questions_seqs = pad_sequences(questions_seqs, maxlen=max_len, padding='post')
+    questions_seqs = pad_sequences(questions_seqs, maxlen=max_len)
     answers_seqs = tokenizer.texts_to_sequences(answers)
-    answers_seqs = pad_sequences(answers_seqs, maxlen=max_len, padding='post')
+    answers_seqs = pad_sequences(answers_seqs, maxlen=max_len)
     
     decoder_targets = np.zeros((len(answers_seqs), max_len, vocab_size), dtype='float32')
     for i, seq in enumerate(answers_seqs):
@@ -65,8 +66,7 @@ decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
 outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
 model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
-model.compile(
-    optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
+model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
     loss='categorical_crossentropy', metrics=['accuracy'])
 
 print("Model Training ... ")
