@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 18:05:44
+@LastEditTime: 2020-03-26 18:08:59
 '''
 import os
 import numpy as np
@@ -150,12 +150,12 @@ class Noam(Callback):
 
     def on_epoch_begin(self, epoch, logs=None):
         if self.verbose:
-            lrate = K.get_value(K.model.optimizer.lr)
+            lrate = K.get_value(self.model.optimizer.lr)
             print(f"epoch {epoch} lr: {lrate}")
     
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
-        logs['lr'] = K.get_value(K.model.optimizer.lr)
+        logs['lr'] = K.get_value(self.model.optimizer.lr)
     
 
 def label_smoothing(inputs, epsilon=0.1):
