@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-23 19:42:15
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 19:24:47
+@LastEditTime: 2020-03-27 17:50:33
 '''
 import os
 import numpy as np
@@ -171,9 +171,13 @@ if __name__ == "__main__":
     from tensorflow.keras.layers import Input
     from tensorflow.keras.utils import plot_model
 
-    encoder_inputs = Input(shape=(256,), name='encoder_inputs')
-    decoder_inputs = Input(shape=(256,), name='decoder_inputs')
-    outputs = Transformer(1000, 512)([encoder_inputs, decoder_inputs])
+    vocab_size = 5000
+    max_seq_len = 256
+    model_dim = 512
+
+    encoder_inputs = Input(shape=(max_seq_len,), name='encoder_inputs')
+    decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
+    outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
     model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
     model.summary()
