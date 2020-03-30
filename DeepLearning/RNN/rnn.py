@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-30 18:44:56
+@LastEditTime: 2020-03-30 20:12:11
 '''
 import os
 import numpy as np
@@ -43,10 +43,20 @@ class Embedding(Layer):
 
 class RNN(Layer):
     
-    def __init__(self, kernel_dim, **kwargs):
+    def __init__(self, 
+            kernel_dim,
+            activation='tanh',
+            return_ots=False, 
+            return_state=False,
+            use_bias=True,
+            **kwargs):
         super(RNN, self).__init__(**kwargs)
         self._kernel_dim = kernel_dim
-
+        self._activation = activation
+        self._return_ots = return_ots
+        self._return_state = return_state
+        self._use_bias = use_bias
+        
     def build(self, input_shape):
         input_dim = input_shape[-1]
         self.U = self.add_weight(
@@ -64,30 +74,46 @@ class RNN(Layer):
             initializer='glorot_uniform',
             trainable=True,
             name='weights_output')
-        self.b = self.add_weight(
-            shape=(self._kernel_dim),
-            initializer='zeros',
-            trainable=True,
-            name='bias_b')
-        self.c = self.add_weight(
-            shape=(self._kernel_dim),
-            initializer='zeros',
-            trainable=True,
-            name='bias_c')
+        if self._use_bias:
+            self.b = self.add_weight(
+                shape=(self._kernel_dim),
+                initializer='zeros',
+                trainable=True,
+                name='bias_b')
+            self.c = self.add_weight(
+                shape=(self._kernel_dim),
+                initializer='zeros',
+                trainable=True,
+                name='bias_c')
         super(RNN, self).build(input_shape)
 
     def call(self, inputs):
         h_t = K.zeros((1, self._kernel_dim))
-        outputs, states = [], []
+        ots = []
         for t in range(inputs.shape[1]):
             x_t = K.expand_dims(inputs[:, t, :], 1)
-            a_t = K.dot(x_t, self.U) + K.dot(h_t, self.W) + self.b
-            h_t = K.tanh(a_t)
-            o_t = K.dot(h_t, self.V) + self.c
+            a_t = K.dot(x_t, self.U) + K.dot(h_t, self.W)
+            if self._use_bias: a_t += self.b
+            
+            if self._activation == 'tanh':
+                h_t = K.tanh(a_t)
+            elif self._activation == 'relu':
+                h_t = K.relu(a_t)
+            elif self._activation == 'sigmoid':
+                h_t = K.sigmoid(a_t)
+            else:
+                raise ValueError(f'undefined activation `{self._activation}` function.')
+            o_t = K.dot(h_t, self.V)
+            if self._use_bias: o_t += self.c
             y_t = K.softmax(o_t)
-            outputs.append(y_t)
-            states.append(h_t)
-        return outputs, states
+            ots.append(y_t)
+        if self._return_ots:
+            outputs = ots
+        if self._return_state:
+            outputs = h_t
+        if self._return_ots and self._return_state:
+            outputs = [ots, h_t]
+        return outputs
 
     def compute_output_shape(self, input_shape):
         return [input_shape[:-1] + (self._kernel_dim,), 
@@ -107,7 +133,7 @@ if __name__ == "__main__":
 
     vocab_size = 5000
     max_len = 256
-    model_dim = 512
+    model_dim = 64
     batch_size = 128
     epochs = 10
 
@@ -121,8 +147,8 @@ if __name__ == "__main__":
     print('Model building ... ')
     inputs = Input(shape=(max_len,), name="inputs")
     embeddings = Embedding(vocab_size, model_dim)(inputs)
-    outputs, states = RNN(64)(embeddings)
-    x = GlobalAveragePooling1D()(outputs[-1])
+    ots = RNN(model_dim, return_ots=True)(embeddings)
+    x = GlobalAveragePooling1D()(ots[-1])
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
     outputs = Dense(2, activation='softmax')(x)
