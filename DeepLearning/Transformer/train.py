@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-25 13:55:59
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-26 19:24:32
+@LastEditTime: 2020-03-30 15:32:27
 '''
 import os
 import re
@@ -18,6 +18,7 @@ from tensorflow.keras.optimizers import Adam
 from transformer import Transformer, Noam, label_smoothing
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from nltk.translate.bleu_score import sentence_bleu
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -67,7 +68,7 @@ outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
 model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
 model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
-    loss='categorical_crossentropy', metrics=['accuracy'])
+    loss='categorical_crossentropy', metrics=[sentence_bleu])
 
 print("Model Training ... ")
 noam = Noam(model_dim)
