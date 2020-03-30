@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-30 20:12:11
+@LastEditTime: 2020-03-30 22:13:52
 '''
 import os
 import numpy as np
@@ -94,7 +94,7 @@ class RNN(Layer):
             x_t = K.expand_dims(inputs[:, t, :], 1)
             a_t = K.dot(x_t, self.U) + K.dot(h_t, self.W)
             if self._use_bias: a_t += self.b
-            
+
             if self._activation == 'tanh':
                 h_t = K.tanh(a_t)
             elif self._activation == 'relu':
@@ -107,10 +107,11 @@ class RNN(Layer):
             if self._use_bias: o_t += self.c
             y_t = K.softmax(o_t)
             ots.append(y_t)
+        outputs = ots[-1]
         if self._return_ots:
             outputs = ots
         if self._return_state:
-            outputs = h_t
+            outputs = [ots[-1], h_t]
         if self._return_ots and self._return_state:
             outputs = [ots, h_t]
         return outputs
@@ -147,8 +148,8 @@ if __name__ == "__main__":
     print('Model building ... ')
     inputs = Input(shape=(max_len,), name="inputs")
     embeddings = Embedding(vocab_size, model_dim)(inputs)
-    ots = RNN(model_dim, return_ots=True)(embeddings)
-    x = GlobalAveragePooling1D()(ots[-1])
+    ots = RNN(model_dim)(embeddings)
+    x = GlobalAveragePooling1D()(ots)
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
     outputs = Dense(2, activation='softmax')(x)
