@@ -5,13 +5,15 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-30 22:13:52
+@LastEditTime: 2020-03-30 22:51:45
 '''
 import os
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
+from tensorflow.keras import activations
 from tensorflow.keras.layers import Layer
+
 
 tf.config.experimental_run_functions_eagerly(True)
 
@@ -52,7 +54,7 @@ class RNN(Layer):
             **kwargs):
         super(RNN, self).__init__(**kwargs)
         self._kernel_dim = kernel_dim
-        self._activation = activation
+        self._activation = activations.get(activation)
         self._return_ots = return_ots
         self._return_state = return_state
         self._use_bias = use_bias
@@ -95,14 +97,9 @@ class RNN(Layer):
             a_t = K.dot(x_t, self.U) + K.dot(h_t, self.W)
             if self._use_bias: a_t += self.b
 
-            if self._activation == 'tanh':
-                h_t = K.tanh(a_t)
-            elif self._activation == 'relu':
-                h_t = K.relu(a_t)
-            elif self._activation == 'sigmoid':
-                h_t = K.sigmoid(a_t)
-            else:
-                raise ValueError(f'undefined activation `{self._activation}` function.')
+            if self._activation is not None:
+                h_t = self._activation(a_t)
+
             o_t = K.dot(h_t, self.V)
             if self._use_bias: o_t += self.c
             y_t = K.softmax(o_t)
