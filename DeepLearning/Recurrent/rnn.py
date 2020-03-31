@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 17:57:08
+@LastEditTime: 2020-03-31 18:47:15
 '''
 import os
 import numpy as np
@@ -16,6 +16,32 @@ from tensorflow.keras.layers import Layer
 
 
 tf.config.experimental_run_functions_eagerly(True)
+
+class Embedding(Layer):
+
+    def __init__(self, vocab_size, model_dim, **kwargs):
+        self._vocab_size = vocab_size
+        self._model_dim = model_dim
+        super(Embedding, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.embeddings = self.add_weight(
+            shape=(self._vocab_size, self._model_dim),
+            initializer='glorot_uniform',
+            name="embeddings")
+        super(Embedding, self).build(input_shape)
+
+    def call(self, inputs):
+        if K.dtype(inputs) != 'int32':
+            inputs = K.cast(inputs, 'int32')
+        embeddings = K.gather(self.embeddings, inputs)
+        embeddings *= self._model_dim ** 0.5 # Scale
+        return embeddings
+
+    def compute_output_shape(self, input_shape):
+
+        return input_shape + (self._model_dim,)
+
 
 class RNN(Layer):
     
@@ -97,7 +123,28 @@ class RNN(Layer):
                     input_shape[:-1] + (self._kernel_dim,)]
 
 
-    
+class Attention(Layer):
+
+    def __init__(self, **kwargs):
+        super(Attention, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.attetion = self.add_weight(
+            shape=(input_shape[1],),
+            initializer='glorot_uniform',
+            trainable=True,
+            name='attetion')
+        super(Attention, self).build(input_shape)
+
+    def call(self, inputs):
+        attetion = K.softmax(self.attetion)
+        outputs = K.dot(attetion, inputs)
+        return outputs
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], input_shape[-1])
+
+
 
 if __name__ == "__main__":
     from tensorflow.keras.models import Model
@@ -107,8 +154,8 @@ if __name__ == "__main__":
     from tensorflow.keras.datasets import imdb
     from tensorflow.keras.preprocessing import sequence
     from tensorflow.keras.utils import to_categorical
-    from .recurrent import BiDirectional
-    from ..Embeddings.embeddings import Embedding
+    from recurrent import BiDirectional
+    # from Embeddings.embeddings import Embedding
     
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -130,8 +177,7 @@ if __name__ == "__main__":
     inputs = Input(shape=(max_len,), name="inputs")
     embeddings = Embedding(vocab_size, model_dim)(inputs)
     outputs = BiDirectional(RNN(model_dim, return_states=True))(embeddings)
-
-    x = GlobalAveragePooling1D()(outputs)
+    x = Attention()(outputs)
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
     outputs = Dense(2, activation='softmax')(x)
