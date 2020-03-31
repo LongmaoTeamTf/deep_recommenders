@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 16:04:42
+@LastEditTime: 2020-03-31 16:11:20
 '''
 import os
 import numpy as np
@@ -94,7 +94,7 @@ class RNN(Layer):
 
     def call(self, inputs):
         h_t = K.zeros((1, self._kernel_dim))
-        ots, hts = []
+        ots, hts = [], []
         for t in range(inputs.shape[1]):
             x_t = K.expand_dims(inputs[:, t, :], 1)
             a_t = K.dot(x_t, self.U) + K.dot(h_t, self.W)
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     print('Model building ... ')
     inputs = Input(shape=(max_len,), name="inputs")
     embeddings = Embedding(vocab_size, model_dim)(inputs)
-    outputs = BiDirectional(RNN(model_dim))(embeddings)
+    outputs = BiDirectional(RNN(model_dim, return_states=True))(embeddings)
     x = GlobalAveragePooling1D()(outputs)
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
