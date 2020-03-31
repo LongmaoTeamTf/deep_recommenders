@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-30 22:51:45
+@LastEditTime: 2020-03-31 14:19:35
 '''
 import os
 import numpy as np
@@ -71,22 +71,22 @@ class RNN(Layer):
             initializer='glorot_uniform',
             trainable=True,
             name='weights_hidden')
-        self.V = self.add_weight(
-            shape=(self._kernel_dim, self._kernel_dim),
-            initializer='glorot_uniform',
-            trainable=True,
-            name='weights_output')
+        # self.V = self.add_weight(
+        #     shape=(self._kernel_dim, self._kernel_dim),
+        #     initializer='glorot_uniform',
+        #     trainable=True,
+        #     name='weights_output')
         if self._use_bias:
             self.b = self.add_weight(
                 shape=(self._kernel_dim),
                 initializer='zeros',
                 trainable=True,
                 name='bias_b')
-            self.c = self.add_weight(
-                shape=(self._kernel_dim),
-                initializer='zeros',
-                trainable=True,
-                name='bias_c')
+            # self.c = self.add_weight(
+            #     shape=(self._kernel_dim),
+            #     initializer='zeros',
+            #     trainable=True,
+            #     name='bias_c')
         super(RNN, self).build(input_shape)
 
     def call(self, inputs):
@@ -100,23 +100,38 @@ class RNN(Layer):
             if self._activation is not None:
                 h_t = self._activation(a_t)
 
-            o_t = K.dot(h_t, self.V)
-            if self._use_bias: o_t += self.c
-            y_t = K.softmax(o_t)
-            ots.append(y_t)
-        outputs = ots[-1]
-        if self._return_ots:
-            outputs = ots
-        if self._return_state:
-            outputs = [ots[-1], h_t]
-        if self._return_ots and self._return_state:
-            outputs = [ots, h_t]
-        return outputs
+            # o_t = K.dot(h_t, self.V)
+            # if self._use_bias: o_t += self.c
+            # y_t = K.softmax(o_t)
+            # ots.append(y_t)
+        # outputs = ots[-1]
+        # if self._return_ots:
+        #     outputs = ots
+        # if self._return_state:
+        #     outputs = [ots[-1], h_t]
+        # if self._return_ots and self._return_state:
+        #     outputs = [ots, h_t]
+        return h_t
 
     def compute_output_shape(self, input_shape):
         return [input_shape[:-1] + (self._kernel_dim,), 
                     input_shape[:-1] + (self._kernel_dim,)]
 
+
+class BiDirectional(Layer):
+    
+    def __init__(self, rnn_cell,  **kwargs):
+        super(BiDirectional, self).__init__(**kwargs)
+        self._rnn_cell = rnn_cell
+
+    def call(self, inputs):
+        return 
+
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+    
 
 if __name__ == "__main__":
     from tensorflow.keras.models import Model
