@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 16:11:20
+@LastEditTime: 2020-03-31 17:29:28
 '''
 import os
 import numpy as np
@@ -140,7 +140,6 @@ class BiDirectional(Layer):
         reverse_inputs = K.reverse(inputs, 1)
         rnn_fw_outputs = self._rnn_cell(inputs)
         rnn_bw_outputs = self._rnn_cell(reverse_inputs)
-        
         if self._return_states:
             if self._return_outputs:
                 _, fw_states = rnn_fw_outputs
@@ -151,10 +150,12 @@ class BiDirectional(Layer):
         else:
             raise ValueError("BiDirectional rnn cell must set `_return_states` to True.")
         
+        fw_states = K.concatenate(fw_states, axis=-2)
+        bw_states = K.concatenate(bw_states, axis=-2)
         fw_states, bw_states = K.reverse(fw_states, 1), K.reverse(bw_states, 1)
-
+        
         if self._merge_mode == 'concat':
-            outputs = K.concatenate([fw_states, bw_states])
+            outputs = K.concatenate([fw_states, bw_states], axis=-1)
         elif self._merge_mode == 'sum':
             outputs = fw_states + bw_states
         elif self._merge_mode == 'ave':
@@ -211,6 +212,7 @@ if __name__ == "__main__":
     inputs = Input(shape=(max_len,), name="inputs")
     embeddings = Embedding(vocab_size, model_dim)(inputs)
     outputs = BiDirectional(RNN(model_dim, return_states=True))(embeddings)
+
     x = GlobalAveragePooling1D()(outputs)
     x = Dropout(0.2)(x)
     x = Dense(10, activation='relu')(x)
