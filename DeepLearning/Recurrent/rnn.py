@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 15:47:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 18:47:15
+@LastEditTime: 2020-03-31 19:02:53
 '''
 import os
 import numpy as np
@@ -138,7 +138,7 @@ class Attention(Layer):
 
     def call(self, inputs):
         attetion = K.softmax(self.attetion)
-        outputs = K.dot(attetion, inputs)
+        outputs = K.dot(attetion, K.transpose(inputs))
         return outputs
 
     def compute_output_shape(self, input_shape):
