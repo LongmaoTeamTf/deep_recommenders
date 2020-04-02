@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-31 17:55:21
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 17:56:08
+@LastEditTime: 2020-04-02 23:25:13
 '''
 import numpy as np
 import tensorflow as tf
@@ -16,9 +16,10 @@ from tensorflow.keras.layers import Layer
 
 class Embedding(Layer):
 
-    def __init__(self, vocab_size, model_dim, **kwargs):
+    def __init__(self, vocab_size, model_dim, scale=True, **kwargs):
         self._vocab_size = vocab_size
         self._model_dim = model_dim
+        self._scale = scale
         super(Embedding, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -32,7 +33,8 @@ class Embedding(Layer):
         if K.dtype(inputs) != 'int32':
             inputs = K.cast(inputs, 'int32')
         embeddings = K.gather(self.embeddings, inputs)
-        embeddings *= self._model_dim ** 0.5 # Scale
+        if self._scale:
+            embeddings *= self._model_dim ** 0.5 # Scale
         return embeddings
 
     def compute_output_shape(self, input_shape):

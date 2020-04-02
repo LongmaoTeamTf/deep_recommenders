@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-02 14:13:11
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 18:21:41
+@LastEditTime: 2020-04-02 23:29:20
 '''
 import os
 import sys
@@ -40,7 +40,7 @@ y_test = to_categorical(y_test)
 
 print('Model building ... ')
 inputs = Input(shape=(max_len,), name="inputs")
-embeddings = Embedding(vocab_size, model_dim)(inputs)
+embeddings = Embedding(vocab_size, model_dim, scale=False)(inputs)
 outputs = BiDirectional(GRU(model_dim, return_outputs=True))(embeddings)
 x = GlobalAveragePooling1D()(outputs)
 x = Dropout(0.2)(x)
