@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 19:37:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 18:24:09
+@LastEditTime: 2020-04-02 18:49:54
 '''
 import numpy as np
 import tensorflow as tf
@@ -20,7 +20,6 @@ class GRU(Layer):
             units, 
             activation='tanh', 
             return_outputs=False,
-            return_states=False,
             use_bias=True, 
             **kwargs):
         self._units = units
@@ -90,7 +89,7 @@ class GRU(Layer):
                 r_t += self.b_r
             z_t = K.sigmoid(z_t)
             r_t = K.sigmoid(r_t)
-            h_t_ = K.dot(x_t, self.W) + K.dot(h_t, self.U)
+            h_t_ = K.dot(x_t, self.W) + K.dot(r_t * h_t, self.U)
             if self._use_bias:
                 h_t_ += self.b
             if self._activation is not None:
