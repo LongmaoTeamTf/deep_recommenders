@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-02 14:13:11
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 16:29:09
+@LastEditTime: 2020-04-02 17:24:19
 '''
 import os
 import sys
@@ -19,6 +19,7 @@ from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.utils import to_categorical
 from Embeddings.embeddings import Embedding
 from rnn import RNN
+from gru import GRU
 from recurrent import BiDirectional
 from attention import Attention
 
@@ -40,7 +41,7 @@ y_test = to_categorical(y_test)
 print('Model building ... ')
 inputs = Input(shape=(max_len,), name="inputs")
 embeddings = Embedding(vocab_size, model_dim)(inputs)
-outputs = BiDirectional(RNN(model_dim, return_outputs=True))(embeddings)
+outputs = BiDirectional(GRU(model_dim, return_outputs=True))(embeddings)
 x = GlobalAveragePooling1D()(outputs)
 x = Dropout(0.2)(x)
 x = Dense(10, activation='relu')(x)
