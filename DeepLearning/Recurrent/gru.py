@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 19:37:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 18:02:56
+@LastEditTime: 2020-04-02 18:04:04
 '''
 import numpy as np
 import tensorflow as tf
@@ -95,7 +95,7 @@ class GRU(Layer):
             if self._use_bias:
                 h_t_ += self.b
             if self._activation is not None:
-                h_t_ = self.activation(h_t_)
+                h_t_ = self._activation(h_t_)
             h_t = (1 - z_t) * h_t + z_t * h_t_
             states.append(h_t)
         outputs = h_t
