@@ -5,15 +5,14 @@
 @Author: Wang Yao
 @Date: 2020-03-31 17:51:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-03-31 17:52:17
+@LastEditTime: 2020-04-02 14:27:08
 '''
-import os
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
-from tensorflow.keras import activations
 from tensorflow.keras.layers import Layer
 
+tf.config.experimental_run_functions_eagerly(True)
 
 class BiDirectional(Layer):
     
