@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-02 14:13:11
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 14:40:27
+@LastEditTime: 2020-04-02 16:29:09
 '''
 import os
 import sys
@@ -40,8 +40,8 @@ y_test = to_categorical(y_test)
 print('Model building ... ')
 inputs = Input(shape=(max_len,), name="inputs")
 embeddings = Embedding(vocab_size, model_dim)(inputs)
-outputs = BiDirectional(RNN(model_dim, return_states=True))(embeddings)
-x = Attention()(outputs)
+outputs = BiDirectional(RNN(model_dim, return_outputs=True))(embeddings)
+x = GlobalAveragePooling1D()(outputs)
 x = Dropout(0.2)(x)
 x = Dense(10, activation='relu')(x)
 outputs = Dense(2, activation='softmax')(x)
