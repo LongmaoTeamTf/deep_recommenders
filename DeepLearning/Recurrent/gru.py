@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 19:37:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 17:26:31
+@LastEditTime: 2020-04-02 18:02:56
 '''
 import numpy as np
 import tensorflow as tf
@@ -24,7 +24,7 @@ class GRU(Layer):
             use_bias=True, 
             **kwargs):
         self._units = units
-        self.activation = activations.get(activation)
+        self._activation = activations.get(activation)
         self._return_outputs = return_outputs
         self._use_bias = use_bias
         super(GRU, self).__init__(**kwargs)
