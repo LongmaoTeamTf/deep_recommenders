@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 19:37:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 18:04:04
+@LastEditTime: 2020-04-02 18:24:09
 '''
 import numpy as np
 import tensorflow as tf
@@ -81,8 +81,7 @@ class GRU(Layer):
     def call(self, inputs):
         h_t = K.zeros(shape=(1, self._units))
         states = []
-        max_seq_len = K.shape(inputs)[-2] 
-        for t in range(max_seq_len):
+        for t in range(inputs.shape[1]):
             x_t = K.expand_dims(inputs[:, t, :], 1)
             z_t = K.dot(x_t, self.W_z) + K.dot(h_t, self.U_z)
             r_t = K.dot(x_t, self.W_r) + K.dot(h_t, self.U_r)
@@ -96,10 +95,11 @@ class GRU(Layer):
                 h_t_ += self.b
             if self._activation is not None:
                 h_t_ = self._activation(h_t_)
-            h_t = (1 - z_t) * h_t + z_t * h_t_
+            h_t = (K.ones_like(z_t) - z_t) * h_t + z_t * h_t_
             states.append(h_t)
         outputs = h_t
         if self._return_outputs:
+            states = K.concatenate(states, axis=-2)
             outputs = states, h_t
         return outputs
 
