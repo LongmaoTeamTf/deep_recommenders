@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-03-30 19:37:24
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-02 16:16:43
+@LastEditTime: 2020-04-02 17:26:31
 '''
 import numpy as np
 import tensorflow as tf
@@ -84,14 +84,14 @@ class GRU(Layer):
         max_seq_len = K.shape(inputs)[-2] 
         for t in range(max_seq_len):
             x_t = K.expand_dims(inputs[:, t, :], 1)
-            z_t = K.dot(self.W_z, x_t) + K.dot(self.U_z, h_t)
-            r_t = K.dot(self.W_r, x_t) + K.dot(self.U_r, h_t)
+            z_t = K.dot(x_t, self.W_z) + K.dot(h_t, self.U_z)
+            r_t = K.dot(x_t, self.W_r) + K.dot(h_t, self.U_r)
             if self._use_bias:
                 z_t += self.b_z
                 r_t += self.b_r
             z_t = K.sigmoid(z_t)
             r_t = K.sigmoid(r_t)
-            h_t_ = K.dot(self.W, x_t) + K.dot(self.U, h_t)
+            h_t_ = K.dot(x_t, self.W) + K.dot(h_t, self.U)
             if self._use_bias:
                 h_t_ += self.b
             if self._activation is not None:
