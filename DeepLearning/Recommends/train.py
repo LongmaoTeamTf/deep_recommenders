@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-26 19:13:50
+@LastEditTime: 2020-04-26 19:23:40
 """
 import numpy as np
 import pandas as pd
@@ -19,6 +19,10 @@ from deepfm import LR
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
     
+gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
 
 def data_preparing(filepath, n_samples=50000):
     data = []
