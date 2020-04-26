@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-26 22:49:31
+@LastEditTime: 2020-04-26 23:00:12
 """
 import numpy as np
 import pandas as pd
@@ -13,6 +13,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.callbacks import EarlyStopping
 from deepfm import EmbeddingLayer
 from deepfm import OneOrder, TwoOrder, HighOrder
 from deepfm import LR
@@ -85,12 +86,18 @@ if __name__ == "__main__":
     targets = df['label'].astype(np.float32).values
     # 构建模型
     model = build_model(integer_cols, categorical_cols, sparse_values_size)
+    model.summary()
     plot_model(model, "deepfm.png")
     # 训练模型
-    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])
+    es = EarlyStopping(patience=5)
+    model.compile(
+        loss="binary_crossentropy", 
+        optimizer="adam", 
+        metrics=['accuracy'])
     model.fit(
         sparse_inputs + dense_inputs, 
         targets, 
         batch_size=256,
         epochs=10, 
-        validation_split=0.2,)
+        validation_split=0.2,
+        callbacks=[es])
