@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-26 19:26:19
+@LastEditTime: 2020-04-26 22:49:31
 """
 import numpy as np
 import pandas as pd
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     filepath = "/home/xddz/code/eyepetizer_recommends/data/dac/train.txt"
     # filepath = "/Users/wangyao/Desktop/eyepetizer/dac/train.txt"
     # 数据准备
-    df, integer_cols, categorical_cols = data_preparing(filepath, n_samples=500000)
+    df, integer_cols, categorical_cols = data_preparing(filepath, n_samples=1000000)
     # 数据处理
     df, sparse_values_size = data_process(df, integer_cols, categorical_cols)
     # 生成训练数据
@@ -93,4 +93,4 @@ if __name__ == "__main__":
         targets, 
         batch_size=256,
         epochs=10, 
-        validation_split=0.2)
+        validation_split=0.2,)
