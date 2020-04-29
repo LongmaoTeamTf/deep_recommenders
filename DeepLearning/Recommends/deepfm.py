@@ -124,9 +124,8 @@ class TwoOrder(Layer):
         cocat_inputs = K.concatenate(exp_inputs, axis=1)
         square_inputs = K.square(K.sum(cocat_inputs, axis=1))        
         sum_inputs = K.sum(K.square(cocat_inputs), axis=1)
-        # outputs = K.dot(square_inputs - sum_inputs, self.output_weight)
-        outputs = K.expand_dims(square_inputs - sum_inputs, axis=1)
-        outputs = K.sum(outputs, axis=1)
+        cross_term = square_inputs - sum_inputs
+        outputs = 0.5 * K.sum(cross_term, axis=1, keepdims=True)
         return outputs
 
     def compute_output_shape(self, input_shape):
