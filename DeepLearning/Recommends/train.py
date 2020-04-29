@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-29 11:39:33
+@LastEditTime: 2020-04-29 11:42:32
 """
 import numpy as np
 import pandas as pd
@@ -74,7 +74,7 @@ def build_model(integer_cols, categorical_cols, sparse_values_size, embedding_di
 
 
 if __name__ == "__main__":
-    filepath = "/home/xddz/code/eyepetizer_recommends/data/dac/train.txt"
+    filepath = "/home/xddz/eyepetizer_data/dac/train.txt"
     # filepath = "/Users/wangyao/Desktop/eyepetizer/data/dac/train.txt"
     # 数据准备
     df, integer_cols, categorical_cols = data_preparing(filepath, n_samples=500000)
