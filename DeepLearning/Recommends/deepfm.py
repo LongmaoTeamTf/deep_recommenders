@@ -42,7 +42,7 @@ class OneOrder(Layer):
 
     def call(self, inputs):
         sparse_inputs, dense_inputs = inputs
-        outputs = 0
+        outputs = 0.
         for i in range(self.n_sparse):
             sparse_w = K.gather(self.sparse_weights[i], sparse_inputs[i])
             outputs += sparse_w[:, 0, :]
@@ -75,7 +75,6 @@ class EmbeddingLayer(Layer):
             self.sparse_weights.append(self.add_weight(
                 shape=(self._sparse_values_size[i], self._embedding_dim),
                 initializer="glorot_uniform",
-                regularizer=regularizers.l2(0.5),
                 trainable=True,
                 name=f'sparse_weights_{i}'))
         self.dense_weights = []
@@ -83,7 +82,6 @@ class EmbeddingLayer(Layer):
             self.dense_weights.append(self.add_weight(
                 shape=(1, self._embedding_dim),
                 initializer="glorot_uniform",
-                regularizer=regularizers.l2(0.5),
                 trainable=True,
                 name=f'dense_weights_{i}'))
         super(EmbeddingLayer, self).build(input_shape)
@@ -92,10 +90,13 @@ class EmbeddingLayer(Layer):
         sparse_inputs, dense_inputs = inputs
         embeddings = []
         for i in range(self.n_sparse):
-            sparse_w = K.gather(self.sparse_weights[i], sparse_inputs[i])
-            embeddings.append(sparse_w[:, 0, :])
+            sparse_emb = K.gather(self.sparse_weights[i], sparse_inputs[i])
+            sparse_emb = K.l2_normalize(sparse_emb[:, 0, :], axis=-1)
+            embeddings.append(sparse_emb)
         for i in range(self.n_denses):
-            embeddings.append(K.dot(dense_inputs[i], self.dense_weights[i]))
+            dense_emb = K.dot(dense_inputs[i], self.dense_weights[i])
+            dense_emb = K.l2_normalize(dense_emb, axis=-1)
+            embeddings.append(dense_emb)
         return embeddings
 
     def get_config(self):
