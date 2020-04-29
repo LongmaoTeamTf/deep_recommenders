@@ -5,14 +5,16 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-29 13:08:47
+@LastEditTime: 2020-04-29 14:55:12
 """
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow.keras.backend as K
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.metrics import AUC
 from tensorflow.keras.callbacks import EarlyStopping
 from deepfm import EmbeddingLayer
 from deepfm import OneOrder, TwoOrder, HighOrder
@@ -73,6 +75,7 @@ def build_model(integer_cols, categorical_cols, sparse_values_size, embedding_di
     return model
 
 
+
 if __name__ == "__main__":
     filepath = "/home/xddz/eyepetizer_data/dac/train.txt"
     # filepath = "/Users/wangyao/Desktop/eyepetizer/data/dac/train.txt"
@@ -93,7 +96,7 @@ if __name__ == "__main__":
     model.compile(
         loss="binary_crossentropy", 
         optimizer="adam", 
-        metrics=['accuracy'])
+        metrics=[AUC(), 'accuracy'])
     model.fit(
         sparse_inputs + dense_inputs, 
         targets, 
