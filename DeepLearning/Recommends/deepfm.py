@@ -75,7 +75,7 @@ class EmbeddingLayer(Layer):
             self.sparse_weights.append(self.add_weight(
                 shape=(self._sparse_values_size[i], self._embedding_dim),
                 initializer="glorot_uniform",
-                # regularizer=regularizers.l2(0.5),
+                # regularizer="l2",
                 trainable=True,
                 name=f'sparse_weights_{i}'))
         self.dense_weights = []
@@ -83,7 +83,7 @@ class EmbeddingLayer(Layer):
             self.dense_weights.append(self.add_weight(
                 shape=(1, self._embedding_dim),
                 initializer="glorot_uniform",
-                # regularizer=regularizers.l2(0.5),
+                # regularizer="l2",
                 trainable=True,
                 name=f'dense_weights_{i}'))
         super(EmbeddingLayer, self).build(input_shape)
@@ -161,6 +161,7 @@ class HighOrder(Layer):
         outputs = K.concatenate(inputs, axis=1)
         for i in range(self._n_layers):
             outputs = K.dot(outputs, self.weights[i])
+            outputs = K.batch_normalization(outputs)
             outputs = self._activation(outputs)
             outputs = K.dropout(outputs, self._dropout_rate)
         outputs = K.dot(outputs, self.output_weight)
