@@ -183,17 +183,17 @@ class LR(Layer):
     def __init__(self, **kwargs):
         super(LR, self).__init__(**kwargs)
 
-    def build(self, input_shape):
-        self.w = self.add_weight(
-            shape=(3, 1),
-            initializer="glorot_uniform",
-            trainable=True,
-            name='w')
-        super(LR, self).build(input_shape)
+    # def build(self, input_shape):
+    #     self.w = self.add_weight(
+    #         shape=(3, 1),
+    #         initializer="glorot_uniform",
+    #         trainable=True,
+    #         name='w')
+    #     super(LR, self).build(input_shape)
 
     def call(self, inputs):
-        inputs = K.concatenate(inputs, axis=1)
-        outputs = K.dot(inputs, self.w)
+        outputs = K.concatenate(inputs, axis=1)
+        outputs = K.sum(outputs, axis=1, keepdims=True)
         outputs = K.sigmoid(outputs)
         return outputs
 
