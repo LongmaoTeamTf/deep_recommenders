@@ -75,7 +75,7 @@ class EmbeddingLayer(Layer):
             self.sparse_weights.append(self.add_weight(
                 shape=(self._sparse_values_size[i], self._embedding_dim),
                 initializer="glorot_uniform",
-                regularizer=regularizers.l2(0.5),
+                # regularizer=regularizers.l2(0.5),
                 trainable=True,
                 name=f'sparse_weights_{i}'))
         self.dense_weights = []
@@ -111,20 +111,22 @@ class TwoOrder(Layer):
     def __init__(self, **kwargs):
         super(TwoOrder, self).__init__(**kwargs)
 
-    def build(self, input_shape):
-        self.output_weight = self.add_weight(
-            shape=(input_shape[0][-1], 1),
-            initializer="glorot_uniform",
-            trainable=True,
-            name='output_weight')
-        super(TwoOrder, self).build(input_shape)
+    # def build(self, input_shape):
+    #     self.output_weight = self.add_weight(
+    #         shape=(input_shape[0][-1], 1),
+    #         initializer="glorot_uniform",
+    #         trainable=True,
+    #         name='output_weight')
+    #     super(TwoOrder, self).build(input_shape)
 
     def call(self, inputs):
         exp_inputs = [K.expand_dims(x, axis=1) for x in inputs]
         cocat_inputs = K.concatenate(exp_inputs, axis=1)
         square_inputs = K.square(K.sum(cocat_inputs, axis=1))        
-        sum_inputs = K.sum(K.square(cocat_inputs),axis=1)
-        outputs = K.dot(square_inputs - sum_inputs, self.output_weight)
+        sum_inputs = K.sum(K.square(cocat_inputs), axis=1)
+        # outputs = K.dot(square_inputs - sum_inputs, self.output_weight)
+        outputs = K.expand_dims(square_inputs - sum_inputs, axis=1)
+        outputs = K.sum(outputs, axis=1)
         return outputs
 
     def compute_output_shape(self, input_shape):
