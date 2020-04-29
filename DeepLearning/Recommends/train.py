@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-29 16:46:16
+@LastEditTime: 2020-04-29 16:48:40
 """
 import numpy as np
 import pandas as pd
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     es = EarlyStopping(patience=5)
     model.compile(
         loss="binary_crossentropy", 
-        optimizer=Adam(decay=0.01), 
+        optimizer=Adam(decay=0.0001), 
         metrics=[AUC(), 'accuracy'])
     model.fit(
         sparse_inputs + dense_inputs, 
