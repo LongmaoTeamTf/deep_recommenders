@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-29 14:55:12
+@LastEditTime: 2020-04-29 16:46:16
 """
 import numpy as np
 import pandas as pd
@@ -15,6 +15,7 @@ from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.metrics import AUC
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from deepfm import EmbeddingLayer
 from deepfm import OneOrder, TwoOrder, HighOrder
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     es = EarlyStopping(patience=5)
     model.compile(
         loss="binary_crossentropy", 
-        optimizer="adam", 
+        optimizer=Adam(decay=0.01), 
         metrics=[AUC(), 'accuracy'])
     model.fit(
         sparse_inputs + dense_inputs, 
