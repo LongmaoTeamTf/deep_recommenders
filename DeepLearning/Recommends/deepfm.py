@@ -75,7 +75,7 @@ class EmbeddingLayer(Layer):
             self.sparse_weights.append(self.add_weight(
                 shape=(self._sparse_values_size[i], self._embedding_dim),
                 initializer="glorot_uniform",
-                regularizer=regularizers.l2(0.1),
+                regularizer=regularizers.l2(0.5),
                 trainable=True,
                 name=f'sparse_weights_{i}'))
         self.dense_weights = []
@@ -83,7 +83,7 @@ class EmbeddingLayer(Layer):
             self.dense_weights.append(self.add_weight(
                 shape=(1, self._embedding_dim),
                 initializer="glorot_uniform",
-                regularizer=regularizers.l2(0.1),
+                regularizer=regularizers.l2(0.5),
                 trainable=True,
                 name=f'dense_weights_{i}'))
         super(EmbeddingLayer, self).build(input_shape)
