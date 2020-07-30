@@ -32,6 +32,8 @@ def data_preparing(filepath,
                 break
             line = line.strip()
             line_data = line.split("\t")
+            if len(line_data) == 38:
+                print(line_data)
             line_data = [None if x == "" else x for x in line_data]
             data.append(line_data)
             progress.update(1)
@@ -52,7 +54,6 @@ def data_process(data, categorical_cols, numerical_cols):
         data[col] = data[col].fillna("-1")
         data[col] = encoder.fit_transform(data[col])
     for col in numerical_cols:
-        print(col)
         data[col] = data[col].fillna(0.)
         data[col] = data[col].astype(np.float32)
         data[col] = data[col].apply(lambda x: np.log(x+1) if x > -1 else -1)
@@ -115,7 +116,6 @@ def main(_):
                                numerical_cols,
                                n_samples=5000,
                                label=False)
-    print(test_data['I12'].head())
     test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [test_data[col].values for col in categorical_cols]
     test_dense_inputs = [test_data[col].values for col in numerical_cols]
