@@ -51,7 +51,6 @@ def data_process(data, categorical_cols, numerical_cols):
     for col in categorical_cols:
         data[col] = data[col].fillna("-1")
         data[col] = label_encoder.fit_transform(data[col])
-        data[col] = tf.one_hot(data[col], data[col].nunique())
     for col in numerical_cols:
         data[col] = data[col].fillna(0.)
         data[col] = data[col].astype(np.float32)
@@ -104,11 +103,13 @@ def main(_):
                                 numerical_cols,
                                 n_samples=50000)
     train_data = data_process(train_data, categorical_cols, numerical_cols)
-    train_sparse_inputs = [train_data[col].values for col in categorical_cols]
+    train_sparse_inputs = [
+        tf.one_hot(train_data[col].values, train_data[col].nunique())
+        for col in categorical_cols
+    ]
     train_dense_inputs = [train_data[col].values for col in numerical_cols]
     train_inputs = [train_sparse_inputs, train_dense_inputs]
     targets = train_data['label'].astype(np.float32).values
-    print(train_data['C0'].head())
 
     # Test data
     test_data = data_preparing(test_data_fn,
@@ -117,7 +118,10 @@ def main(_):
                                n_samples=5000,
                                label=False)
     test_data = data_process(test_data, categorical_cols, numerical_cols)
-    test_sparse_inputs = [test_data[col].values for col in categorical_cols]
+    test_sparse_inputs = [
+        tf.one_hot(test_data[col].values, test_data[col].nunique())
+        for col in categorical_cols
+    ]
     test_dense_inputs = [test_data[col].values for col in numerical_cols]
     test_inputs = [test_sparse_inputs, test_dense_inputs]
 
