@@ -53,7 +53,7 @@ def data_process(data, categorical_cols, numerical_cols):
     for col in categorical_cols:
         data[col] = data[col].fillna("-1")
         data[col] = label_encoder.fit_transform(data[col])
-        data[col] = one_hot_encoder.fit_transform(data[col])
+        data[col] = one_hot_encoder.fit_transform(data[col].values.reshape(-1, 1))
     for col in numerical_cols:
         data[col] = data[col].fillna(0.)
         data[col] = data[col].astype(np.float32)
