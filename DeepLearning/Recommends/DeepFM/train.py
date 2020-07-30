@@ -14,7 +14,6 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
 from deepfm import build_deepfm
 
 
@@ -49,12 +48,10 @@ def data_preparing(filepath,
 def data_process(data, categorical_cols, numerical_cols):
     """数据处理"""
     label_encoder = LabelEncoder()
-    one_hot_encoder = OneHotEncoder()
     for col in categorical_cols:
         data[col] = data[col].fillna("-1")
         data[col] = label_encoder.fit_transform(data[col])
-        data[col] = one_hot_encoder.fit_transform(
-            data[col].values.reshape(-1, 1)).toarray()
+        data[col] = tf.one_hot(data[col], data[col].nunique())
     for col in numerical_cols:
         data[col] = data[col].fillna(0.)
         data[col] = data[col].astype(np.float32)
