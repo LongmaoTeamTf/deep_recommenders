@@ -52,6 +52,7 @@ def data_process(data, categorical_cols, numerical_cols):
         data[col] = data[col].fillna("-1")
         data[col] = encoder.fit_transform(data[col])
     for col in numerical_cols:
+        print(col)
         data[col] = data[col].fillna(0.)
         data[col] = data[col].astype(np.float32)
         data[col] = data[col].apply(lambda x: np.log(x+1) if x > -1 else -1)
