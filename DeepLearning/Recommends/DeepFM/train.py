@@ -41,15 +41,16 @@ def data_preparing(filepath,
     return data
 
 
-def data_process(data, integer_cols, categorical_cols):
-    for col in integer_cols:
-        data[col] = data[col].fillna(0.)
-        data[col] = data[col].astype(np.float32)
-        data[col] = data[col].apply(lambda x: np.log(x+1) if x > -1 else -1)
+def data_process(data, categorical_cols, numerical_cols):
+    """数据处理"""
     encoder = LabelEncoder()
     for col in categorical_cols:
         data[col] = data[col].fillna("-1")
         data[col] = encoder.fit_transform(data[col])
+    for col in numerical_cols:
+        data[col] = data[col].fillna(0.)
+        data[col] = data[col].astype(np.float32)
+        data[col] = data[col].apply(lambda x: np.log(x+1) if x > -1 else -1)
     return data
 
 
