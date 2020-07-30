@@ -101,7 +101,7 @@ def main(_):
     train_data = data_preparing(train_data_fn,
                                 categorical_cols,
                                 numerical_cols,
-                                n_samples=500)
+                                n_samples=10000)
     train_data = data_process(train_data, categorical_cols, numerical_cols)
     train_sparse_inputs = [
         tf.one_hot(train_data[col].values, train_data[col].nunique())
@@ -115,7 +115,7 @@ def main(_):
     test_data = data_preparing(test_data_fn,
                                categorical_cols,
                                numerical_cols,
-                               n_samples=10,
+                               n_samples=2000,
                                label=False)
     test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [
