@@ -32,7 +32,7 @@ def data_preparing(filepath,
                 break
             line = line.strip()
             line_data = line.split("\t")
-            line_data = [None if x == "" else x for x in line_data ]
+            line_data = [None if x == "" else x for x in line_data]
             data.append(line_data)
             progress.update(1)
             total += 1
@@ -114,6 +114,7 @@ def main(_):
                                numerical_cols,
                                n_samples=5000,
                                label=False)
+    test_data.head()
     test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [test_data[col].values for col in categorical_cols]
     test_dense_inputs = [test_data[col].values for col in numerical_cols]
