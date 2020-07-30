@@ -14,7 +14,7 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
-from .deepfm import build_deepfm
+from deepfm import build_deepfm
 
 
 def data_preparing(filepath,
