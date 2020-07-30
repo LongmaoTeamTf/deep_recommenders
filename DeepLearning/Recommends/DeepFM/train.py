@@ -94,10 +94,10 @@ def main(_):
 
     # Train data
     train_data = data_preparing(train_data_fn,
-                                numerical_cols,
                                 categorical_cols,
+                                numerical_cols,
                                 n_samples=50000)
-    train_data = data_process(train_data, numerical_cols, categorical_cols)
+    train_data = data_process(train_data, categorical_cols, numerical_cols)
     train_sparse_inputs = [train_data[col].values for col in categorical_cols]
     train_dense_inputs = [train_data[col].values for col in numerical_cols]
     train_inputs = [train_sparse_inputs, train_dense_inputs]
@@ -105,10 +105,10 @@ def main(_):
 
     # Test data
     test_data = data_preparing(test_data_fn,
-                               numerical_cols,
                                categorical_cols,
+                               numerical_cols,
                                n_samples=5000)
-    test_data = data_process(test_data, numerical_cols, categorical_cols)
+    test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [test_data[col].values for col in categorical_cols]
     test_dense_inputs = [test_data[col].values for col in numerical_cols]
     test_inputs = [test_sparse_inputs, test_dense_inputs]
