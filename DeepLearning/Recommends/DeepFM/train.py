@@ -20,7 +20,8 @@ from deepfm import build_deepfm
 def data_preparing(filepath,
                    categorical_cols,
                    numerical_cols,
-                   n_samples=50000):
+                   n_samples=50000,
+                   label=True):
     """数据准备"""
     data = []
     total = 1
@@ -37,7 +38,10 @@ def data_preparing(filepath,
             total += 1
     progress.close()
     data = pd.DataFrame(data)
-    data.columns = ["label"] + numerical_cols + categorical_cols
+    if label is True:
+        data.columns = ["label"] + numerical_cols + categorical_cols
+    else:
+        data.columns = numerical_cols + categorical_cols
     return data
 
 
