@@ -304,12 +304,12 @@ def build_deepfm(config, categorical_columns_config, numerical_columns_config):
     )
     _LR = LR()
     categorical_inputs = [
-        tf.keras.layers.Input(shape=(len(conf.get('params'))), name=col)
-        for col, conf in categorical_columns_config.items()
+        tf.keras.layers.Input(shape=(val,), name=col)
+        for col, val in categorical_columns_config.items()
     ]
     numerical_inputs = [
         tf.keras.layers.Input(shape=(1,), name=col)
-        for col, _ in numerical_columns_config.items()
+        for col in numerical_columns_config
     ]
     linear_outputs = _Linear([categorical_inputs, numerical_inputs])
     embeddings = _Embedding([categorical_inputs, numerical_inputs])
