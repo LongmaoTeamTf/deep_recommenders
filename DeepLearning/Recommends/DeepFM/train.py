@@ -30,7 +30,7 @@ def data_preparing(filepath,
         for line in f:
             if total > n_samples:
                 break
-            line = line.strip()
+            line = line.strip('\n')
             line_data = line.split("\t")
             if total == 1:
                 print(line)
