@@ -114,7 +114,7 @@ def main(_):
                                numerical_cols,
                                n_samples=5000,
                                label=False)
-    test_data.head()
+    print(test_data.head())
     test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [test_data[col].values for col in categorical_cols]
     test_dense_inputs = [test_data[col].values for col in numerical_cols]
