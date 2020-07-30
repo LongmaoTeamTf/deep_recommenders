@@ -32,9 +32,6 @@ def data_preparing(filepath,
                 break
             line = line.strip('\n')
             line_data = line.split("\t")
-            if total == 1:
-                print(line)
-                print(line_data)
             line_data = [None if x == "" else x for x in line_data]
             data.append(line_data)
             progress.update(1)
@@ -110,6 +107,7 @@ def main(_):
     train_dense_inputs = [train_data[col].values for col in numerical_cols]
     train_inputs = [train_sparse_inputs, train_dense_inputs]
     targets = train_data['label'].astype(np.float32).values
+    print(train_data['C0'].head())
 
     # Test data
     test_data = data_preparing(test_data_fn,
