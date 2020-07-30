@@ -32,7 +32,8 @@ def data_preparing(filepath,
                 break
             line = line.strip()
             line_data = line.split("\t")
-            if len(line_data) == 38:
+            if total == 1:
+                print(line)
                 print(line_data)
             line_data = [None if x == "" else x for x in line_data]
             data.append(line_data)
