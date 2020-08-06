@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-08-06 17:54:39
+@LastEditTime: 2020-08-06 17:57:03
 """
 import os
 import pathlib
@@ -101,7 +101,7 @@ def main(_):
     train_data = data_preparing(train_data_fn,
                                 categorical_cols,
                                 numerical_cols,
-                                n_samples=500000)
+                                n_samples=100000)
     train_data = data_process(train_data, categorical_cols, numerical_cols)
     train_sparse_inputs = [
         tf.one_hot(train_data[col].values, train_data[col].nunique())
