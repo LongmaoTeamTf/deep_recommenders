@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-08-06 17:44:30
+@LastEditTime: 2020-08-06 17:54:39
 """
 import os
 import pathlib
@@ -101,7 +101,7 @@ def main(_):
     train_data = data_preparing(train_data_fn,
                                 categorical_cols,
                                 numerical_cols,
-                                n_samples=10000)
+                                n_samples=500000)
     train_data = data_process(train_data, categorical_cols, numerical_cols)
     train_sparse_inputs = [
         tf.one_hot(train_data[col].values, train_data[col].nunique())
@@ -115,7 +115,7 @@ def main(_):
     test_data = data_preparing(test_data_fn,
                                categorical_cols,
                                numerical_cols,
-                               n_samples=2000,
+                               n_samples=10000,
                                label=False)
     test_data = data_process(test_data, categorical_cols, numerical_cols)
     test_sparse_inputs = [
@@ -140,9 +140,6 @@ def main(_):
         metrics=train_config.get('metrics')
     )
 
-    print(model.to_json())
-    tf.keras.utils.plot_model(model, to_file='deepfm_criteo.png')
-
     # Train model
     print("Model Training ... ")
     history = model.fit(
@@ -155,8 +152,8 @@ def main(_):
     )
 
     # Evaluate model
-    print("Model Evaluating ... ")
-    model.evaluate(
+    print("Model Predicting ... ")
+    model.predict(
         test_inputs,
         batch_size=train_config.get('batch_size')
     )
