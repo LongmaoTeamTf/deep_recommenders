@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-08-06 17:41:21
+@LastEditTime: 2020-08-06 17:44:30
 """
 import os
 import pathlib
@@ -140,10 +140,7 @@ def main(_):
         metrics=train_config.get('metrics')
     )
 
-    def summary_to_file(summary):
-        with open('summary.txt','w+') as f:
-            print(summary, file=f)
-    model.summary(print_fn=summary_to_file)
+    print(model.to_json())
     tf.keras.utils.plot_model(model, to_file='deepfm_criteo.png')
 
     # Train model
