@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-21 20:21:19
 @LastEditors: Wang Yao
-@LastEditTime: 2020-05-06 19:39:07
+@LastEditTime: 2020-08-06 15:33:04
 """
 import tensorflow as tf
 import tensorflow.keras.backend as K
@@ -257,7 +257,6 @@ class DeepFM(Layer):
         self._LR = LR()
         super(DeepFM, self).build(input_shape)
 
-    @tf.function
     def call(self, inputs):
         categorical_inputs, numerical_inputs = inputs
         linear_outputs = self._Linear([categorical_inputs, numerical_inputs])
