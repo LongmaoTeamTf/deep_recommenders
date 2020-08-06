@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-26 17:47:37
 @LastEditors: Wang Yao
-@LastEditTime: 2020-04-29 16:48:40
+@LastEditTime: 2020-08-06 16:07:23
 """
 import os
 import pathlib
@@ -139,6 +139,9 @@ def main(_):
         optimizer=train_config.get('optimizer'),
         metrics=train_config.get('metrics')
     )
+
+    model.summary()
+    tf.keras.utils.plot_model(model, to_file='deepfm_criteo.png')
 
     # Train model
     print("Model Training ... ")
