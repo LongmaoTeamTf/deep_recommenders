@@ -1,6 +1,6 @@
 # DeepRecommend
 DeepRecommend会不断复现经典的或最先进的召回模型、排序模型算法以及推荐系统相关算法。  
-所有算法均用`tensorflow2.0+`的高级API`tf.keras`的自定义层实现。  
+所有算法均用`tensorflow 2.0+`的高级API`tf.keras`的自定义层实现。  
 分享所有代码，有以下想法：
 - 加深自己对于各模型的理解
 - 方便今后自己工作需要
