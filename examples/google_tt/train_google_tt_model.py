@@ -5,13 +5,13 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-03 16:42:01
+@LastEditTime: 2020-09-03 17:01:55
 """
 import sys
 sys.path.append('../..')
-from src.embedding.sbcnm.modeling import build_model
-from src.embedding.sbcnm.train import custom_train_model
-from src.embedding.sbcnm.train import get_dataset_from_csv_files
+from src.embedding.google_tt.modeling import build_model
+from src.embedding.google_tt.train import custom_train_model
+from src.embedding.google_tt.train import get_dataset_from_csv_files
 
 
 
