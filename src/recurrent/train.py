@@ -17,7 +17,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.datasets import imdb
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.utils import to_categorical
-from embedding.embeddings import Embedding
+from embeddings import Embedding
 from rnn import RNN
 from gru import GRU
 from recurrent import BiDirectional
