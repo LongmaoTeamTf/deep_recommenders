@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:13:16
+@LastEditTime: 2020-09-07 19:18:50
 """
 import functools
 import numpy as np
@@ -194,7 +194,7 @@ def train_model(dataset,
             loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
             optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
-            return loss_value, topk_recall(pred(left_x, right_x, sampling_p), reward)
+            return loss_value
 
         @tf.function
         def distributed_train_step(inputs, sampling_p):
@@ -219,7 +219,8 @@ def train_model(dataset,
                 cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
                 array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
                 
-                batch_loss, batch_recall = distributed_train_step((left_x, right_x, reward), sampling_p)
+                batch_loss = distributed_train_step((left_x, right_x, reward), sampling_p)
+                batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
 
                 epoch_loss_avg(batch_loss)
                 epoch_recall_avg(batch_recall)
