@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 16:54:45
+@LastEditTime: 2020-09-07 17:00:15
 """
 import functools
 import numpy as np
@@ -182,7 +182,7 @@ def train_model(left_model,
         right_grads = tape.gradient(loss_value, right_model.trainable_variables)
         return loss_value, left_grads, right_grads
 
-    optimizer = tf.keras.optimizers.Adagrad(learning_rate=lr)
+    optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
     
     array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
     array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
