@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:27:32
+@LastEditTime: 2020-09-07 19:32:05
 """
 import functools
 import numpy as np
@@ -189,6 +189,7 @@ def train_model(dataset,
 
         optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
 
+        @tf.function
         def train_step(inputs, sampling_p):
             left_x, right_x, reward = inputs
             loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
