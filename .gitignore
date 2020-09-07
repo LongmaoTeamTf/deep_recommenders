@@ -8,3 +8,4 @@ env
 .vscode
 .idea
 data
+logs
