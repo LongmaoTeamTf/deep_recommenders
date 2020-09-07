@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:32:05
+@LastEditTime: 2020-09-07 19:33:39
 """
 import functools
 import numpy as np
@@ -223,8 +223,8 @@ def train_model(dataset,
                 batch_loss = distributed_train_step((left_x, right_x, reward), sampling_p)
                 batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
 
-                epoch_loss_avg(batch_loss)
-                epoch_recall_avg(batch_recall)
+                batch_loss = epoch_loss_avg(batch_loss)
+                batch_recall = epoch_recall_avg(batch_recall)
 
                 metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
                     batch_loss, batch_recall)
