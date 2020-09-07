@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 12:47:45
+@LastEditTime: 2020-09-07 13:27:12
 """
 import functools
 import numpy as np
@@ -212,7 +212,7 @@ def custom_train_model(left_model,
             cand_ids = right_x.get(ids_column)
             cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
             sampling_p = 1 / array_b[cand_hash_indexs]
-            loss_value, left_grads, right_grads = loss(left_x, right_x, sampling_p, reward)
+            loss_value, _, _ = grad(left_x, right_x, sampling_p, reward)
             epoch_valid_loss_avg(loss_value)
             valid_step += 1
             progress = '='*int(valid_step/valid_steps*20)+'>'+' '*(20-int(valid_step/valid_steps*20))
