@@ -5,10 +5,11 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-03 17:01:55
+@LastEditTime: 2020-09-07 10:51:42
 """
 import sys
 sys.path.append('../..')
+import math
 from src.embedding.google_tt.modeling import build_model
 from src.embedding.google_tt.train import custom_train_model
 from src.embedding.google_tt.train import get_dataset_from_csv_files
@@ -27,7 +28,7 @@ if __name__ == "__main__":
         'seed_like_count',
         'seed_share_count',
         'seed_collect_count',
-        'seed_reply_count',   
+        # 'seed_reply_count',   
     ]
     right_columns = [
         'cand_id',
@@ -39,7 +40,7 @@ if __name__ == "__main__":
         'cand_like_count',
         'cand_share_count',
         'cand_collect_count',
-        'cand_reply_count',
+        # 'cand_reply_count',
     ]
     csv_header = [
         'label',
@@ -54,7 +55,7 @@ if __name__ == "__main__":
         'seed_like_count',
         'seed_share_count',
         'seed_collect_count',
-        'seed_reply_count',
+        # 'seed_reply_count',
         'cand_id',
         'cand_category',
         'cand_tags',
@@ -64,34 +65,48 @@ if __name__ == "__main__":
         'cand_like_count',
         'cand_share_count',
         'cand_collect_count',
-        'cand_reply_count',
+        # 'cand_reply_count',
     ]
     
     train_dataset = get_dataset_from_csv_files(
         [
-            'data/train_data_0.csv',
-            'data/train_data_1.csv',
-            'data/train_data_2.csv',
-            'data/train_data_3.csv',
+            '/home/xddz/data/two_tower_data/2020-09-01.csv',
+            '/home/xddz/data/two_tower_data/2020-09-02.csv'
         ], 
         left_columns, 
         right_columns, 
         csv_header, 
-        batch_size=5
+        batch_size=256
+    )
+
+    valid_dataset = get_dataset_from_csv_files(
+        [
+            '/home/xddz/data/two_tower_data/2020-09-03.csv'
+        ], 
+        left_columns, 
+        right_columns, 
+        csv_header, 
+        batch_size=256
     )
 
     left_model, right_model = build_model()
     
-    print(left_model.get_weights()[0])
-    print(right_model.get_weights()[0])
+    print(left_model.get_weights()[-2])
+    print(right_model.get_weights()[-2])
 
     left_model, right_model = custom_train_model(
         left_model, 
         right_model, 
-        train_dataset, 
-        40,
-        10
+        train_dataset=train_dataset, 
+        train_steps=math.ceil(712877/256),
+        valid_dataset=valid_dataset, 
+        valid_steps=math.ceil(350730/256),
+        ids_column='cand_id',
+        ids_hash_bucket_size=100000,
+        num_epochs=10
     )
 
-    print(left_model.get_weights()[0])
-    print(right_model.get_weights()[0])
+    print(left_model.get_weights()[-2])
+    print(right_model.get_weights()[-2])
+
+
