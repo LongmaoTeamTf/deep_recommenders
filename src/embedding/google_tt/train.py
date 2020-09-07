@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 15:17:12
+@LastEditTime: 2020-09-07 15:28:45
 """
 import functools
 import numpy as np
@@ -198,12 +198,12 @@ def train_model(left_model,
             optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
-            epoch_loss_avg(loss_value)
-            epoch_recall(pred(left_x, right_x, sampling_p), reward)
-            epoch_auc(pred(left_x, right_x, sampling_p), reward)
+            batch_loss = epoch_loss_avg(loss_value)
+            batch_recall = epoch_recall(pred(left_x, right_x, sampling_p), reward)
+            batch_auc = epoch_auc(pred(left_x, right_x, sampling_p), reward)
 
             metrics = 'correct-sfx: {:.3f} recall: {:.3f} auc: {:.3f}'.format(
-                loss_value, epoch_recall.result(), epoch_auc.result())
+                batch_loss, batch_recall, batch_auc)
             progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
             print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
                 epoch, epochs, step, steps, progress, metrics), end='', flush=True)
@@ -227,9 +227,10 @@ def evaluate_model(left_model, right_model, dataset):
     recall = tf.keras.metrics.Recall()
     auc = tf.keras.metrics.AUC()
 
-    # for (x, y) in dataset:
-    #     logits = model(x)
-    #     prediction = tf.argmax(logits, axis=1, output_type=tf.int32)
-    #     test_accuracy(prediction, y)
+    for left_x, right_x, reward in dataset:
+        left_y = left_model(left_x)
+        left_y = right_model(right_x)
+        prediction = tf.argmax(logits, axis=1, output_type=tf.int32)
+        test_accuracy(prediction, y)
 
     # print("Test set accuracy: {:.3%}".format(test_accuracy.result()))
