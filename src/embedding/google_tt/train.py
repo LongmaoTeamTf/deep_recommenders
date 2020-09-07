@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 16:42:09
+@LastEditTime: 2020-09-07 16:49:45
 """
 import functools
 import numpy as np
@@ -146,8 +146,8 @@ def reward_cross_entropy(reward, output):
 
 @tf.function
 def top_k_recall(output, reward, k=10):
-    values, indices = tf.math.top_k(output, k=k)
-    recall_rate = tf.math.count_nonzero(reward[indices]) / tf.math.count_nonzero(reward)
+    _, indices = tf.math.top_k(output, k=k)
+    recall_rate = tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
     return recall_rate
 
 
