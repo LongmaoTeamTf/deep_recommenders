@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 11:01:03
+@LastEditTime: 2020-09-07 11:08:38
 """
 import functools
 import numpy as np
@@ -71,7 +71,7 @@ def parse_csv_line(left_columns,
         inp=[labels[0]], 
         Tout=[tf.string])
     weight_labels = tf.math.reduce_sum(
-        tf.math.multiply(tf.strings.to_number(labels), tf.constant([0.1, 0.2, 0.3, 0.2, 0.2])))
+        tf.math.multiply(tf.strings.to_number(labels), tf.constant([1., 0., 0., 0., 0.])))
 
     return left_features, right_features, weight_labels
 
