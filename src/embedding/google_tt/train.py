@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 15:53:07
+@LastEditTime: 2020-09-07 16:42:09
 """
 import functools
 import numpy as np
@@ -144,6 +144,13 @@ def reward_cross_entropy(reward, output):
     return -tf.reduce_mean(reward * tf.math.log(output))
 
 
+@tf.function
+def top_k_recall(output, reward, k=10):
+    values, indices = tf.math.top_k(output, k=k)
+    recall_rate = tf.math.count_nonzero(reward[indices]) / tf.math.count_nonzero(reward)
+    return recall_rate
+
+
 def train_model(left_model, 
                 right_model, 
                 dataset, 
@@ -159,14 +166,12 @@ def train_model(left_model,
     def pred(left_x, right_x, sampling_p):
         left_y_ = left_model(left_x)
         right_y_ = right_model(right_x)
-        y_pred = log_q(left_y_, right_y_, sampling_p)
-        return y_pred
+        output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+        return output
 
     @tf.function
     def loss(left_x, right_x, sampling_p, reward):
-        left_y_ = left_model(left_x)
-        right_y_ = right_model(right_x)
-        output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+        output = pred(left_x, right_x, sampling_p)
         return reward_cross_entropy(reward, output)
 
     @tf.function
@@ -188,8 +193,7 @@ def train_model(left_model,
 
     for epoch in range(1, epochs+1):
         epoch_loss_avg = tf.keras.metrics.Mean()
-        epoch_recall = tf.keras.metrics.Recall(top_k=10)
-        epoch_auc = tf.keras.metrics.AUC()
+        
         step = 1
         for left_x, right_x, reward in dataset:
             cand_ids = right_x.get(ids_column)
@@ -201,11 +205,10 @@ def train_model(left_model,
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
             batch_loss = epoch_loss_avg(loss_value)
-            batch_recall = epoch_recall(pred(left_x, right_x, sampling_p), reward)
-            batch_auc = epoch_auc(pred(left_x, right_x, sampling_p), reward)
+            batch_recall = top_k_recall(pred(left_x, right_x, sampling_p), reward)
 
-            metrics = 'correct-sfx: {:.3f} recall: {:.3f} auc: {:.3f}'.format(
-                batch_loss, batch_recall, batch_auc)
+            metrics = 'correct-sfx: {:.3f} recall: {:.3f}'.format(
+                batch_loss, batch_recall)
             progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
             print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
                 epoch, epochs, step, steps, progress, metrics), end='', flush=True)
@@ -229,10 +232,10 @@ def evaluate_model(left_model, right_model, dataset):
     recall = tf.keras.metrics.Recall()
     auc = tf.keras.metrics.AUC()
 
-    for left_x, right_x, reward in dataset:
-        left_y = left_model(left_x)
-        left_y = right_model(right_x)
-        prediction = tf.argmax(logits, axis=1, output_type=tf.int32)
-        test_accuracy(prediction, y)
+    # for left_x, right_x, reward in dataset:
+    #     left_y = left_model(left_x)
+    #     left_y = right_model(right_x)
+    #     prediction = tf.argmax(logits, axis=1, output_type=tf.int32)
+    #     test_accuracy(prediction, y)
 
     # print("Test set accuracy: {:.3%}".format(test_accuracy.result()))
