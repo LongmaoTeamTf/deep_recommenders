@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:39:35
+@LastEditTime: 2020-09-07 19:42:35
 """
 import functools
 import numpy as np
@@ -153,7 +153,6 @@ def topk_recall(output, reward, k=10):
     return recall_rate
 
 
-@tf.function
 def train_model(dataset, 
                 steps,
                 epochs,
@@ -168,19 +167,16 @@ def train_model(dataset,
     with strategy.scope():
         left_model, right_model = build_model()
 
-        @tf.function
         def pred(left_x, right_x, sampling_p):
             left_y_ = left_model(left_x, training=True)
             right_y_ = right_model(right_x, training=True)
             output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
             return output
 
-        @tf.function
         def loss(left_x, right_x, sampling_p, reward):
             output = pred(left_x, right_x, sampling_p)
             return reward_cross_entropy(reward, output)
 
-        @tf.function
         def grad(left_x, right_x, sampling_p, reward):
             with tf.GradientTape(persistent=True) as tape:
                 loss_value = loss(left_x, right_x, sampling_p, reward)
