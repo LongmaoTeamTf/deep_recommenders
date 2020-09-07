@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 15:28:45
+@LastEditTime: 2020-09-07 15:53:07
 """
 import functools
 import numpy as np
@@ -159,13 +159,15 @@ def train_model(left_model,
     def pred(left_x, right_x, sampling_p):
         left_y_ = left_model(left_x)
         right_y_ = right_model(right_x)
-        y_pred = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+        y_pred = log_q(left_y_, right_y_, sampling_p)
         return y_pred
 
     @tf.function
     def loss(left_x, right_x, sampling_p, reward):
-        y_pred = pred(left_x, right_x, sampling_p)
-        return reward_cross_entropy(reward, y_pred)
+        left_y_ = left_model(left_x)
+        right_y_ = right_model(right_x)
+        output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+        return reward_cross_entropy(reward, output)
 
     @tf.function
     def grad(left_x, right_x, sampling_p, reward):
