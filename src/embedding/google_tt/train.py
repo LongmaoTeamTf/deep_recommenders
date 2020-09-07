@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 18:51:39
+@LastEditTime: 2020-09-07 18:53:29
 """
 import functools
 import numpy as np
@@ -198,7 +198,7 @@ def train_model(dataset,
 
         @tf.function
         def distributed_train_step(inputs, sampling_p):
-            per_replica_losses = strategy.experimental_run_v2(train_step, args=(inputs, sampling_p,))
+            per_replica_losses = strategy.run(train_step, args=(inputs, sampling_p,))
             return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
             
         array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
