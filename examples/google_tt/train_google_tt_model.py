@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 15:21:31
+@LastEditTime: 2020-09-07 15:22:58
 """
 import os
 import sys
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         'seed_like_count',
         'seed_share_count',
         'seed_collect_count',
-        'seed_reply_count'
+        # 'seed_reply_count'
     ]
     right_columns = [
         'cand_id',
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         'cand_like_count',
         'cand_share_count',
         'cand_collect_count',
-        'cand_reply_count'
+        # 'cand_reply_count'
     ]
     csv_header = [
         'label',
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         'seed_like_count',
         'seed_share_count',
         'seed_collect_count',
-        'seed_reply_count',
+        # 'seed_reply_count',
         'cand_id',
         'cand_category',
         'cand_tags',
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         'cand_like_count',
         'cand_share_count',
         'cand_collect_count',
-        'cand_reply_count'
+        # 'cand_reply_count'
     ]
     
     def _get_steps(fns, batch_size, skip_header=True):
