@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 16:49:45
+@LastEditTime: 2020-09-07 16:54:45
 """
 import functools
 import numpy as np
@@ -193,6 +193,7 @@ def train_model(left_model,
 
     for epoch in range(1, epochs+1):
         epoch_loss_avg = tf.keras.metrics.Mean()
+        epoch_recall_avg = tf.keras.metrics.Mean()
         
         step = 1
         for left_x, right_x, reward in dataset:
@@ -205,9 +206,9 @@ def train_model(left_model,
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
             batch_loss = epoch_loss_avg(loss_value)
-            batch_recall = top_k_recall(pred(left_x, right_x, sampling_p), reward)
+            batch_recall = epoch_recall_avg(top_k_recall(pred(left_x, right_x, sampling_p), reward))
 
-            metrics = 'correct-sfx: {:.3f} recall: {:.3f}'.format(
+            metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
                 batch_loss, batch_recall)
             progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
             print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
