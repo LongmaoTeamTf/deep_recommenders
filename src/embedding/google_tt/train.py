@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 11:08:38
+@LastEditTime: 2020-09-07 12:47:45
 """
 import functools
 import numpy as np
@@ -203,7 +203,7 @@ def custom_train_model(left_model,
 
         train_loss_results.append(epoch_train_loss_avg.result())
     
-        print("\nEpoch {:03d}/{:03d}: train-epoch-avg-correct-sfx: {:.3f}".format(
+        print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f}".format(
             epoch+1, num_epochs, epoch_train_loss_avg.result()))
         
         epoch_valid_loss_avg = tf.keras.metrics.Mean()
@@ -212,7 +212,7 @@ def custom_train_model(left_model,
             cand_ids = right_x.get(ids_column)
             cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
             sampling_p = 1 / array_b[cand_hash_indexs]
-            loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
+            loss_value, left_grads, right_grads = loss(left_x, right_x, sampling_p, reward)
             epoch_valid_loss_avg(loss_value)
             valid_step += 1
             progress = '='*int(valid_step/valid_steps*20)+'>'+' '*(20-int(valid_step/valid_steps*20))
@@ -221,7 +221,7 @@ def custom_train_model(left_model,
 
         valid_loss_results.append(epoch_valid_loss_avg.result())
     
-        print("\nEpoch {:03d}/{:03d}: valid-epoch-avg-correct-sfx: {:.3f}".format(
+        print("\nEpoch {:03d}/{:03d}: Valid-epoch-avg-correct-sfx: {:.3f}".format(
             epoch+1, num_epochs, epoch_valid_loss_avg.result()))
 
         # with summary_writer.as_default(): # pylint: disable=not-context-manager
