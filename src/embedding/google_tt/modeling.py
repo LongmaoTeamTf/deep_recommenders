@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-03 16:09:07
+@LastEditTime: 2020-09-07 10:47:50
 """
 import numpy as np
 import tensorflow as tf
@@ -103,14 +103,14 @@ def _time_exp_norm(value, time_dancy=3.0):
 
 def build_model():
     """构建双塔模型"""
-    _video_ids_hash_bucket_size = 10
-    _video_categories_hash_bucket_size = 5
-    _video_tags_hash_bucket_size = 5
-    _video_ids_embedding_dim = 5
-    _video_categories_embedding_dim = 2
-    _video_tags_embedding_dim = 3
+    _video_ids_hash_bucket_size = 100000
+    _video_categories_hash_bucket_size = 20
+    _video_tags_hash_bucket_size = 5000
+    _video_ids_embedding_dim = 128
+    _video_categories_embedding_dim = 32
+    _video_tags_embedding_dim = 64
     _max_tags_num = 5
-    _past_watches_num = 10
+    _past_watches_num = 30
 
     video_ids_hash = tf.feature_column.categorical_column_with_hash_bucket(
             key='video_ids', hash_bucket_size=_video_ids_hash_bucket_size, dtype=tf.string)
@@ -159,7 +159,7 @@ def build_model():
     video_cand_numerical_inputs = {}
     video_seed_numerical_features = {}
     video_cand_numerical_features = {}
-    for feat in ['play_count', 'like_count', 'collect_count', 'share_count', 'reply_count']:
+    for feat in ['play_count', 'like_count', 'collect_count', 'share_count']:
         feat_num = tf.feature_column.numeric_column(
             key='video_'+feat, default_value=-1, dtype=tf.int32, normalizer_fn=_log_norm)
         feat_dense = tf.keras.layers.DenseFeatures(feat_num, trainable=True, name='video_'+feat)
