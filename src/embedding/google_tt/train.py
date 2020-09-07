@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 10:43:36
+@LastEditTime: 2020-09-07 11:01:03
 """
 import functools
 import numpy as np
@@ -55,7 +55,7 @@ def parse_csv_line(left_columns,
     left_features = dict(zip(left_columns, left_parsed_columns))
     right_features = dict(zip(right_columns, right_parsed_columns))
     left_features['past_watches'] = tf.py_function(
-        func=functools.partial(_parse_multi_hot, max_length=10, duplicate=False), 
+        func=functools.partial(_parse_multi_hot, max_length=30, duplicate=False), 
         inp=[left_features['past_watches']], 
         Tout=[tf.string])[0]
     left_features['seed_tags'] = tf.py_function(
