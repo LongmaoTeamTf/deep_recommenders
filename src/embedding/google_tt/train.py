@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:33:39
+@LastEditTime: 2020-09-07 19:39:35
 """
 import functools
 import numpy as np
@@ -153,6 +153,7 @@ def topk_recall(output, reward, k=10):
     return recall_rate
 
 
+@tf.function
 def train_model(dataset, 
                 steps,
                 epochs,
@@ -189,7 +190,6 @@ def train_model(dataset,
 
         optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
 
-        @tf.function
         def train_step(inputs, sampling_p):
             left_x, right_x, reward = inputs
             loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
