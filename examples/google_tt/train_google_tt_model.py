@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 15:22:58
+@LastEditTime: 2020-09-07 18:49:51
 """
 import os
 import sys
@@ -89,6 +89,8 @@ if __name__ == "__main__":
     batch_size = 512
     epochs = 10
     steps = _get_steps(filenames, batch_size)
+    ids_column = 'cand_id'
+    ids_hash_bucket_size=100000
 
     print(steps)
 
@@ -99,23 +101,13 @@ if __name__ == "__main__":
         csv_header, 
         batch_size=batch_size
     )
-
-    left_model, right_model = build_model()
     
-    print(left_model.get_weights()[0])
-    print(right_model.get_weights()[0])
-
     left_model, right_model = train_model(
-        left_model, 
-        right_model, 
         train_dataset, 
         steps,
         epochs=epochs,
         ids_column='cand_id',
-        ids_hash_bucket_size=100000
+        ids_hash_bucket_size=ids_hash_bucket_size
     )
-
-    print(left_model.get_weights()[0])
-    print(right_model.get_weights()[0])
 
 

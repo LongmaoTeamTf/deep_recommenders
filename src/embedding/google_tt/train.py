@@ -5,11 +5,13 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 17:00:15
+@LastEditTime: 2020-09-07 18:47:55
 """
 import functools
 import numpy as np
 import tensorflow as tf
+
+from modeling import build_model
 
 
 def parse_csv_line(left_columns,
@@ -145,15 +147,13 @@ def reward_cross_entropy(reward, output):
 
 
 @tf.function
-def top_k_recall(output, reward, k=10):
+def topk_recall(output, reward, k=10):
     _, indices = tf.math.top_k(output, k=k)
     recall_rate = tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
     return recall_rate
 
 
-def train_model(left_model, 
-                right_model, 
-                dataset, 
+def train_model(dataset, 
                 steps,
                 epochs,
                 ids_column,
@@ -162,6 +162,93 @@ def train_model(left_model,
                 beta=100,
                 lr=0.01):
     """自定义训练"""
+    strategy = tf.distribute.MirroredStrategy()
+
+    with strategy.scope():
+        left_model, right_model = build_model()
+
+        @tf.function
+        def pred(left_x, right_x, sampling_p):
+            left_y_ = left_model(left_x, training=True)
+            right_y_ = right_model(right_x, training=True)
+            output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+            return output
+
+        @tf.function
+        def loss(left_x, right_x, sampling_p, reward):
+            output = pred(left_x, right_x, sampling_p)
+            return reward_cross_entropy(reward, output)
+
+        @tf.function
+        def grad(left_x, right_x, sampling_p, reward):
+            with tf.GradientTape(persistent=True) as tape:
+                loss_value = loss(left_x, right_x, sampling_p, reward)
+            left_grads = tape.gradient(loss_value, left_model.trainable_variables)
+            right_grads = tape.gradient(loss_value, right_model.trainable_variables)
+            return loss_value, left_grads, right_grads
+
+        optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
+
+        def train_step(inputs, sampling_p):
+            left_x, right_x, reward = inputs
+            loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
+            optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
+            optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
+            return loss_value, topk_recall(pred(left_x, right_x, sampling_p), reward)
+
+        @tf.function
+        def distributed_train_step(inputs, sampling_p):
+            per_replica_losses = strategy.experimental_run_v2(train_step, args=(inputs, sampling_p,))
+            return strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
+            
+        array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
+        array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
+        loss_results = []
+        recall_results = []
+        
+        if tensorboard is not None:
+            summary_writer = tf.summary.create_file_writer(tensorboard)
+
+        for epoch in range(1, epochs+1):
+            epoch_loss_avg = tf.keras.metrics.Mean()
+            epoch_recall_avg = tf.keras.metrics.Mean()
+            
+            step = 1
+            for left_x, right_x, reward in dataset:
+                cand_ids = right_x.get(ids_column)
+                cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
+                array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
+                
+                batch_loss, batch_recall = distributed_train_step((left_x, right_x, reward), sampling_p)
+
+                epoch_loss_avg(batch_loss)
+                epoch_recall_avg(batch_recall)
+
+                metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
+                    batch_loss, batch_recall)
+                progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
+                print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
+                    epoch, epochs, step, steps, progress, metrics), end='', flush=True)
+                step += 1
+
+            loss_results.append(epoch_loss_avg.result())
+            recall_results.append(epoch_recall_avg.result())
+        
+            print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f} Train-epoch-avg-topk-recall {:.3f}".format(
+                epoch, epochs, epoch_loss_avg.result(), epoch_recall_avg.result()))
+            
+            if tensorboard is not None:
+                with summary_writer.as_default(): # pylint: disable=not-context-manager
+                    tf.summary.scalar('train_loss', epoch_loss_avg.result(), step=epoch)
+            
+    return left_model, right_model
+
+
+def evaluate_model(left_model, right_model, dataset, array_b, ids_column, ids_hash_bucket_size):
+    """测试模型"""
+    loss_avg = tf.keras.metrics.Mean()
+    topk_recall_avg = tf.keras.metrics.Mean()
+
     @tf.function
     def pred(left_x, right_x, sampling_p):
         left_y_ = left_model(left_x)
@@ -174,69 +261,12 @@ def train_model(left_model,
         output = pred(left_x, right_x, sampling_p)
         return reward_cross_entropy(reward, output)
 
-    @tf.function
-    def grad(left_x, right_x, sampling_p, reward):
-        with tf.GradientTape(persistent=True) as tape:
-            loss_value = loss(left_x, right_x, sampling_p, reward)
-        left_grads = tape.gradient(loss_value, left_model.trainable_variables)
-        right_grads = tape.gradient(loss_value, right_model.trainable_variables)
-        return loss_value, left_grads, right_grads
-
-    optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
-    
-    array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
-    array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
-    loss_results = []
-    
-    if tensorboard is not None:
-        summary_writer = tf.summary.create_file_writer(tensorboard)
-
-    for epoch in range(1, epochs+1):
-        epoch_loss_avg = tf.keras.metrics.Mean()
-        epoch_recall_avg = tf.keras.metrics.Mean()
+    for left_x, right_x, reward in dataset:
+        cand_ids = right_x.get(ids_column)
+        cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
+        sampling_p = 1 / array_b[cand_hash_indexs]
+        loss_avg(loss(left_x, right_x, sampling_p, reward))
+        topk_recall_avg(topk_recall(pred(left_x, right_x, sampling_p), reward))
         
-        step = 1
-        for left_x, right_x, reward in dataset:
-            cand_ids = right_x.get(ids_column)
-            cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
-            array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
-            
-            loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
-            optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
-            optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
-
-            batch_loss = epoch_loss_avg(loss_value)
-            batch_recall = epoch_recall_avg(top_k_recall(pred(left_x, right_x, sampling_p), reward))
-
-            metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
-                batch_loss, batch_recall)
-            progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
-            print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
-                epoch, epochs, step, steps, progress, metrics), end='', flush=True)
-            step += 1
-
-        loss_results.append(epoch_loss_avg.result())
-    
-        print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f}".format(
-            epoch, epochs, epoch_loss_avg.result()))
-        
-        if tensorboard is not None:
-            with summary_writer.as_default(): # pylint: disable=not-context-manager
-                tf.summary.scalar('train_loss', epoch_loss_avg.result(), step=epoch)
-        
-    return left_model, right_model
-
-
-def evaluate_model(left_model, right_model, dataset):
-    """测试模型"""
-    loss = tf.keras.metrics.Mean()
-    recall = tf.keras.metrics.Recall()
-    auc = tf.keras.metrics.AUC()
-
-    # for left_x, right_x, reward in dataset:
-    #     left_y = left_model(left_x)
-    #     left_y = right_model(right_x)
-    #     prediction = tf.argmax(logits, axis=1, output_type=tf.int32)
-    #     test_accuracy(prediction, y)
-
-    # print("Test set accuracy: {:.3%}".format(test_accuracy.result()))
+    print("Test correct-sfx-avg: {:.3f} batch-topk-recall-avg: {:.3f}".format(
+            loss_avg.result(), topk_recall_avg.result()))
