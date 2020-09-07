@@ -5,13 +5,13 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 18:47:55
+@LastEditTime: 2020-09-07 18:51:39
 """
 import functools
 import numpy as np
 import tensorflow as tf
 
-from modeling import build_model
+from src.embedding.google_tt.modeling import build_model
 
 
 def parse_csv_line(left_columns,
