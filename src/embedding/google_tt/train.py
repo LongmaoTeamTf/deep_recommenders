@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-07 19:42:35
+@LastEditTime: 2020-09-08 10:37:15
 """
 import functools
 import numpy as np
@@ -137,7 +137,8 @@ def log_q(x, y, sampling_p, temperature=0.05):
 def corrected_batch_softmax(x, y, sampling_p):
     """logQ correction softmax"""
     correct_inner_product = log_q(x, y, sampling_p)
-    return tf.math.exp(correct_inner_product) / tf.math.reduce_sum(tf.math.exp(correct_inner_product))
+    # return tf.math.exp(correct_inner_product) / tf.math.reduce_sum(tf.math.exp(correct_inner_product))
+    return tf.nn.softmax(correct_inner_product)
 
 
 @tf.function
