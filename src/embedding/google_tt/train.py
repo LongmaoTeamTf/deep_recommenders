@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 16:51:06
+@LastEditTime: 2020-09-08 17:10:35
 """
 import os
 import functools
@@ -150,7 +150,8 @@ def topk_recall(output, reward, k=10):
     return recall_rate
 
 
-def train_model(dataset, 
+def train_model(strategy,
+                dataset, 
                 steps,
                 epochs,
                 ids_column,
@@ -159,8 +160,6 @@ def train_model(dataset,
                 beta=100,
                 lr=0.001):
     """自定义训练"""
-    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
-    print ('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
     # dataset = strategy.experimental_distribute_dataset(dataset)
 

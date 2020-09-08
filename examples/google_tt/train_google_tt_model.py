@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:01:35
+@LastEditTime: 2020-09-08 17:10:26
 """
 import os
 import sys
@@ -68,7 +68,7 @@ csv_header = [
 ]
 
 
-def distribute_train_model():
+def distribute_train_model(strategy):
     def _get_steps(fns, batch_size, skip_header=True):
         _total_num = 0
         for fn in fns:
@@ -101,6 +101,7 @@ def distribute_train_model():
     )
     
     left_model, right_model = train_model(
+        strategy,
         train_dataset, 
         steps,
         epochs=epochs,

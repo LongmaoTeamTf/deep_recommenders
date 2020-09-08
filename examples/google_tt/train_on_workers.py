@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-17 15:51:03
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:08:40
+@LastEditTime: 2020-09-08 17:10:06
 """
 import os
 import sys
@@ -29,7 +29,8 @@ def train_on_workers(worker_index):
         },
         'task': {'type': 'worker', 'index': worker_index}
     })
-    distribute_train_model()
+    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
+    distribute_train_model(strategy)
 
 
 if __name__ == "__main__":
