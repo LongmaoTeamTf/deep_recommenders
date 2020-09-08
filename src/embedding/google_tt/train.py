@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:10:35
+@LastEditTime: 2020-09-08 19:24:49
 """
 import os
 import functools
@@ -213,8 +213,6 @@ def train_model(strategy,
             per_replica_losses = strategy.run(train_step, args=(inputs, sampling_p,))
             return strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
             
-        array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
-        array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
         loss_results = []
         recall_results = []
         
@@ -222,6 +220,8 @@ def train_model(strategy,
             summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
         for epoch in range(1, epochs+1):
+            array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
+            array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             step = 1
             for left_x, right_x, reward in dataset:
                 cand_ids = right_x.get(ids_column)
