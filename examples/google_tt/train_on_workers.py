@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-17 15:51:03
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:14:51
+@LastEditTime: 2020-09-08 17:28:45
 """
 import os
 import sys
@@ -24,8 +24,7 @@ def train_on_workers(worker_index):
             'worker': [
                 'localhost:9990',
                 'localhost:9991',
-                'localhost:9992',
-                'localhost:9993',
+                'localhost:9992'
             ]
         },
         'task': {'type': 'worker', 'index': worker_index}

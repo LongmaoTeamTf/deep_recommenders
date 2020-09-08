@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:17:45
+@LastEditTime: 2020-09-08 17:28:55
 """
 import os
 import sys
@@ -84,10 +84,9 @@ def distribute_train_model(strategy):
     filenames = [
         '/home/xddz/data/two_tower_data/2020-09-01.csv',
         '/home/xddz/data/two_tower_data/2020-09-02.csv',
-        '/home/xddz/data/two_tower_data/2020-09-03.csv',
-        '/home/xddz/data/two_tower_data/2020-09-04.csv',
+        '/home/xddz/data/two_tower_data/2020-09-03.csv'
     ]
-    batch_size = 256 * 4
+    batch_size = 256 * 3
     epochs = 10
     steps = _get_steps(filenames, batch_size)
     ids_column = 'cand_id'
