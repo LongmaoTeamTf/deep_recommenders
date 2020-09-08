@@ -5,10 +5,11 @@
 @Author: Wang Yao
 @Date: 2020-08-17 15:51:03
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:03:40
+@LastEditTime: 2020-09-08 17:08:40
 """
 import os
 import sys
+sys.path.append('../..')
 import json
 import tensorflow as tf
 
