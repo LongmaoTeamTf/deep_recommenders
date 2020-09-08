@@ -5,8 +5,9 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 10:37:15
+@LastEditTime: 2020-09-08 11:57:50
 """
+import os
 import functools
 import numpy as np
 import tensorflow as tf
@@ -126,14 +127,12 @@ def hash_simple(ids, hash_bucket_size):
     return hash_indexs
 
 
-@tf.function
 def log_q(x, y, sampling_p, temperature=0.05):
     """logQ correction used in sampled softmax model."""
     inner_product = tf.reduce_sum(tf.math.multiply(x, y)) / temperature
     return inner_product - tf.math.log(sampling_p)
 
 
-@tf.function
 def corrected_batch_softmax(x, y, sampling_p):
     """logQ correction softmax"""
     correct_inner_product = log_q(x, y, sampling_p)
@@ -141,13 +140,11 @@ def corrected_batch_softmax(x, y, sampling_p):
     return tf.nn.softmax(correct_inner_product)
 
 
-@tf.function
 def reward_cross_entropy(reward, output):
     """Reward correction batch """
     return -tf.reduce_mean(reward * tf.math.log(output))
 
 
-@tf.function
 def topk_recall(output, reward, k=10):
     _, indices = tf.math.top_k(output, k=k)
     recall_rate = tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
@@ -159,11 +156,14 @@ def train_model(dataset,
                 epochs,
                 ids_column,
                 ids_hash_bucket_size,
-                tensorboard=None,
+                tensorboard_dir=None,
                 beta=100,
-                lr=0.01):
+                lr=0.001):
     """自定义训练"""
     strategy = tf.distribute.MirroredStrategy()
+    print ('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+
+    dataset = strategy.experimental_distribute_dataset(dataset)
 
     with strategy.scope():
         left_model, right_model = build_model()
@@ -185,13 +185,29 @@ def train_model(dataset,
             right_grads = tape.gradient(loss_value, right_model.trainable_variables)
             return loss_value, left_grads, right_grads
 
+        epoch_loss_avg = tf.keras.metrics.Mean()
+        epoch_recall_avg = tf.keras.metrics.Mean()
+
         optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
+
+        left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
+        right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
+
+        checkpoint_dir = './training_checkpoints'
+        left_checkpoint_prefix = os.path.join(checkpoint_dir, "left-ckpt")
+        right_checkpoint_prefix = os.path.join(checkpoint_dir, "right-ckpt")
 
         def train_step(inputs, sampling_p):
             left_x, right_x, reward = inputs
             loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
             optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
+
+            batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
+
+            epoch_loss_avg.update_state(loss_value)
+            epoch_recall_avg.update_state(batch_recall)
+
             return loss_value
 
         @tf.function
@@ -204,13 +220,10 @@ def train_model(dataset,
         loss_results = []
         recall_results = []
         
-        if tensorboard is not None:
-            summary_writer = tf.summary.create_file_writer(tensorboard)
+        if tensorboard_dir is not None:
+            summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
         for epoch in range(1, epochs+1):
-            epoch_loss_avg = tf.keras.metrics.Mean()
-            epoch_recall_avg = tf.keras.metrics.Mean()
-            
             step = 1
             for left_x, right_x, reward in dataset:
                 cand_ids = right_x.get(ids_column)
@@ -218,27 +231,30 @@ def train_model(dataset,
                 array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
                 
                 batch_loss = distributed_train_step((left_x, right_x, reward), sampling_p)
-                batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
-
-                batch_loss = epoch_loss_avg(batch_loss)
-                batch_recall = epoch_recall_avg(batch_recall)
-
+                
                 metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
-                    batch_loss, batch_recall)
+                    epoch_loss_avg.result(), epoch_recall_avg.result())
                 progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
                 print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
                     epoch, epochs, step, steps, progress, metrics), end='', flush=True)
-                step += 1
+                step += 1   
 
             loss_results.append(epoch_loss_avg.result())
             recall_results.append(epoch_recall_avg.result())
         
             print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f} Train-epoch-avg-topk-recall {:.3f}".format(
                 epoch, epochs, epoch_loss_avg.result(), epoch_recall_avg.result()))
+
+            epoch_loss_avg.reset_states()
+            epoch_recall_avg.reset_states()
             
-            if tensorboard is not None:
+            if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
                     tf.summary.scalar('train_loss', epoch_loss_avg.result(), step=epoch)
+
+            if epoch % 2 == 0:
+                left_checkpointer.save(left_checkpoint_prefix)
+                right_checkpointer.save(right_checkpoint_prefix)
             
     return left_model, right_model
 
