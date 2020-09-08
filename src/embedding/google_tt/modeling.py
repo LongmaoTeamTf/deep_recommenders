@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:04:43
+@LastEditTime: 2020-09-08 17:20:05
 """
 import numpy as np
 import tensorflow as tf
@@ -106,9 +106,9 @@ def build_model():
     _video_ids_hash_bucket_size = 100000
     _video_categories_hash_bucket_size = 20
     _video_tags_hash_bucket_size = 5000
-    _video_ids_embedding_dim = 128
+    _video_ids_embedding_dim = 64
     _video_categories_embedding_dim = 32
-    _video_tags_embedding_dim = 64
+    _video_tags_embedding_dim = 32
     _max_tags_num = 5
     _past_watches_num = 30
 
