@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-17 15:51:03
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:10:06
+@LastEditTime: 2020-09-08 17:14:51
 """
 import os
 import sys
@@ -18,6 +18,7 @@ from examples.google_tt.train_google_tt_model import distribute_train_model
 
 def train_on_workers(worker_index):
     """多机分布式训练"""
+    os.environ["CUDA_VISIBLE_DEVICES"]="-1"
     os.environ['TF_CONFIG'] = json.dumps({
         'cluster': {
             'worker': [
