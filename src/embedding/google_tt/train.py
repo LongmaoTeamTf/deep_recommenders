@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 16:16:19
+@LastEditTime: 2020-09-08 16:51:06
 """
 import os
 import functools
@@ -159,7 +159,7 @@ def train_model(dataset,
                 beta=100,
                 lr=0.001):
     """自定义训练"""
-    strategy = tf.distribute.MirroredStrategy()
+    strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
     print ('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 
     # dataset = strategy.experimental_distribute_dataset(dataset)
