@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:10:26
+@LastEditTime: 2020-09-08 17:17:45
 """
 import os
 import sys
@@ -27,7 +27,7 @@ left_columns = [
     'seed_like_count',
     'seed_share_count',
     'seed_collect_count',
-    'seed_reply_count'
+    # 'seed_reply_count'
 ]
 right_columns = [
     'cand_id',
@@ -39,7 +39,7 @@ right_columns = [
     'cand_like_count',
     'cand_share_count',
     'cand_collect_count',
-    'cand_reply_count'
+    # 'cand_reply_count'
 ]
 csv_header = [
     'label',
@@ -54,7 +54,7 @@ csv_header = [
     'seed_like_count',
     'seed_share_count',
     'seed_collect_count',
-    'seed_reply_count',
+    # 'seed_reply_count',
     'cand_id',
     'cand_category',
     'cand_tags',
@@ -64,7 +64,7 @@ csv_header = [
     'cand_like_count',
     'cand_share_count',
     'cand_collect_count',
-    'cand_reply_count'
+    # 'cand_reply_count'
 ]
 
 
@@ -84,7 +84,8 @@ def distribute_train_model(strategy):
     filenames = [
         '/home/xddz/data/two_tower_data/2020-09-01.csv',
         '/home/xddz/data/two_tower_data/2020-09-02.csv',
-        '/home/xddz/data/two_tower_data/2020-09-03.csv'
+        '/home/xddz/data/two_tower_data/2020-09-03.csv',
+        '/home/xddz/data/two_tower_data/2020-09-04.csv',
     ]
     batch_size = 256 * 4
     epochs = 10
