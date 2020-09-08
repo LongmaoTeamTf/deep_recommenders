@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 14:42:12
+@LastEditTime: 2020-09-08 16:16:19
 """
 import os
 import functools
@@ -136,9 +136,8 @@ def log_q(x, y, sampling_p, temperature=0.05):
 def corrected_batch_softmax(x, y, sampling_p):
     """logQ correction softmax"""
     correct_inner_product = log_q(x, y, sampling_p)
-    # return tf.math.exp(correct_inner_product) / tf.math.reduce_sum(tf.math.exp(correct_inner_product))
-    return tf.nn.softmax(correct_inner_product)
-
+    return tf.math.exp(correct_inner_product) / tf.math.reduce_sum(tf.math.exp(correct_inner_product))
+    
 
 def reward_cross_entropy(reward, output):
     """Reward correction batch """
@@ -188,7 +187,7 @@ def train_model(dataset,
         epoch_loss_avg = tf.keras.metrics.Mean()
         epoch_recall_avg = tf.keras.metrics.Mean()
 
-        optimizer = tf.keras.optimizers.Adadelta(learning_rate=lr)
+        optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
 
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
