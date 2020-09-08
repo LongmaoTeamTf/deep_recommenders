@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 11:57:50
+@LastEditTime: 2020-09-08 14:36:33
 """
 import os
 import functools
@@ -205,7 +205,6 @@ def train_model(dataset,
 
             batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
 
-            epoch_loss_avg.update_state(loss_value)
             epoch_recall_avg.update_state(batch_recall)
 
             return loss_value
@@ -231,6 +230,8 @@ def train_model(dataset,
                 array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
                 
                 batch_loss = distributed_train_step((left_x, right_x, reward), sampling_p)
+
+                epoch_loss_avg.update_state(batch_loss)
                 
                 metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
                     epoch_loss_avg.result(), epoch_recall_avg.result())
