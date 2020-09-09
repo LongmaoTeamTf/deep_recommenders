@@ -5,12 +5,12 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:33:35
+@LastEditTime: 2020-09-09 11:04:43
 """
 import os
-import sys
-sys.path.append('../..')
 import math
+import tensorflow as tf
+
 from src.embedding.google_tt.modeling import build_model
 from src.embedding.google_tt.train import get_dataset_from_csv_files
 from src.embedding.google_tt.train import train_model
@@ -26,8 +26,7 @@ left_columns = [
     'seed_play_count',
     'seed_like_count',
     'seed_share_count',
-    'seed_collect_count',
-    # 'seed_reply_count'
+    'seed_collect_count'
 ]
 right_columns = [
     'cand_id',
@@ -38,8 +37,7 @@ right_columns = [
     'cand_play_count',
     'cand_like_count',
     'cand_share_count',
-    'cand_collect_count',
-    # 'cand_reply_count'
+    'cand_collect_count'
 ]
 csv_header = [
     'label',
@@ -54,7 +52,6 @@ csv_header = [
     'seed_like_count',
     'seed_share_count',
     'seed_collect_count',
-    # 'seed_reply_count',
     'cand_id',
     'cand_category',
     'cand_tags',
@@ -63,12 +60,11 @@ csv_header = [
     'cand_play_count',
     'cand_like_count',
     'cand_share_count',
-    'cand_collect_count',
-    # 'cand_reply_count'
+    'cand_collect_count'
 ]
 
 
-def distribute_train_model(strategy):
+def distribute_train_model():
     def _get_steps(fns, batch_size, skip_header=True):
         _total_num = 0
         for fn in fns:
@@ -82,15 +78,22 @@ def distribute_train_model(strategy):
         return _steps
 
     filenames = [
+        '/home/xddz/data/two_tower_data/2020-08-31.csv',
         '/home/xddz/data/two_tower_data/2020-09-01.csv',
         '/home/xddz/data/two_tower_data/2020-09-02.csv',
-        # '/home/xddz/data/two_tower_data/2020-09-03.csv'
+        '/home/xddz/data/two_tower_data/2020-09-03.csv',
+        '/home/xddz/data/two_tower_data/2020-09-04.csv',
+        '/home/xddz/data/two_tower_data/2020-09-05.csv',
+        '/home/xddz/data/two_tower_data/2020-09-06.csv' 
     ]
     batch_size = 256 * 2
     epochs = 10
     steps = _get_steps(filenames, batch_size)
     ids_column = 'cand_id'
     ids_hash_bucket_size=100000
+    tensorboard_dir = './trianing_tensorboard'
+    checkpoint_dir = './training_checkpoints'
+    strategy = tf.distribute.MirroredStrategy()
 
     train_dataset = get_dataset_from_csv_files(
         filenames, 
@@ -106,7 +109,14 @@ def distribute_train_model(strategy):
         steps,
         epochs=epochs,
         ids_column=ids_column,
-        ids_hash_bucket_size=ids_hash_bucket_size
+        ids_hash_bucket_size=ids_hash_bucket_size,
+        tensorboard_dir=tensorboard_dir,
+        checkpoint_dir=checkpoint_dir
     )
+    
+    left_model.save('./models/google_tt_left')
+    right_model.save('./models/google_tt_right')
 
 
+if __name__ == "__main__":
+    distribute_train_model()
