@@ -5,9 +5,11 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-09 11:04:43
+@LastEditTime: 2020-09-09 11:28:14
 """
 import os
+import sys
+sys.path.append("../..")
 import math
 import tensorflow as tf
 
