@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-09 11:28:14
+@LastEditTime: 2020-09-09 14:40:37
 """
 import os
 import sys
@@ -93,7 +93,7 @@ def distribute_train_model():
     steps = _get_steps(filenames, batch_size)
     ids_column = 'cand_id'
     ids_hash_bucket_size=100000
-    tensorboard_dir = './trianing_tensorboard'
+    tensorboard_dir = './training_tensorboard'
     checkpoint_dir = './training_checkpoints'
     strategy = tf.distribute.MirroredStrategy()
 
