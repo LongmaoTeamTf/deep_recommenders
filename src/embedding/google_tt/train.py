@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-09 11:31:16
+@LastEditTime: 2020-09-09 11:33:29
 """
 import os
 import functools
@@ -149,10 +149,10 @@ def topk_recall(output, reward, k=10):
     _, indices = tf.math.top_k(output, k=k)
 
     def _ture(reward, indices):
-        return tf.math.count_nonzero(tf.gather(reward, indices), dtype=tf.int32) / tf.math.count_nonzero(reward, dtype=tf.int32)
+        return tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
     
     def _false():
-        return tf.constant(0.)
+        return tf.constant(0., dtype=tf.float64)
 
     return tf.cond(tf.math.count_nonzero(reward) > 0, lambda: _ture(reward, indices), lambda: _false())
 
