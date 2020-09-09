@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 19:24:49
+@LastEditTime: 2020-09-09 11:19:44
 """
 import os
 import functools
@@ -145,9 +145,16 @@ def reward_cross_entropy(reward, output):
 
 
 def topk_recall(output, reward, k=10):
+    """TopK Recall rate"""
     _, indices = tf.math.top_k(output, k=k)
-    recall_rate = tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
-    return recall_rate
+
+    def _ture(reward, indices):
+        return tf.math.count_nonzero(tf.gather(reward, indices)) / tf.math.count_nonzero(reward)
+    
+    def _false():
+        return tf.constant(0.)
+
+    return tf.cond(tf.math.count_nonzero(reward) > 0, lambda: _ture(reward, indices), lambda: _false())
 
 
 def train_model(strategy,
@@ -157,6 +164,7 @@ def train_model(strategy,
                 ids_column,
                 ids_hash_bucket_size,
                 tensorboard_dir=None,
+                checkpoint_dir=None,
                 beta=100,
                 lr=0.001):
     """自定义训练"""
@@ -183,7 +191,6 @@ def train_model(strategy,
             right_grads = tape.gradient(loss_value, right_model.trainable_variables)
             return loss_value, left_grads, right_grads
 
-        epoch_loss_avg = tf.keras.metrics.Mean()
         epoch_recall_avg = tf.keras.metrics.Mean()
 
         optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
@@ -191,7 +198,6 @@ def train_model(strategy,
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
 
-        checkpoint_dir = './training_checkpoints'
         left_checkpoint_prefix = os.path.join(checkpoint_dir, "left-ckpt")
         right_checkpoint_prefix = os.path.join(checkpoint_dir, "right-ckpt")
 
@@ -201,10 +207,7 @@ def train_model(strategy,
             optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
-            batch_recall = topk_recall(pred(left_x, right_x, sampling_p), reward)
-
-            epoch_loss_avg.update_state(loss_value)
-            epoch_recall_avg.update_state(batch_recall)
+            epoch_recall_avg.update_state(topk_recall(pred(left_x, right_x, sampling_p), reward))
 
             return loss_value
 
@@ -219,7 +222,8 @@ def train_model(strategy,
         if tensorboard_dir is not None:
             summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
-        for epoch in range(1, epochs+1):
+        for epoch in range(epochs):
+            total_loss = 0.0
             array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
             array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             step = 1
@@ -228,27 +232,26 @@ def train_model(strategy,
                 cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
                 array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
                 
-                batch_loss = distributed_train_step((left_x, right_x, reward), sampling_p)
+                total_loss += distributed_train_step((left_x, right_x, reward), sampling_p)
                 
                 metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
-                    epoch_loss_avg.result(), epoch_recall_avg.result())
+                    total_loss/step, epoch_recall_avg.result())
                 progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
                 print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
-                    epoch, epochs, step, steps, progress, metrics), end='', flush=True)
+                    epoch+1, epochs, step, steps, progress, metrics), end='', flush=True)
                 step += 1   
 
-            loss_results.append(epoch_loss_avg.result())
+            loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())
         
             print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f} Train-epoch-avg-topk-recall {:.3f}".format(
-                epoch, epochs, epoch_loss_avg.result(), epoch_recall_avg.result()))
+                epoch+1, epochs, total_loss/steps, epoch_recall_avg.result()))
 
-            epoch_loss_avg.reset_states()
             epoch_recall_avg.reset_states()
             
             if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
-                    tf.summary.scalar('train_loss', epoch_loss_avg.result(), step=epoch)
+                    tf.summary.scalar('train_loss', total_loss/steps, step=epoch)
 
             if epoch % 2 == 0:
                 left_checkpointer.save(left_checkpoint_prefix)
@@ -256,30 +259,3 @@ def train_model(strategy,
             
     return left_model, right_model
 
-
-def evaluate_model(left_model, right_model, dataset, array_b, ids_column, ids_hash_bucket_size):
-    """测试模型"""
-    loss_avg = tf.keras.metrics.Mean()
-    topk_recall_avg = tf.keras.metrics.Mean()
-
-    @tf.function
-    def pred(left_x, right_x, sampling_p):
-        left_y_ = left_model(left_x)
-        right_y_ = right_model(right_x)
-        output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
-        return output
-
-    @tf.function
-    def loss(left_x, right_x, sampling_p, reward):
-        output = pred(left_x, right_x, sampling_p)
-        return reward_cross_entropy(reward, output)
-
-    for left_x, right_x, reward in dataset:
-        cand_ids = right_x.get(ids_column)
-        cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
-        sampling_p = 1 / array_b[cand_hash_indexs]
-        loss_avg(loss(left_x, right_x, sampling_p, reward))
-        topk_recall_avg(topk_recall(pred(left_x, right_x, sampling_p), reward))
-        
-    print("Test correct-sfx-avg: {:.3f} batch-topk-recall-avg: {:.3f}".format(
-            loss_avg.result(), topk_recall_avg.result()))
