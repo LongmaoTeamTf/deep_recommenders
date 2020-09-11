@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-08 17:26:57
+@LastEditTime: 2020-09-11 16:46:27
 """
 import numpy as np
 import tensorflow as tf
@@ -105,7 +105,7 @@ def build_model():
     """构建双塔模型"""
     _video_ids_hash_bucket_size = 100000
     _video_categories_hash_bucket_size = 20
-    _video_tags_hash_bucket_size = 5000
+    _video_tags_hash_bucket_size = 1000
     _video_ids_embedding_dim = 128
     _video_categories_embedding_dim = 32
     _video_tags_embedding_dim = 64
