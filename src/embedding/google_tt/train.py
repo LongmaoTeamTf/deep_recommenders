@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-09 11:33:29
+@LastEditTime: 2020-09-11 14:23:06
 """
 import os
 import functools
@@ -166,7 +166,7 @@ def train_model(strategy,
                 tensorboard_dir=None,
                 checkpoint_dir=None,
                 beta=100,
-                lr=0.001):
+                lr=0.01):
     """自定义训练"""
 
     # dataset = strategy.experimental_distribute_dataset(dataset)
