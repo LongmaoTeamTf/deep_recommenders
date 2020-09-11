@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-09 14:40:37
+@LastEditTime: 2020-09-11 14:51:03
 """
 import os
 import sys
@@ -93,8 +93,8 @@ def distribute_train_model():
     steps = _get_steps(filenames, batch_size)
     ids_column = 'cand_id'
     ids_hash_bucket_size=100000
-    tensorboard_dir = './training_tensorboard'
-    checkpoint_dir = './training_checkpoints'
+    tensorboard_dir = './training_tensorboard_0.01'
+    checkpoint_dir = './training_checkpoints_0.01'
     strategy = tf.distribute.MirroredStrategy()
 
     train_dataset = get_dataset_from_csv_files(
@@ -116,8 +116,8 @@ def distribute_train_model():
         checkpoint_dir=checkpoint_dir
     )
     
-    left_model.save('./models/google_tt_left')
-    right_model.save('./models/google_tt_right')
+    left_model.save('./models/google_tt_left_0.01')
+    right_model.save('./models/google_tt_right_0.01')
 
 
 if __name__ == "__main__":
