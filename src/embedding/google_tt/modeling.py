@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-11 18:46:56
+@LastEditTime: 2020-09-11 18:53:00
 """
 import numpy as np
 import tensorflow as tf
@@ -49,9 +49,9 @@ class HashEmbeddings(Layer):
         outputs = K.dot(inputs, self.embeddings)
         if self._mean is True:
             condition = tf.greater(tf.reduce_sum(inputs, axis=-1, keepdims=True), 0)
-            outputs = tf.cond(condition, 
-                lambda: outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
-                lambda: K.zeros(shape=(self._embedding_dim)))
+            outputs = tf.where(condition,
+                outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
+                K.zeros_like(outputs))
         return outputs
 
     def compute_output_shape(self, input_shape):
