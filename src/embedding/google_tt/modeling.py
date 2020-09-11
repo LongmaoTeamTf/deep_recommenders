@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-11 18:53:00
+@LastEditTime: 2020-09-11 19:00:05
 """
 import numpy as np
 import tensorflow as tf
@@ -22,7 +22,7 @@ class HashEmbeddings(Layer):
                  embedding_dim,
                  mean=False,
                  regularizer='l2',
-                 initializer='uniform',
+                 initializer='he_uniform',
                  trainable=True,
                  **kwargs):
         super(HashEmbeddings, self).__init__(**kwargs)
