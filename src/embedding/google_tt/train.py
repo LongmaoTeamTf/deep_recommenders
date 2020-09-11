@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-11 14:23:06
+@LastEditTime: 2020-09-11 16:57:14
 """
 import os
 import functools
@@ -166,7 +166,7 @@ def train_model(strategy,
                 tensorboard_dir=None,
                 checkpoint_dir=None,
                 beta=100,
-                lr=0.01):
+                lr=0.001):
     """自定义训练"""
 
     # dataset = strategy.experimental_distribute_dataset(dataset)
@@ -193,7 +193,7 @@ def train_model(strategy,
 
         epoch_recall_avg = tf.keras.metrics.Mean()
 
-        optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
+        optimizer = tf.keras.optimizers.SGD(learning_rate=lr, momentum=0.9)
 
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
