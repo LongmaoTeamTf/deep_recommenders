@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 14:16:59
+@LastEditTime: 2020-09-14 14:56:26
 """
 import os
 import functools
@@ -234,18 +234,24 @@ def train_model(strategy,
                 
                 total_loss += distributed_train_step((left_x, right_x, reward), sampling_p)
                 
-                metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
-                    total_loss/step, epoch_recall_avg.result())
-                progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
-                print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
-                    epoch+1, epochs, step, steps, progress, metrics), end='', flush=True)
+                # metrics = 'correct-sfx: {:.3f} batch-topk-recall: {:.3f}'.format(
+                #     total_loss/step, epoch_recall_avg.result())
+                # progress = '='*int(step/steps*50)+'>'+' '*(50-int(step/steps*50))
+                # print("\rEpoch {:03d}/{:03d}: {}/{} [{}] {}".format(
+                #     epoch+1, epochs, step, steps, progress, metrics), end='', flush=True)
+                if step % 50 == 0:
+                    print("Epoch[{}/{}]: Batch[{}/{}] correct-sfx-loss={:.4f} topk-recall={:.4f}".format(
+                        epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result()))
                 step += 1   
 
             loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())
         
-            print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f} Train-epoch-avg-topk-recall {:.3f}".format(
-                epoch+1, epochs, total_loss/steps, epoch_recall_avg.result()))
+            # print("\nEpoch {:03d}/{:03d}: Train-epoch-avg-correct-sfx: {:.3f} Train-epoch-avg-topk-recall {:.3f}".format(
+            #     epoch+1, epochs, total_loss/steps, epoch_recall_avg.result()))
+            print("Epoch[{}/{}]: correct-sfx-loss={:.4f} topk-recall={:.4f}".format(
+                    epoch+1, epochs, total_loss/step, epoch_recall_avg.result()))
+
 
             epoch_recall_avg.reset_states()
             
