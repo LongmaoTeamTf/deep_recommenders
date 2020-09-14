@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-11 16:57:14
+@LastEditTime: 2020-09-14 13:37:04
 """
 import os
 import functools
@@ -193,7 +193,7 @@ def train_model(strategy,
 
         epoch_recall_avg = tf.keras.metrics.Mean()
 
-        optimizer = tf.keras.optimizers.SGD(learning_rate=lr, momentum=0.9)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
 
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
