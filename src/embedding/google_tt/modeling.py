@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 11:11:29
+@LastEditTime: 2020-09-14 13:25:23
 """
 import numpy as np
 import tensorflow as tf
@@ -203,7 +203,7 @@ def build_model():
     left_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='seed_concat_user')([
         seed_features, user_past_watches_embeddings
     ])
-    left_x = tf.keras.layers.Dense(512, activation='relu', name='left_dense_0')(left_tower_inputs)
+    left_x = tf.keras.layers.Dense(256, activation='relu', name='left_dense_0')(left_tower_inputs)
     left_x = tf.keras.layers.Dense(128, activation='relu', name='left_dense_1')(left_x)
     left_x = L2Normalization(name='left_l2_norm')(left_x)
 
@@ -214,7 +214,7 @@ def build_model():
         cand_video_gap_time,
         cand_video_duration_time,
     ] + list(video_cand_numerical_features.values()))
-    right_x = tf.keras.layers.Dense(512, activation='relu', name='right_dense_0')(right_tower_inputs)
+    right_x = tf.keras.layers.Dense(256, activation='relu', name='right_dense_0')(right_tower_inputs)
     right_x = tf.keras.layers.Dense(128, activation='relu', name='right_dense_1')(right_x)
     right_x = L2Normalization(name='right_l2_norm')(right_x)
 
