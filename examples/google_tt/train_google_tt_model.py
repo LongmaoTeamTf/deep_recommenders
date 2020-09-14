@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 11:16:41
+@LastEditTime: 2020-09-14 11:32:37
 """
 import os
 import sys
@@ -82,11 +82,11 @@ def distribute_train_model():
     filenames = [
         '/home/xddz/data/two_tower_data/2020-08-31.csv',
         '/home/xddz/data/two_tower_data/2020-09-01.csv',
-        '/home/xddz/data/two_tower_data/2020-09-02.csv',
-        '/home/xddz/data/two_tower_data/2020-09-03.csv',
-        '/home/xddz/data/two_tower_data/2020-09-04.csv',
-        '/home/xddz/data/two_tower_data/2020-09-05.csv',
-        '/home/xddz/data/two_tower_data/2020-09-06.csv' 
+        # '/home/xddz/data/two_tower_data/2020-09-02.csv',
+        # '/home/xddz/data/two_tower_data/2020-09-03.csv',
+        # '/home/xddz/data/two_tower_data/2020-09-04.csv',
+        # '/home/xddz/data/two_tower_data/2020-09-05.csv',
+        # '/home/xddz/data/two_tower_data/2020-09-06.csv' 
     ]
     batch_size = 256 * 2
     epochs = 10
