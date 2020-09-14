@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 15:04:53
+@LastEditTime: 2020-09-14 19:37:33
 """
 import os
 import functools
@@ -120,22 +120,23 @@ def sampling_p_estimation_single_hash(array_a, array_b, hash_indexs, global_step
 
 
 def hash_simple(ids, hash_bucket_size):
-    """直接取整Hash函数"""
-    hash_indexs = []
-    for id in ids:
-        hash_indexs.append(int(id) % hash_bucket_size)
-    return hash_indexs
+    """取余Hash函数"""
+    if tf.keras.backend.dtype(ids) != 'int32':
+        ids = tf.cast(ids, dtype=tf.int32)
+    return tf.math.mod(ids, hash_bucket_size)
 
 
-def log_q(x, y, sampling_p, temperature=0.05):
+def log_q(x, y, sampling_p=None, temperature=0.05):
     """logQ correction used in sampled softmax model."""
     inner_product = tf.reduce_sum(tf.math.multiply(x, y), axis=-1) / temperature
-    return inner_product - tf.math.log(sampling_p)
+    if sampling_p is not None:
+        return inner_product - tf.math.log(sampling_p)
+    return inner_product
 
 
-def corrected_batch_softmax(x, y, sampling_p):
+def corrected_batch_softmax(x, y, sampling_p=None):
     """logQ correction softmax"""
-    correct_inner_product = log_q(x, y, sampling_p)
+    correct_inner_product = log_q(x, y, sampling_p=sampling_p)
     return tf.math.exp(correct_inner_product) / tf.math.reduce_sum(tf.math.exp(correct_inner_product))
     
 
@@ -169,7 +170,7 @@ def train_model(strategy,
                 lr=0.001):
     """自定义训练"""
 
-    # dataset = strategy.experimental_distribute_dataset(dataset)
+    dataset = strategy.experimental_distribute_dataset(dataset)
 
     with strategy.scope():
         left_model, right_model = build_model()
@@ -177,7 +178,7 @@ def train_model(strategy,
         def pred(left_x, right_x, sampling_p):
             left_y_ = left_model(left_x, training=True)
             right_y_ = right_model(right_x, training=True)
-            output = corrected_batch_softmax(left_y_, right_y_, sampling_p)
+            output = corrected_batch_softmax(left_y_, right_y_, sampling_p=sampling_p)
             return output
 
         def loss(left_x, right_x, sampling_p, reward):
@@ -212,7 +213,7 @@ def train_model(strategy,
             return loss_value
 
         @tf.function
-        def distributed_train_step(inputs, sampling_p):
+        def distributed_train_step(inputs, sampling_p=None):
             per_replica_losses = strategy.run(train_step, args=(inputs, sampling_p,))
             return strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
             
@@ -225,18 +226,18 @@ def train_model(strategy,
         print("Start Traning ... ")
         for epoch in range(epochs):
             total_loss = 0.0
-            array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
-            array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
+            # array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
+            # array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             step = 1
             for left_x, right_x, reward in dataset:
-                cand_ids = right_x.get(ids_column)
-                cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
-                array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
+                # cand_ids = right_x.get(ids_column)
+                # cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
+                # array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
                 
-                total_loss += distributed_train_step((left_x, right_x, reward), sampling_p)
+                total_loss += distributed_train_step((left_x, right_x, reward), sampling_p=None)
                 
                 if step % 50 == 0:
-                    print("Epoch[{}/{}]:\tBatch[{}/{}]\tcorrect_sfx_loss={:.4f} topk_recall={:.4f}".format(
+                    print("Epoch[{}/{}]: Batch[{}/{}] correct_sfx_loss={:.4f} topk_recall={:.4f}".format(
                         epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result()))
                 step += 1   
 
@@ -246,16 +247,18 @@ def train_model(strategy,
             print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f}".format(
                     epoch+1, epochs, total_loss/step, epoch_recall_avg.result()))
 
-
             epoch_recall_avg.reset_states()
             
             if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
                     tf.summary.scalar('correct_sfx_loss', total_loss/steps, step=epoch)
+                    tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
 
             if epoch % 2 == 0:
                 left_checkpointer.save(left_checkpoint_prefix)
+                print(f'Saved checkpoints to: {left_checkpoint_prefix}')
                 right_checkpointer.save(right_checkpoint_prefix)
+                print(f'Saved checkpoints to: {right_checkpoint_prefix}')
             
     return left_model, right_model
 
