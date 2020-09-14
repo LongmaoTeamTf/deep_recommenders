@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 11:14:50
+@LastEditTime: 2020-09-14 11:16:41
 """
 import os
 import sys
@@ -117,8 +117,8 @@ def distribute_train_model():
         checkpoint_dir=checkpoint_dir
     )
     
-    left_model.save(f'./models/google_tt/{version}')
-    right_model.save(f'./models/google_tt/{version}')
+    left_model.save(f'./models/google_tt_query/{version}')
+    right_model.save(f'./models/google_tt_candidate/{version}')
 
 
 if __name__ == "__main__":
