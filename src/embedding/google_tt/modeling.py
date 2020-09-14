@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-11 19:11:41
+@LastEditTime: 2020-09-14 11:11:29
 """
 import numpy as np
 import tensorflow as tf
@@ -117,7 +117,7 @@ def build_model():
     video_ids_hash = tf.feature_column.categorical_column_with_hash_bucket(
             key='video_ids', hash_bucket_size=_video_ids_hash_bucket_size, dtype=tf.string)
     video_ids_indicator = tf.feature_column.indicator_column(video_ids_hash)
-    video_ids_dense = tf.keras.layers.DenseFeatures(video_ids_indicator, trainable=True, name="video_ids")
+    video_ids_dense = tf.keras.layers.DenseFeatures(video_ids_indicator, trainable=False, name="video_ids")
     seed_video_id_input = tf.keras.layers.Input(shape=(1,), name='seed_id', dtype=tf.string)
     cand_video_id_input = tf.keras.layers.Input(shape=(1,), name='cand_id', dtype=tf.string)
     seed_video_id = video_ids_dense({'video_ids': seed_video_id_input})
@@ -126,7 +126,7 @@ def build_model():
     video_categories_hash = tf.feature_column.categorical_column_with_hash_bucket(
             key='video_categories', hash_bucket_size=_video_categories_hash_bucket_size, dtype=tf.string)
     video_categories_indicator = tf.feature_column.indicator_column(video_categories_hash)
-    video_categories_dense = tf.keras.layers.DenseFeatures(video_categories_indicator, trainable=True, name='video_categories')
+    video_categories_dense = tf.keras.layers.DenseFeatures(video_categories_indicator, trainable=False, name='video_categories')
     seed_video_category_input = tf.keras.layers.Input(shape=(1,), name='seed_category', dtype=tf.string)
     cand_video_category_input = tf.keras.layers.Input(shape=(1,), name='cand_category', dtype=tf.string)
     seed_video_category = video_categories_dense({'video_categories': seed_video_category_input})
@@ -135,7 +135,7 @@ def build_model():
     video_tags_hash = tf.feature_column.categorical_column_with_hash_bucket(
             key='video_tags', hash_bucket_size=_video_tags_hash_bucket_size, dtype=tf.string)
     video_tags_indicator = tf.feature_column.indicator_column(video_tags_hash)
-    video_tags_dense = tf.keras.layers.DenseFeatures(video_tags_indicator, trainable=True, name='video_tags')
+    video_tags_dense = tf.keras.layers.DenseFeatures(video_tags_indicator, trainable=False, name='video_tags')
     seed_video_tags_input = tf.keras.layers.Input(shape=(_max_tags_num,), name='seed_tags', dtype=tf.string)
     cand_video_tags_input = tf.keras.layers.Input(shape=(_max_tags_num,), name='cand_tags', dtype=tf.string)
     seed_video_tags = video_tags_dense({'video_tags': seed_video_tags_input})
@@ -143,7 +143,7 @@ def build_model():
 
     video_gap_time_num = tf.feature_column.numeric_column(
         key='video_gap_time', default_value=-1, dtype=tf.int32, normalizer_fn=_time_exp_norm)
-    video_gap_time_dense = tf.keras.layers.DenseFeatures(video_gap_time_num, trainable=True, name='video_gap_time')
+    video_gap_time_dense = tf.keras.layers.DenseFeatures(video_gap_time_num, trainable=False, name='video_gap_time')
     seed_video_gap_time_input = tf.keras.layers.Input(shape=(1,), name='seed_gap_time')
     cand_video_gap_time_input = tf.keras.layers.Input(shape=(1,), name='cand_gap_time')
     seed_video_gap_time = video_gap_time_dense({'video_gap_time': seed_video_gap_time_input})
@@ -151,7 +151,7 @@ def build_model():
 
     video_duration_time = tf.feature_column.numeric_column(
         key='video_duration_time', default_value=-1, dtype=tf.int32, normalizer_fn=_log_norm)
-    video_duration_time_dense = tf.keras.layers.DenseFeatures(video_duration_time, trainable=True, name='video_duration_time')
+    video_duration_time_dense = tf.keras.layers.DenseFeatures(video_duration_time, trainable=False, name='video_duration_time')
     seed_video_duration_time_input = tf.keras.layers.Input(shape=(1,), name='seed_duration_time')
     cand_video_duration_time_input = tf.keras.layers.Input(shape=(1,), name='cand_duration_time')
     seed_video_duration_time = video_duration_time_dense({'video_duration_time': seed_video_duration_time_input})
@@ -164,7 +164,7 @@ def build_model():
     for feat in ['play_count', 'like_count', 'collect_count', 'share_count']:
         feat_num = tf.feature_column.numeric_column(
             key='video_'+feat, default_value=-1, dtype=tf.int32, normalizer_fn=_log_norm)
-        feat_dense = tf.keras.layers.DenseFeatures(feat_num, trainable=True, name='video_'+feat)
+        feat_dense = tf.keras.layers.DenseFeatures(feat_num, trainable=False, name='video_'+feat)
         seed_feat_input = tf.keras.layers.Input(shape=(1,), name='seed_'+feat)
         cand_feat_input = tf.keras.layers.Input(shape=(1,), name='cand_'+feat)
         video_seed_numerical_inputs['seed_'+feat] = seed_feat_input
