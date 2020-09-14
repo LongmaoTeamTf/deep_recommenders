@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 13:42:39
+@LastEditTime: 2020-09-14 14:16:59
 """
 import os
 import functools
@@ -129,9 +129,8 @@ def hash_simple(ids, hash_bucket_size):
 
 def log_q(x, y, sampling_p, temperature=0.05):
     """logQ correction used in sampled softmax model."""
-    inner_product = tf.reduce_sum(tf.math.multiply(x, y)) / temperature
-    # return inner_product - tf.math.log(sampling_p)
-    return inner_product
+    inner_product = tf.reduce_sum(tf.math.multiply(x, y), axis=-1) / temperature
+    return inner_product - tf.math.log(sampling_p)
 
 
 def corrected_batch_softmax(x, y, sampling_p):
