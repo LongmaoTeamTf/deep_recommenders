@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 13:25:23
+@LastEditTime: 2020-09-15 18:53:38
 """
 import numpy as np
 import tensorflow as tf
@@ -20,7 +20,6 @@ class HashEmbeddings(Layer):
     def __init__(self, 
                  hash_bucket_size, 
                  embedding_dim,
-                 mean=False,
                  regularizer='l2',
                  initializer='he_uniform',
                  trainable=True,
@@ -28,7 +27,6 @@ class HashEmbeddings(Layer):
         super(HashEmbeddings, self).__init__(**kwargs)
         self._hash_bucket_size = hash_bucket_size
         self._embedding_dim = embedding_dim
-        self._mean = mean
         self._regularizer = regularizers.get(regularizer)
         self._initializer = initializers.get(initializer)
         self._trainable = trainable
@@ -43,15 +41,19 @@ class HashEmbeddings(Layer):
         )
         super(HashEmbeddings, self).build(input_shape)
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs, mean=False, **kwargs):
         if K.dtype(inputs) != 'float32':
             inputs = K.cast(inputs, 'float32')
         outputs = K.dot(inputs, self.embeddings)
-        if self._mean is True:
-            condition = tf.greater(tf.reduce_sum(inputs, axis=-1, keepdims=True), 0)
-            outputs = tf.where(condition,
-                outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
-                K.zeros_like(outputs, dtype=tf.float32))
+        if mean is True:
+            # condition = tf.greater(tf.reduce_sum(inputs, axis=-1, keepdims=True), 0)
+            # outputs = tf.where(condition,
+            #     outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
+            #     K.zeros_like(outputs, dtype=tf.float32))
+            outputs = tf.math.div_no_nan( # pylint: disable=no-member
+                outputs, 
+                tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim))
+            )
         return outputs
 
     def compute_output_shape(self, input_shape):
@@ -180,17 +182,17 @@ def build_model():
     video_categories_hash_embeddings = HashEmbeddings(
         _video_categories_hash_bucket_size, _video_categories_embedding_dim, name='video_categories_hash_embeddings')
     video_tags_hash_embeddings = HashEmbeddings(
-        _video_tags_hash_bucket_size, _video_tags_embedding_dim, mean=True, name='video_tags_hash_embeddings')
+        _video_tags_hash_bucket_size, _video_tags_embedding_dim, name='video_tags_hash_embeddings')
 
     seed_video_id_embeddings = video_ids_hash_embeddings(seed_video_id)
     cand_video_id_embeddings = video_ids_hash_embeddings(cand_video_id)
-    user_past_watches_embeddings = video_ids_hash_embeddings(user_past_watches)
+    user_past_watches_embeddings = video_ids_hash_embeddings(user_past_watches, mean=True)
 
     seed_video_category_embeddings = video_categories_hash_embeddings(seed_video_category)
     cand_video_category_embeddings = video_categories_hash_embeddings(cand_video_category)
 
-    seed_video_tags_embeddings = video_tags_hash_embeddings(seed_video_tags)
-    cand_video_tags_embeddings = video_tags_hash_embeddings(cand_video_tags)
+    seed_video_tags_embeddings = video_tags_hash_embeddings(seed_video_tags, mean=True)
+    cand_video_tags_embeddings = video_tags_hash_embeddings(cand_video_tags, mean=True)
 
     seed_features = tf.keras.layers.Concatenate(axis=-1, name='seed_features_concat')([
         seed_video_id_embeddings, 
