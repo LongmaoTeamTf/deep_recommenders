@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-15 18:53:38
+@LastEditTime: 2020-09-15 18:56:59
 """
 import numpy as np
 import tensorflow as tf
@@ -50,7 +50,7 @@ class HashEmbeddings(Layer):
             # outputs = tf.where(condition,
             #     outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
             #     K.zeros_like(outputs, dtype=tf.float32))
-            outputs = tf.math.div_no_nan( # pylint: disable=no-member
+            outputs = tf.math.divide_no_nan(
                 outputs, 
                 tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim))
             )
