@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-14 19:37:33
+@LastEditTime: 2020-09-15 19:18:19
 """
 import os
 import functools
@@ -158,6 +158,19 @@ def topk_recall(output, reward, k=10):
     return tf.cond(tf.math.count_nonzero(reward) > 0, lambda: _ture(reward, indices), lambda: _false())
 
 
+def topk_positive(output, reward, k=10):
+    """Topk Positive rate"""
+    _, indices = tf.math.top_k(output, k=k)
+
+    def _ture(reward, indices):
+        return tf.math.count_nonzero(tf.gather(reward, indices)) / k
+    
+    def _false():
+        return tf.constant(0., dtype=tf.float64)
+
+    return tf.cond(tf.math.count_nonzero(reward) > 0, lambda: _ture(reward, indices), lambda: _false())
+    
+
 def train_model(strategy,
                 dataset, 
                 steps,
@@ -193,6 +206,7 @@ def train_model(strategy,
             return loss_value, left_grads, right_grads
 
         epoch_recall_avg = tf.keras.metrics.Mean()
+        epoch_positive_avg = tf.keras.metrics.Mean()
 
         optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
 
@@ -209,6 +223,7 @@ def train_model(strategy,
             optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
             epoch_recall_avg.update_state(topk_recall(pred(left_x, right_x, sampling_p), reward))
+            epoch_positive_avg.update_state(topk_positive(pred(left_x, right_x, sampling_p), reward))
 
             return loss_value
 
@@ -219,6 +234,7 @@ def train_model(strategy,
             
         loss_results = []
         recall_results = []
+        positive_results = []
         
         if tensorboard_dir is not None:
             summary_writer = tf.summary.create_file_writer(tensorboard_dir)
@@ -237,15 +253,16 @@ def train_model(strategy,
                 total_loss += distributed_train_step((left_x, right_x, reward), sampling_p=None)
                 
                 if step % 50 == 0:
-                    print("Epoch[{}/{}]: Batch[{}/{}] correct_sfx_loss={:.4f} topk_recall={:.4f}".format(
-                        epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result()))
+                    print("Epoch[{}/{}]: Batch[{}/{}] correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
+                        epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
                 step += 1   
 
             loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())
+            positive_results.append(epoch_positive_avg.result())
         
-            print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f}".format(
-                    epoch+1, epochs, total_loss/step, epoch_recall_avg.result()))
+            print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
+                    epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
 
             epoch_recall_avg.reset_states()
             
@@ -253,6 +270,7 @@ def train_model(strategy,
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
                     tf.summary.scalar('correct_sfx_loss', total_loss/steps, step=epoch)
                     tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
+                    tf.summary.scalar('topk_positive', epoch_positive_avg.result(), step=epoch)
 
             if epoch % 2 == 0:
                 left_checkpointer.save(left_checkpoint_prefix)
