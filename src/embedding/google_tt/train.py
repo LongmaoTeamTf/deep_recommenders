@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-15 19:18:19
+@LastEditTime: 2020-09-15 19:34:22
 """
 import os
 import functools
@@ -255,7 +255,9 @@ def train_model(strategy,
                 if step % 50 == 0:
                     print("Epoch[{}/{}]: Batch[{}/{}] correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
                         epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
-                step += 1   
+                step += 1
+
+            optimizer.lr = 0.8 * optimizer.lr
 
             loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())
@@ -265,6 +267,7 @@ def train_model(strategy,
                     epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
 
             epoch_recall_avg.reset_states()
+            epoch_positive_avg.reset_states()
             
             if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
