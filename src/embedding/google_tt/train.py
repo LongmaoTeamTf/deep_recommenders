@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-15 19:34:22
+@LastEditTime: 2020-09-16 11:26:06
 """
 import os
 import functools
@@ -265,9 +265,6 @@ def train_model(strategy,
         
             print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
                     epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
-
-            epoch_recall_avg.reset_states()
-            epoch_positive_avg.reset_states()
             
             if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
@@ -280,6 +277,9 @@ def train_model(strategy,
                 print(f'Saved checkpoints to: {left_checkpoint_prefix}')
                 right_checkpointer.save(right_checkpoint_prefix)
                 print(f'Saved checkpoints to: {right_checkpoint_prefix}')
+
+            epoch_recall_avg.reset_states()
+            epoch_positive_avg.reset_states()
             
     return left_model, right_model
 
