@@ -32,4 +32,4 @@ headers = {"content-type": "application/json"}
 
 json_response = requests.post('http://localhost:8501/v1/models/google_tt_query:predict', data=data, headers=headers)
 
-print(json_response)
+print(json_response.text)
