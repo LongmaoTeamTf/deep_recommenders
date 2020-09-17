@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:39:17
+@LastEditTime: 2020-09-17 16:41:00
 """
 import os
 import sys
@@ -142,7 +142,7 @@ for _, candidates, _ in dataset:
     data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
 
     json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
-    predictions = json_response.text['outputs']
+    predictions = json.loads(json_response.text)['outputs']
 
     for cand_id, pred in zip(cand_ids, predictions):
         data[int(cand_id)] = pred
