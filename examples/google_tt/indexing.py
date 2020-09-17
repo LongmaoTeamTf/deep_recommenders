@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 14:43:04
+@LastEditTime: 2020-09-17 14:49:40
 """
 import os
 import sys
@@ -108,12 +108,14 @@ global_ids = set()
 batches = 0
 for _, candidates, _ in dataset:
     candidates_ids = []
+    candidates_add_indexs = []
     candidates_update_ids = []
     candidates_update_indexs = []
     for i, cand_id in enumerate(candidates.get('cand_id').numpy()):
         candidates_ids.append(int(cand_id))
         if cand_id not in global_ids:
             global_ids.add(cand_id)
+            candidates_add_indexs.append(i)
         else:
             if cand_id not in candidates_update_ids:
                 candidates_update_ids.append(cand_id)
@@ -124,12 +126,16 @@ for _, candidates, _ in dataset:
     candidates_ids = np.array(candidates_ids, dtype=np.int64)
 
     predictions = model.predict(candidates)
-                                                 
+    
+    faiss_index_id_map.train(predictions[candidates_add_indexs])                                               # pylint: disable=no-value-for-parameter
+    faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
+        predictions[candidates_add_indexs], candidates_ids[candidates_add_indexs])
+
     if candidates_ids[candidates_update_indexs].size != 0:
         faiss_index_id_map.remove_ids(candidates_ids[candidates_update_indexs])
-    
-    faiss_index_id_map.train(predictions)                         # pylint: disable=no-value-for-parameter
-    faiss_index_id_map.add_with_ids(predictions, candidates_ids)  # pylint: disable=no-value-for-parameter
+        faiss_index_id_map.train(predictions[candidates_update_indexs])
+        faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
+            predictions[candidates_update_indexs], candidates_ids[candidates_update_indexs]) 
 
     if batches % 50 == 0:
         print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
