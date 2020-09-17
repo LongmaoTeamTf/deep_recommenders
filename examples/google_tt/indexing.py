@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 15:58:19
+@LastEditTime: 2020-09-17 16:27:57
 """
 import os
 import sys
@@ -13,6 +13,7 @@ import mkl
 import json
 import faiss
 import pathlib
+import requests
 import numpy as np
 import tensorflow as tf
 
@@ -120,15 +121,25 @@ faiss_index_id_map = faiss.IndexIDMap(faiss_index)
 
 global_ids = set()
 
+headers = {"content-type": "application/json"}
+
 batches = 0
-data = {}
+
 for _, candidates, _ in dataset:
 
     cand_ids = candidates.get('cand_id').numpy()
-    predictions = model.predict(candidates)
+    # predictions = model.predict(candidates)
+    candidates_data = {}
+    for k, v in candidates.items():
+        candidates_data[k] = v.numpy().tolist()
+
+    data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
+
+    json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
+    predictions = json_response.text['outputs']
 
     for cand_id, pred in zip(cand_ids, predictions):
-        data[int(cand_id)] = pred.tolist()
+        data[int(cand_id)] = pred
     
     # candidates_ids = []
     # candidates_add_indexs = []
@@ -161,12 +172,15 @@ for _, candidates, _ in dataset:
     #         predictions[candidates_update_indexs], candidates_ids[candidates_update_indexs]) 
 
     if batches % 50 == 0:
-        print('Faiss index: ntotal={}'.format(len(data.keys())))
+        print('Faiss index: Batches[{}] ntotal={}'.format(batches, len(data.keys())))
 
     batches += 1
 
-faiss_index_id_map.train(data.values())
-faiss_index_id_map.add_with_ids(data.values(), data.keys())
+vectors = np.array(list(data.values()), dtype=np.float32)
+ids = np.array(list(data.keys()), dtype=np.int64)
+
+faiss_index_id_map.train(vectors)               # pylint: disable=no-value-for-parameter
+faiss_index_id_map.add_with_ids(vectors, ids)   # pylint: disable=no-value-for-parameter
 
 
 print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
