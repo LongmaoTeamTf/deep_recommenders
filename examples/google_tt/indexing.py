@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-16 17:24:30
+@LastEditTime: 2020-09-17 10:33:16
 """
 import os
 import sys
@@ -23,8 +23,8 @@ from src.embedding.google_tt.train import get_dataset_from_csv_files
 
 mkl.get_max_threads()
 
-data_dir = pathlib.Path("/Users/wangyao/Desktop/Recommend/eyepetizer/two_tower_data")
-model_dir = "/Users/wangyao/Desktop/Recommend/eyepetizer/google_tt/google_tt_right_0.01"
+data_dir = pathlib.Path("/home/xddz/data/two_tower_data")
+model_dir = "/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_candidate/20200915"
 faiss_index_path = "./google_tt.faiss"
 
 left_columns = [
@@ -108,27 +108,27 @@ for _, candidates, _ in dataset:
     candidates_ids = np.array(candidates_ids, dtype=np.int64)
     predictions = model.predict(candidates)
     print(predictions)
-    # predictions = np.stack(predictions, axis=0).astype('float32')
+    predictions = np.stack(predictions, axis=0).astype('float32')
     print(predictions)
 
-    faiss_index_id_map.train(predictions)                           # pylint: disable=no-value-for-parameter
-    faiss_index_id_map.add_with_ids(predictions, candidates_ids)    # pylint: disable=no-value-for-parameter
+#     faiss_index_id_map.train(predictions)                           # pylint: disable=no-value-for-parameter
+#     faiss_index_id_map.add_with_ids(predictions, candidates_ids)    # pylint: disable=no-value-for-parameter
 
-    if faiss_index_id_map.ntotal % 500 == 0:
-        print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
+#     if faiss_index_id_map.ntotal % 500 == 0:
+#         print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
 
-print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
-faiss.write_index(faiss_index_id_map, faiss_index_path)
-print('Faiss index saved.')
+# print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
+# faiss.write_index(faiss_index_id_map, faiss_index_path)
+# print('Faiss index saved.')
     
 
-faiss_index_id_map = faiss.read_index(faiss_index_path)
-faiss_index_id_map.nprobe = 10
+# faiss_index_id_map = faiss.read_index(faiss_index_path)
+# faiss_index_id_map.nprobe = 10
 
-query = np.array([[0.2] *  128], dtype=np.float32)
+# query = np.array([[0.2] *  128], dtype=np.float32)
 
-distances, cand_ids = faiss_index_id_map.search(query, 10)
-print(distances)
-print(cand_ids)
+# distances, cand_ids = faiss_index_id_map.search(query, 10)
+# print(distances)
+# print(cand_ids)
 
 
