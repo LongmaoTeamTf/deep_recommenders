@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:27:57
+@LastEditTime: 2020-09-17 16:34:27
 """
 import os
 import sys
@@ -131,7 +131,10 @@ for _, candidates, _ in dataset:
     # predictions = model.predict(candidates)
     candidates_data = {}
     for k, v in candidates.items():
-        candidates_data[k] = v.numpy().tolist()
+        if v.dtype == 'string':
+            candidates_data[k] = [x.decode('utf-8') for x in v.numpy()]
+        else:
+            candidates_data[k] = v.numpy().tolist()
 
     data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
 
