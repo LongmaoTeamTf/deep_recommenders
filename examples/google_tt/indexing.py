@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 11:31:44
+@LastEditTime: 2020-09-17 13:59:44
 """
 import os
 import sys
@@ -109,6 +109,7 @@ batches = 0
 for _, candidates, _ in dataset:
     candidates_ids = []
     candidates_add_indexs = []
+    candidates_update_ids = []
     candidates_update_indexs = []
     for i, cand_id in enumerate(candidates.get('cand_id').numpy()):
         candidates_ids.append(int(cand_id))
@@ -116,7 +117,11 @@ for _, candidates, _ in dataset:
             global_ids.add(cand_id)
             candidates_add_indexs.append(i)
         else:
-            candidates_update_indexs.append(i)
+            if cand_id not in candidates_update_ids:
+                candidates_update_ids.append(cand_id)
+                candidates_update_indexs.append(i)
+            else:
+                candidates_update_indexs[candidates_update_ids.index(cand_id)] = i
         
     candidates_ids = np.array(candidates_ids, dtype=np.int64)
 
@@ -125,7 +130,7 @@ for _, candidates, _ in dataset:
     faiss_index_id_map.train(predictions)                                               # pylint: disable=no-value-for-parameter
     faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
         predictions[candidates_add_indexs], candidates_ids[candidates_add_indexs])
-        
+
     if candidates_ids[candidates_update_indexs].size != 0:
         faiss_index_id_map.remove_ids(candidates_ids[candidates_update_indexs])
         faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
