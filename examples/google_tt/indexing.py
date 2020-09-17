@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 10:33:16
+@LastEditTime: 2020-09-17 10:40:58
 """
 import os
 import sys
@@ -107,28 +107,25 @@ for _, candidates, _ in dataset:
     candidates_ids = [int(cand_id) for cand_id in candidates.get('cand_id')]
     candidates_ids = np.array(candidates_ids, dtype=np.int64)
     predictions = model.predict(candidates)
-    print(predictions)
-    predictions = np.stack(predictions, axis=0).astype('float32')
-    print(predictions)
+    
+    faiss_index_id_map.train(predictions)                           # pylint: disable=no-value-for-parameter
+    faiss_index_id_map.add_with_ids(predictions, candidates_ids)    # pylint: disable=no-value-for-parameter
 
-#     faiss_index_id_map.train(predictions)                           # pylint: disable=no-value-for-parameter
-#     faiss_index_id_map.add_with_ids(predictions, candidates_ids)    # pylint: disable=no-value-for-parameter
+    if faiss_index_id_map.ntotal % 500 == 0:
+        print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
 
-#     if faiss_index_id_map.ntotal % 500 == 0:
-#         print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
-
-# print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
-# faiss.write_index(faiss_index_id_map, faiss_index_path)
-# print('Faiss index saved.')
+print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
+faiss.write_index(faiss_index_id_map, faiss_index_path)
+print('Faiss index saved.')
     
 
-# faiss_index_id_map = faiss.read_index(faiss_index_path)
-# faiss_index_id_map.nprobe = 10
+faiss_index_id_map = faiss.read_index(faiss_index_path)
+faiss_index_id_map.nprobe = 10
 
-# query = np.array([[0.2] *  128], dtype=np.float32)
+query = np.array([[0.2] *  128], dtype=np.float32)
 
-# distances, cand_ids = faiss_index_id_map.search(query, 10)
-# print(distances)
-# print(cand_ids)
+distances, cand_ids = faiss_index_id_map.search(query, 10)
+print(distances)
+print(cand_ids)
 
 
