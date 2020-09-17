@@ -1,4 +1,5 @@
 import json
+import time
 import requests
 
 left_data = {
@@ -30,6 +31,9 @@ right_columns = {
 data = json.dumps({"signature": "serving_default", "inputs": left_data})
 headers = {"content-type": "application/json"}
 
+start = time.time()
 json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
+stop = time.time()
+print(stop-start)
 
 print(json_response.text)
