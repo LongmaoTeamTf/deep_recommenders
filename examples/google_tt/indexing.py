@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:34:27
+@LastEditTime: 2020-09-17 16:38:19
 """
 import os
 import sys
@@ -132,7 +132,10 @@ for _, candidates, _ in dataset:
     candidates_data = {}
     for k, v in candidates.items():
         if v.dtype == 'string':
-            candidates_data[k] = [x.decode('utf-8') for x in v.numpy()]
+            if v.shape > 1:
+                candidates_data[k] = [[d.decode('utf-8') for d in x] for x in v.numpy()]
+            else:
+                candidates_data[k] = [x.decode('utf-8') for x in v.numpy()]
         else:
             candidates_data[k] = v.numpy().tolist()
 
