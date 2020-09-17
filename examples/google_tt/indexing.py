@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 10:40:58
+@LastEditTime: 2020-09-17 10:45:37
 """
 import os
 import sys
@@ -111,7 +111,7 @@ for _, candidates, _ in dataset:
     faiss_index_id_map.train(predictions)                           # pylint: disable=no-value-for-parameter
     faiss_index_id_map.add_with_ids(predictions, candidates_ids)    # pylint: disable=no-value-for-parameter
 
-    if faiss_index_id_map.ntotal % 500 == 0:
+    if faiss_index_id_map.ntotal % 5120 == 0:
         print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
 
 print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
