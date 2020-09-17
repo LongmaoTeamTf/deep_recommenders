@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 14:53:28
+@LastEditTime: 2020-09-17 15:05:07
 """
 import os
 import sys
@@ -146,9 +146,11 @@ for _, candidates, _ in dataset:
     faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
         predictions[candidates_add_indexs], candidates_ids[candidates_add_indexs])
 
+    print(get_invlists(faiss_index_id_map))
+    print(candidates_ids[candidates_add_indexs])
+
     if candidates_ids[candidates_update_indexs].size != 0:
-        print(get_invlists(faiss_index_id_map))
-        print(candidates_ids[candidates_update_indexs])
+    
         faiss_index_id_map.remove_ids(candidates_ids[candidates_update_indexs])
         faiss_index_id_map.train(predictions[candidates_update_indexs])                 # pylint: disable=no-value-for-parameter
         faiss_index_id_map.add_with_ids(                                                # pylint: disable=no-value-for-parameter
