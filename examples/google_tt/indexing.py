@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:47:41
+@LastEditTime: 2020-09-17 16:50:42
 """
 import os
 import sys
@@ -125,6 +125,7 @@ headers = {"content-type": "application/json"}
 
 batches = 0
 
+global_datas = {}
 for _, candidates, _ in dataset:
 
     cand_ids = candidates.get('cand_id').numpy()
@@ -145,7 +146,7 @@ for _, candidates, _ in dataset:
     predictions = json.loads(json_response.text)['outputs']
 
     for cand_id, pred in zip(cand_ids, predictions):
-        data[int(cand_id)] = pred
+        global_datas[int(cand_id)] = pred
     
     # candidates_ids = []
     # candidates_add_indexs = []
