@@ -16,15 +16,15 @@ left_data = {
 }
 
 right_data = {
-    'cand_id': [['1111']],
-    'cand_category': [['音乐']],
-    'cand_tags': [['tag1', 'tag3']],
-    'cand_gap_time': [[1000]],
-    'cand_duration_time': [[2000]],
-    'cand_play_count': [[10000]],
-    'cand_like_count': [[200]],
-    'cand_share_count': [[200]],
-    'cand_collect_count': [[200]]
+    'cand_id': [['1111']]*500,
+    'cand_category': [['音乐']]*500,
+    'cand_tags': [['tag1', 'tag3']]*500,
+    'cand_gap_time': [[1000]]*500,
+    'cand_duration_time': [[2000]]*500,
+    'cand_play_count': [[10000]]*500,
+    'cand_like_count': [[200]]*500,
+    'cand_share_count': [[200]]*500,
+    'cand_collect_count': [[200]]*500
 }
 
 
