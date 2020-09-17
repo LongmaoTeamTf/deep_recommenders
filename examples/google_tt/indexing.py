@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:50:42
+@LastEditTime: 2020-09-17 16:52:08
 """
 import os
 import sys
@@ -179,12 +179,12 @@ for _, candidates, _ in dataset:
     #         predictions[candidates_update_indexs], candidates_ids[candidates_update_indexs]) 
 
     if batches % 50 == 0:
-        print('Faiss index: Batches[{}] ntotal={}'.format(batches, len(data.keys())))
+        print('Faiss index: Batches[{}] ntotal={}'.format(batches, len(global_datas.keys())))
 
     batches += 1
 
-vectors = np.array(list(data.values()), dtype=np.float32)
-ids = np.array(list(data.keys()), dtype=np.int64)
+vectors = np.array(list(global_datas.values()), dtype=np.float32)
+ids = np.array(list(global_datas.keys()), dtype=np.int64)
 
 faiss_index_id_map.train(vectors)               # pylint: disable=no-value-for-parameter
 faiss_index_id_map.add_with_ids(vectors, ids)   # pylint: disable=no-value-for-parameter
