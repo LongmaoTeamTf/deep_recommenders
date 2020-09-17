@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:46:35
+@LastEditTime: 2020-09-17 16:47:41
 """
 import os
 import sys
@@ -137,7 +137,7 @@ for _, candidates, _ in dataset:
             else:
                 candidates_data[k] = [[x.decode('utf-8')] for x in v.numpy()]
         else:
-            candidates_data[k] = v.numpy().astype('float').reshape((-1, 1)).toslit()
+            candidates_data[k] = v.numpy().astype('float').reshape((-1, 1)).tolist()
 
     data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
 
