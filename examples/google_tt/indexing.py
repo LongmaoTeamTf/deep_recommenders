@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 16:52:08
+@LastEditTime: 2020-09-17 16:58:39
 """
 import os
 import sys
@@ -129,21 +129,21 @@ global_datas = {}
 for _, candidates, _ in dataset:
 
     cand_ids = candidates.get('cand_id').numpy()
-    # predictions = model.predict(candidates)
-    candidates_data = {}
-    for k, v in candidates.items():
-        if v.dtype == 'string':
-            if len(v.shape) > 1:
-                candidates_data[k] = [[d.decode('utf-8') for d in x] for x in v.numpy()]
-            else:
-                candidates_data[k] = [[x.decode('utf-8')] for x in v.numpy()]
-        else:
-            candidates_data[k] = v.numpy().astype('float').reshape((-1, 1)).tolist()
+    predictions = model.predict(candidates)
+    # candidates_data = {}
+    # for k, v in candidates.items():
+    #     if v.dtype == 'string':
+    #         if len(v.shape) > 1:
+    #             candidates_data[k] = [[d.decode('utf-8') for d in x] for x in v.numpy()]
+    #         else:
+    #             candidates_data[k] = [[x.decode('utf-8')] for x in v.numpy()]
+    #     else:
+    #         candidates_data[k] = v.numpy().astype('float').reshape((-1, 1)).tolist()
 
-    data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
+    # data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
 
-    json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
-    predictions = json.loads(json_response.text)['outputs']
+    # json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
+    # predictions = json.loads(json_response.text)['outputs']
 
     for cand_id, pred in zip(cand_ids, predictions):
         global_datas[int(cand_id)] = pred
