@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-17 11:17:38
+@LastEditTime: 2020-09-17 11:21:02
 """
 import os
 import sys
@@ -110,7 +110,7 @@ for _, candidates, _ in dataset:
     candidates_ids = []
     candidates_add_indexs = []
     candidates_update_indexs = []
-    for i, cand_id in enumerate(candidates.get('cand_id')):
+    for i, cand_id in enumerate(candidates.get('cand_id').numpy()):
         candidates_ids.append(int(cand_id))
         if cand_id not in global_ids:
             global_ids.add(cand_id)
