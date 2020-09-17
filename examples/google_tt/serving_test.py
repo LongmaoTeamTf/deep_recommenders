@@ -15,20 +15,20 @@ left_data = {
     'seed_collect_count': [[100]]
 }
 
-right_columns = {
-    'cand_id',
-    'cand_category',
-    'cand_tags',
-    'cand_gap_time',
-    'cand_duration_time',
-    'cand_play_count',
-    'cand_like_count',
-    'cand_share_count',
-    'cand_collect_count'
+right_data = {
+    'cand_id': [['1111']],
+    'cand_category': [['音乐']],
+    'cand_tags': [['tag1', 'tag3']],
+    'cand_gap_time': [[1000]],
+    'cand_duration_time': [[2000]],
+    'cand_play_count': [[10000]],
+    'cand_like_count': [[200]],
+    'cand_share_count': [[200]],
+    'cand_collect_count': [[200]]
 }
 
 
-data = json.dumps({"signature": "serving_default", "inputs": left_data})
+data = json.dumps({"signature": "serving_default", "inputs": right_data})
 headers = {"content-type": "application/json"}
 
 start = time.time()
