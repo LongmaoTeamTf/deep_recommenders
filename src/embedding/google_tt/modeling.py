@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-15 18:56:59
+@LastEditTime: 2020-09-21 14:10:48
 """
 import numpy as np
 import tensorflow as tf
@@ -46,10 +46,6 @@ class HashEmbeddings(Layer):
             inputs = K.cast(inputs, 'float32')
         outputs = K.dot(inputs, self.embeddings)
         if mean is True:
-            # condition = tf.greater(tf.reduce_sum(inputs, axis=-1, keepdims=True), 0)
-            # outputs = tf.where(condition,
-            #     outputs / tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim)),
-            #     K.zeros_like(outputs, dtype=tf.float32))
             outputs = tf.math.divide_no_nan(
                 outputs, 
                 tf.tile(tf.reduce_sum(inputs, axis=-1, keepdims=True), (1, self._embedding_dim))
@@ -73,8 +69,27 @@ class HashEmbeddings(Layer):
 
 class L2Normalization(Layer):
 
+    def __init__(self, kernel_size, **kwargs):
+        super(L2Normalization, self).__init__(**kwargs)
+        self._kernel_size = kernel_size
+
+    def build(self, input_shape):
+        self._weights = self.add_weight(
+            shape=(self._kernel_size,),
+            initializer=initializers.glorot_uniform,
+            trainable=True,
+            name='l2norm_weights'
+        )
+        self._bais = self.add_weight(
+            shape=(self._kernel_size,),
+            initializer=initializers.zeros,
+            trainable=True,
+            name='l2norm_bais'
+        )
+
     def call(self, inputs, **kwargs):
-        return K.l2_normalize(inputs)
+        outputs = self._weights * inputs + self._bais
+        return K.l2_normalize(outputs)
 
 
 def _log_norm(value):
@@ -116,6 +131,15 @@ def build_model():
     _max_tags_num = 5
     _past_watches_num = 30
 
+    _boundaries = {
+        'gap_time': [0, 1/365, 3/365, 7/365, 15/365, 30/365, 0.5, 1., 2., 3., 4.],
+        'duration_time': [x*60 for x in range(30)],
+        'play_count': [x*50 for x in range(101)],
+        'like_count': [x*20 for x in range(201)],
+        'collect_count': [x*10 for x in range(201)],
+        'share_count': [x*10 for x in range(101)]
+    }
+
     video_ids_hash = tf.feature_column.categorical_column_with_hash_bucket(
             key='video_ids', hash_bucket_size=_video_ids_hash_bucket_size, dtype=tf.string)
     video_ids_indicator = tf.feature_column.indicator_column(video_ids_hash)
@@ -145,6 +169,7 @@ def build_model():
 
     video_gap_time_num = tf.feature_column.numeric_column(
         key='video_gap_time', default_value=-1, dtype=tf.int32, normalizer_fn=_time_exp_norm)
+    video_gap_time_num = tf.feature_column.bucketized_column(video_gap_time_num, boundaries=_boundaries.get('gap_time'))
     video_gap_time_dense = tf.keras.layers.DenseFeatures(video_gap_time_num, trainable=False, name='video_gap_time')
     seed_video_gap_time_input = tf.keras.layers.Input(shape=(1,), name='seed_gap_time')
     cand_video_gap_time_input = tf.keras.layers.Input(shape=(1,), name='cand_gap_time')
@@ -152,7 +177,8 @@ def build_model():
     cand_video_gap_time = video_gap_time_dense({'video_gap_time': cand_video_gap_time_input})
 
     video_duration_time = tf.feature_column.numeric_column(
-        key='video_duration_time', default_value=-1, dtype=tf.int32, normalizer_fn=_log_norm)
+        key='video_duration_time', default_value=-1, dtype=tf.int32, normalizer_fn=None)
+    video_duration_time = tf.feature_column.bucketized_column(video_duration_time, boundaries=_boundaries.get('duration_time'))
     video_duration_time_dense = tf.keras.layers.DenseFeatures(video_duration_time, trainable=False, name='video_duration_time')
     seed_video_duration_time_input = tf.keras.layers.Input(shape=(1,), name='seed_duration_time')
     cand_video_duration_time_input = tf.keras.layers.Input(shape=(1,), name='cand_duration_time')
@@ -165,7 +191,8 @@ def build_model():
     video_cand_numerical_features = {}
     for feat in ['play_count', 'like_count', 'collect_count', 'share_count']:
         feat_num = tf.feature_column.numeric_column(
-            key='video_'+feat, default_value=-1, dtype=tf.int32, normalizer_fn=_log_norm)
+            key='video_'+feat, default_value=-1, dtype=tf.int32, normalizer_fn=None)
+        feat_num = tf.feature_column.bucketized_column(feat_num, boundaries=_boundaries.get(feat))
         feat_dense = tf.keras.layers.DenseFeatures(feat_num, trainable=False, name='video_'+feat)
         seed_feat_input = tf.keras.layers.Input(shape=(1,), name='seed_'+feat)
         cand_feat_input = tf.keras.layers.Input(shape=(1,), name='cand_'+feat)
@@ -202,25 +229,29 @@ def build_model():
         seed_video_duration_time,
     ] + list(video_seed_numerical_features.values()))
 
-    left_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='seed_concat_user')([
+    query_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='seed_concat_user')([
         seed_features, user_past_watches_embeddings
     ])
-    left_x = tf.keras.layers.Dense(256, activation='relu', name='left_dense_0')(left_tower_inputs)
-    left_x = tf.keras.layers.Dense(128, activation='relu', name='left_dense_1')(left_x)
-    left_x = L2Normalization(name='left_l2_norm')(left_x)
+    query_x = tf.keras.layers.Dense(512, name='query_dense_0')(query_tower_inputs)
+    query_x = tf.keras.layers.PReLU(name='query_prelu_0')(query_x)
+    query_x = tf.keras.layers.Dense(128, name='query_dense_1')(query_x)
+    query_x = tf.keras.layers.PReLU(name='query_prelu_1')(query_x)
+    query_x = L2Normalization(128, name='query_l2_norm')(query_x)
 
-    right_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='cand_features_concat')([
+    candidate_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='cand_features_concat')([
         cand_video_id_embeddings, 
         cand_video_category_embeddings,
         cand_video_tags_embeddings,
         cand_video_gap_time,
         cand_video_duration_time,
     ] + list(video_cand_numerical_features.values()))
-    right_x = tf.keras.layers.Dense(256, activation='relu', name='right_dense_0')(right_tower_inputs)
-    right_x = tf.keras.layers.Dense(128, activation='relu', name='right_dense_1')(right_x)
-    right_x = L2Normalization(name='right_l2_norm')(right_x)
+    candidate_x = tf.keras.layers.Dense(512, name='candidate_dense_0')(candidate_tower_inputs)
+    candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_0')(candidate_x)
+    candidate_x = tf.keras.layers.Dense(128, name='candidate_dense_1')(candidate_x)
+    candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_1')(candidate_x)
+    candidate_x = L2Normalization(128, name='candidate_l2_norm')(candidate_x)
 
-    left_tower = tf.keras.Model(
+    query_tower = tf.keras.Model(
         inputs=[
             past_watches_input,
             seed_video_id_input,
@@ -229,11 +260,11 @@ def build_model():
             seed_video_gap_time_input,
             seed_video_duration_time_input,
         ] + list(video_seed_numerical_inputs.values()), 
-        outputs=left_x, 
-        name='left_tower'
+        outputs=query_x, 
+        name='query_tower'
     )
 
-    right_tower = tf.keras.Model(
+    candidate_tower = tf.keras.Model(
         inputs=[
             cand_video_id_input,
             cand_video_category_input,
@@ -241,17 +272,17 @@ def build_model():
             cand_video_gap_time_input,
             cand_video_duration_time_input,
         ] + list(video_cand_numerical_inputs.values()), 
-        outputs=right_x,
-        name='right_tower'
+        outputs=candidate_x,
+        name='candidate_tower'
     )
-    return left_tower, right_tower
+    return query_tower, candidate_tower
 
 
 if __name__ == "__main__":
-    left_tower, right_tower  = build_model()
-    left_tower.summary()
-    right_tower.summary()
-    tf.keras.utils.plot_model(left_tower, to_file='pngs/left_tower.png', show_shapes=True)
-    tf.keras.utils.plot_model(right_tower, to_file='pngs/right_tower.png', show_shapes=True)
+    query_tower, candidate_tower  = build_model()
+    query_tower.summary()
+    candidate_tower.summary()
+    tf.keras.utils.plot_model(query_tower, to_file='query_tower.png', show_shapes=True)
+    tf.keras.utils.plot_model(candidate_tower, to_file='candidate_tower.png', show_shapes=True)
     
 
