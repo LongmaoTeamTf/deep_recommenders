@@ -38,4 +38,4 @@ json_response = requests.post('http://localhost:8501/v1/models/google_tt_query:p
 stop = time.time()
 print(stop-start)
 
-# print(json_response.text)
+print(json_response.text)
