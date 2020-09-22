@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 16:56:31
+@LastEditTime: 2020-09-22 17:02:30
 """
 import os
 import time
@@ -265,7 +265,7 @@ def train_model(strategy,
                 
                 if step % 50 == 0:
                     print("Epoch[{}/{}]: Batch[{}/{}] "
-                          "Speed={:.4f}s/batch"
+                          "Speed[{:.4f}s/batch] "
                           "correct_sfx_loss={:.4f} "
                           "topk_recall={:.4f} "
                           "topk_positive={:.4f}".format(
