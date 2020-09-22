@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:35:51
+@LastEditTime: 2020-09-22 17:48:32
 """
 import os
 import time
@@ -100,7 +100,7 @@ def get_dataset_from_csv_files(filenames,
             left_columns,
             right_columns,
             csv_header),
-        num_parallel_calls=32
+        num_parallel_calls=16
     )
     if epochs is not None:
         dataset = dataset.repeat(epochs)
