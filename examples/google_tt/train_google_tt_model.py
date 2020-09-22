@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 16:34:39
+@LastEditTime: 2020-09-22 16:36:55
 """
 import os
 import sys
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     dataset_config = {
         'data_dir': '/home/xddz/data/two_tower_data',
-        'batch_size': 256,
+        'batch_size': 512,
         'query_columns': query_columns,
         'candidate_columns': candidate_columns,
         'csv_header': csv_header
