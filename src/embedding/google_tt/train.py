@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 15:23:39
+@LastEditTime: 2020-09-22 16:16:27
 """
 import os
 import functools
@@ -178,7 +178,7 @@ def train_model(strategy,
                 ids_column,
                 ids_hash_bucket_size,
                 tensorboard_dir=None,
-                checkpoint_dir=None,
+                checkpoints_dir=None,
                 streaming=False,
                 beta=100,
                 lr=0.001):
@@ -214,8 +214,8 @@ def train_model(strategy,
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
 
-        left_checkpoint_prefix = os.path.join(checkpoint_dir, "left-ckpt")
-        right_checkpoint_prefix = os.path.join(checkpoint_dir, "right-ckpt")
+        left_checkpoint_prefix = os.path.join(checkpoints_dir, "left-ckpt")
+        right_checkpoint_prefix = os.path.join(checkpoints_dir, "right-ckpt")
 
         def train_step(inputs, sampling_p):
             left_x, right_x, reward = inputs
