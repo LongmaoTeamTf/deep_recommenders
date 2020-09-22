@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:58:19
+@LastEditTime: 2020-09-22 17:59:50
 """
 import os
 import time
@@ -94,8 +94,7 @@ def get_dataset_from_csv_files(filenames,
         block_length=batch_size,
         num_parallel_calls=6
     )
-    dataset = dataset.batch(batch_size)
-    dataset = dataset.map(
+    dataset = dataset.batch(batch_size).map(
         map_func=functools.partial(
             parse_csv_line, 
             left_columns,
