@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 16:20:39
+@LastEditTime: 2020-09-22 16:34:39
 """
 import os
 import sys
@@ -41,7 +41,7 @@ def distribute_train_model(dataset_config, train_config):
     data_dir = dataset_config.get('data_dir')
     data_dir = pathlib.Path(data_dir)
     filenames = [str(fn) for fn in data_dir.glob("*.csv")]
-    batch_size = dataset_config.get('batch_size')
+    global_batch_size = dataset_config.get('batch_size') * train_config.get('workers_num')
 
     version = train_config.get('version')
     tensorboard_dir = os.path.join(train_config.get('tensorboard_dir'), version)
@@ -56,9 +56,9 @@ def distribute_train_model(dataset_config, train_config):
         dataset_config.get('query_columns'), 
         dataset_config.get('candidate_columns'),
         dataset_config.get('csv_header'), 
-        batch_size=batch_size * train_config.get('workers_num')
+        batch_size=global_batch_size
     )
-    train_steps = _get_steps(filenames, batch_size)
+    train_steps = _get_steps(filenames, global_batch_size)
     
     query_model, candidate_model = train_model(
         strategy,
