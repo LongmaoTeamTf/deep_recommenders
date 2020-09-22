@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:34:55
+@LastEditTime: 2020-09-22 17:35:51
 """
 import os
 import time
@@ -90,9 +90,9 @@ def get_dataset_from_csv_files(filenames,
     list_ds = tf.data.Dataset.list_files(filenames)
     dataset = list_ds.interleave(
         lambda fp: tf.data.TextLineDataset(fp).skip(1),
-        cycle_length=5,
+        cycle_length=6,
         block_length=batch_size,
-        num_parallel_calls=32
+        num_parallel_calls=6
     )
     dataset = dataset.map(
         map_func=functools.partial(
