@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 18:03:57
+@LastEditTime: 2020-09-22 18:37:00
 """
 import os
 import time
@@ -42,8 +42,7 @@ def parse_csv_line(left_columns,
 
     def _parse_multi_hot(tensor, max_length=10, duplicate=True, delim='_'):
         """Multi-hot"""
-        print(tensor)
-        vals = [x.decode('utf-8').strip(delim).split(delim) for x in tensor.numpy()]
+        vals = tensor.numpy().decode('utf-8').strip(delim).split(delim)
         if duplicate is True:
             vals = list(set(vals))
         if len(vals) < max_length:
@@ -95,13 +94,13 @@ def get_dataset_from_csv_files(filenames,
         block_length=batch_size,
         num_parallel_calls=6
     )
-    dataset = dataset.batch(batch_size).map(
+    dataset = dataset.map(
         map_func=functools.partial(
             parse_csv_line, 
             left_columns,
             right_columns,
             csv_header),
-        num_parallel_calls=16
+        num_parallel_calls=6
     )
     if epochs is not None:
         dataset = dataset.repeat(epochs)
