@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:59:50
+@LastEditTime: 2020-09-22 18:00:50
 """
 import os
 import time
@@ -106,6 +106,7 @@ def get_dataset_from_csv_files(filenames,
         dataset = dataset.repeat(epochs)
     if shuffle_size is not None:
         dataset = dataset.shuffle(shuffle_size)
+    dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(batch_size)
     return dataset
 
