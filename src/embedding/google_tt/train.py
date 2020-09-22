@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 12:01:23
+@LastEditTime: 2020-09-22 15:23:39
 """
 import os
 import functools
@@ -179,6 +179,7 @@ def train_model(strategy,
                 ids_hash_bucket_size,
                 tensorboard_dir=None,
                 checkpoint_dir=None,
+                streaming=False,
                 beta=100,
                 lr=0.001):
     """自定义训练"""
@@ -241,20 +242,30 @@ def train_model(strategy,
 
         print("Start Traning ... ")
         for epoch in range(epochs):
+            if streaming is True:
+                array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
+                array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             total_loss = 0.0
-            # array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
-            # array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             step = 1
-            for left_x, right_x, reward in dataset:
-                # cand_ids = right_x.get(ids_column)
-                # cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
-                # array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
-                
-                total_loss += distributed_train_step((left_x, right_x, reward), sampling_p=None)
+            for inputs in dataset:
+                if streaming is True:
+                    cand_ids = inputs[1].get(ids_column)
+                    cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
+                    array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
+                else:
+                    sampling_p = None
+                    
+                total_loss += distributed_train_step(inputs, sampling_p=sampling_p)
                 
                 if step % 50 == 0:
-                    print("Epoch[{}/{}]: Batch[{}/{}] correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
-                        epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
+                    print("Epoch[{}/{}]: Batch[{}/{}] "
+                          "correct_sfx_loss={:.4f} "
+                          "topk_recall={:.4f} "
+                          "topk_positive={:.4f}".format(
+                            epoch+1, epochs, step, steps, 
+                            total_loss/step, 
+                            epoch_recall_avg.result(), 
+                            epoch_positive_avg.result()))
                 step += 1
 
             optimizer.lr = 0.1 * optimizer.lr
