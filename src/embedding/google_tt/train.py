@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:02:30
+@LastEditTime: 2020-09-22 17:26:48
 """
 import os
 import time
@@ -85,12 +85,12 @@ def get_dataset_from_csv_files(filenames,
                                csv_header,
                                batch_size=256,
                                epochs=None,
-                               shuffle_size=500):
+                               shuffle_size=None):
     """消费csv文件列表"""
     list_ds = tf.data.Dataset.list_files(filenames)
     dataset = list_ds.interleave(
         lambda fp: tf.data.TextLineDataset(fp).skip(1),
-        cycle_length=2,
+        cycle_length=32,
         block_length=batch_size,
         num_parallel_calls=2
     )
@@ -100,7 +100,7 @@ def get_dataset_from_csv_files(filenames,
             left_columns,
             right_columns,
             csv_header),
-        num_parallel_calls=2
+        num_parallel_calls=32
     )
     if epochs is not None:
         dataset = dataset.repeat(epochs)
