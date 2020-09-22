@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-21 20:21:19
 @LastEditors: Wang Yao
-@LastEditTime: 2020-08-06 15:33:04
+@LastEditTime: 2020-09-21 15:55:52
 """
 import tensorflow as tf
 import tensorflow.keras.backend as K
@@ -212,6 +212,44 @@ class LR(Layer):
         outputs = K.sum(outputs, axis=1, keepdims=True)
         outputs = K.sigmoid(outputs)
         return outputs
+
+
+class MultiTargets(Layer):
+
+    def __init__(self, targets_size, **kwargs):
+        super(MultiTargets, self).__init__(**kwargs)
+        self._targets_size = targets_size
+
+    def build(self, input_shape):
+        input_size = K.concatenate(input_shape, axis=-1)[-1]
+        self._weights = self.add_weight(
+            shape=(input_size, self._targets_size),
+            initializer=initializers.glorot_uniform,
+            trainable=True,
+            name='output_weights'
+        )
+        self._bais = self.add_weight(
+            shape=(self._targets_size),
+            initializer=initializers.zeros,
+            trainable=True,
+            name='output_bais'
+        )
+
+    def call(self, inputs):
+        outputs = K.concatenate(inputs, axis=1)
+        outputs = K.dot(outputs, self._weights) + self._bais
+        outputs = K.sigmoid(outputs)
+        return outputs
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0][0], self._targets_size)
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'targets_size': self._targets_size,
+        })
+        return config
 
 
 class DeepFM(Layer):
