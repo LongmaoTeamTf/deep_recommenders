@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 18:00:50
+@LastEditTime: 2020-09-22 18:03:57
 """
 import os
 import time
@@ -42,7 +42,8 @@ def parse_csv_line(left_columns,
 
     def _parse_multi_hot(tensor, max_length=10, duplicate=True, delim='_'):
         """Multi-hot"""
-        vals = tensor.numpy().decode('utf-8').strip(delim).split(delim)
+        print(tensor)
+        vals = [x.decode('utf-8').strip(delim).split(delim) for x in tensor.numpy()]
         if duplicate is True:
             vals = list(set(vals))
         if len(vals) < max_length:
