@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 16:18:56
+@LastEditTime: 2020-09-22 16:20:39
 """
 import os
 import sys
@@ -56,7 +56,7 @@ def distribute_train_model(dataset_config, train_config):
         dataset_config.get('query_columns'), 
         dataset_config.get('candidate_columns'),
         dataset_config.get('csv_header'), 
-        batch_size=batch_size
+        batch_size=batch_size * train_config.get('workers_num')
     )
     train_steps = _get_steps(filenames, batch_size)
     
@@ -137,6 +137,7 @@ if __name__ == "__main__":
     }
     
     train_config = {
+        'workers_num': 2,
         'epochs': 10,
         'ids_column': 'cand_id',
         'ids_hash_bucket_size': 100000,
