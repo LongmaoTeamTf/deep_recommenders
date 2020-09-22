@@ -5,9 +5,10 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 14:16:54
+@LastEditTime: 2020-09-22 14:18:07
 """
 import os
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 import sys
 import mkl
 import json
