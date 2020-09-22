@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 17:56:09
+@LastEditTime: 2020-09-22 17:58:19
 """
 import os
 import time
@@ -95,7 +95,6 @@ def get_dataset_from_csv_files(filenames,
         num_parallel_calls=6
     )
     dataset = dataset.batch(batch_size)
-    dataset = dataset.prefetch(batch_size)
     dataset = dataset.map(
         map_func=functools.partial(
             parse_csv_line, 
@@ -108,7 +107,7 @@ def get_dataset_from_csv_files(filenames,
         dataset = dataset.repeat(epochs)
     if shuffle_size is not None:
         dataset = dataset.shuffle(shuffle_size)
-    
+    dataset = dataset.prefetch(batch_size)
     return dataset
 
 
