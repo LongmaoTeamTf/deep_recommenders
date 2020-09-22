@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-21 14:15:22
+@LastEditTime: 2020-09-22 12:01:23
 """
 import os
 import functools
@@ -257,7 +257,7 @@ def train_model(strategy,
                         epoch+1, epochs, step, steps, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
                 step += 1
 
-            optimizer.lr = 0.8 * optimizer.lr
+            optimizer.lr = 0.1 * optimizer.lr
 
             loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())
@@ -272,7 +272,7 @@ def train_model(strategy,
                     tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
                     tf.summary.scalar('topk_positive', epoch_positive_avg.result(), step=epoch)
 
-            if epoch % 2 == 0:
+            if epoch+1 % 2 == 0:
                 left_checkpointer.save(left_checkpoint_prefix)
                 print(f'Saved checkpoints to: {left_checkpoint_prefix}')
                 right_checkpointer.save(right_checkpoint_prefix)

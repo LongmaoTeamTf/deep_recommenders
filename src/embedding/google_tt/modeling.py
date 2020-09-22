@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-21 14:10:48
+@LastEditTime: 2020-09-22 11:51:37
 """
 import numpy as np
 import tensorflow as tf
@@ -21,7 +21,7 @@ class HashEmbeddings(Layer):
                  hash_bucket_size, 
                  embedding_dim,
                  regularizer='l2',
-                 initializer='he_uniform',
+                 initializer='uniform',
                  trainable=True,
                  **kwargs):
         super(HashEmbeddings, self).__init__(**kwargs)
@@ -232,9 +232,9 @@ def build_model():
     query_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='seed_concat_user')([
         seed_features, user_past_watches_embeddings
     ])
-    query_x = tf.keras.layers.Dense(512, name='query_dense_0')(query_tower_inputs)
+    query_x = tf.keras.layers.Dense(512, name='query_dense_0', kernel_initializer='he_uniform')(query_tower_inputs)
     query_x = tf.keras.layers.PReLU(name='query_prelu_0')(query_x)
-    query_x = tf.keras.layers.Dense(128, name='query_dense_1')(query_x)
+    query_x = tf.keras.layers.Dense(128, name='query_dense_1', kernel_initializer='he_uniform')(query_x)
     query_x = tf.keras.layers.PReLU(name='query_prelu_1')(query_x)
     query_x = L2Normalization(128, name='query_l2_norm')(query_x)
 
@@ -245,9 +245,9 @@ def build_model():
         cand_video_gap_time,
         cand_video_duration_time,
     ] + list(video_cand_numerical_features.values()))
-    candidate_x = tf.keras.layers.Dense(512, name='candidate_dense_0')(candidate_tower_inputs)
+    candidate_x = tf.keras.layers.Dense(512, name='candidate_dense_0', kernel_initializer='he_uniform')(candidate_tower_inputs)
     candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_0')(candidate_x)
-    candidate_x = tf.keras.layers.Dense(128, name='candidate_dense_1')(candidate_x)
+    candidate_x = tf.keras.layers.Dense(128, name='candidate_dense_1', kernel_initializer='he_uniform')(candidate_x)
     candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_1')(candidate_x)
     candidate_x = L2Normalization(128, name='candidate_l2_norm')(candidate_x)
 
@@ -284,5 +284,4 @@ if __name__ == "__main__":
     candidate_tower.summary()
     tf.keras.utils.plot_model(query_tower, to_file='query_tower.png', show_shapes=True)
     tf.keras.utils.plot_model(candidate_tower, to_file='candidate_tower.png', show_shapes=True)
-    
 
