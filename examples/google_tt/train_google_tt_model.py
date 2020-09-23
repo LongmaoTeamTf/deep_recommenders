@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 18:02:10
+@LastEditTime: 2020-09-23 18:03:04
 """
 import os
 import sys
@@ -130,14 +130,14 @@ if __name__ == "__main__":
 
     dataset_config = {
         'data_dir': '/home/xddz/data/two_tower_data',
-        'batch_size': 256,
+        'batch_size': 384,
         'query_columns': query_columns,
         'candidate_columns': candidate_columns,
         'csv_header': csv_header
     }
     
     train_config = {
-        'workers_num': 2,
+        'workers_num': 1,
         'epochs': 10,
         'ids_column': 'cand_id',
         'ids_hash_bucket_size': 100000,
