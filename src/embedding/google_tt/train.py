@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 16:50:43
+@LastEditTime: 2020-09-23 17:09:20
 """
 import os
 import time
@@ -248,12 +248,15 @@ def train_model(strategy,
                 array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
                 array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
             total_loss = 0.0
-            epoch_time = 0.0
+            batches_train_time = 0.0
+            batches_load_data_time = 0.0
+            epoch_trian_time = 0.0
+            epoch_load_data_time = 0.0
             step = 1
             
-            batch_start = time.time()
+            batch_load_data_start = time.time()
             for inputs in dataset:
-                batch_stop = time.time()
+                batch_load_data_stop = time.time()
                 if streaming is True:
                     cand_ids = inputs[1].get(ids_column)
                     cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
@@ -261,27 +264,35 @@ def train_model(strategy,
                 else:
                     sampling_p = None
                 
-                step_start = time.time()
+                batch_train_start = time.time()
                 total_loss += distributed_train_step(inputs, sampling_p=sampling_p)
-                step_stop = time.time()
-                step_time = step_stop - step_start
-                epoch_time += step_time
+                batch_train_stop = time.time()
+                batch_train_time = batch_train_stop - batch_train_start
+                
+                batches_train_time += batch_train_time
+                epoch_trian_time += batch_train_time
+
+                batch_load_data_time = batch_load_data_stop - batch_load_data_start
+                batches_load_data_time += batch_load_data_time
+                epoch_load_data_time += batch_load_data_time
                 
                 if step % 50 == 0:
                     print("Epoch[{}/{}]: Batch[{}/{}] "
-                          "DataSpeed[{:.4f}/batch] "
+                          "DataSpeed[{:.4f}s/batch] "
                           "TrainSpeed[{:.4f}s/batch] "
                           "correct_sfx_loss={:.4f} "
                           "topk_recall={:.4f} "
                           "topk_positive={:.4f}".format(
                             epoch+1, epochs, step, steps,
-                            batch_stop-batch_start,
-                            step_time,
+                            batches_load_data_time/50,
+                            batches_train_time/50,
                             total_loss/step, 
                             epoch_recall_avg.result(), 
                             epoch_positive_avg.result()))
+                    batches_train_time = 0.0
+                    batches_load_data_time = 0.0
                 step += 1
-                batch_start = time.time()
+                batch_load_data_start = time.time()
 
             optimizer.lr = 0.1 * optimizer.lr
 
