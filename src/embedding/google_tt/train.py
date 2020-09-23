@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 18:10:02
+@LastEditTime: 2020-09-23 19:06:31
 """
 import os
 import time
@@ -186,7 +186,7 @@ def train_model(strategy,
                 lr=0.001):
     """自定义训练"""
 
-    # dataset = strategy.experimental_distribute_dataset(dataset)
+    dataset = strategy.experimental_distribute_dataset(dataset)
 
     with strategy.scope():
         left_model, right_model = build_model()
