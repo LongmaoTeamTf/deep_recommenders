@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 19:35:37
+@LastEditTime: 2020-09-23 15:59:29
 """
 import os
 import time
@@ -242,6 +242,8 @@ def train_model(strategy,
         if tensorboard_dir is not None:
             summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
+        dataset_iter = iter(dataset)
+
         print("Start Traning ... ")
         for epoch in range(epochs):
             if streaming is True:
@@ -250,7 +252,9 @@ def train_model(strategy,
             total_loss = 0.0
             epoch_time = 0.0
             step = 1
-            for inputs in dataset:
+            # for inputs in dataset:
+            for _ in range(steps):
+                inputs = next(dataset_iter)
                 if streaming is True:
                     cand_ids = inputs[1].get(ids_column)
                     cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
