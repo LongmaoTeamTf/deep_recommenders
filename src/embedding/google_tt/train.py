@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 17:09:20
+@LastEditTime: 2020-09-23 17:19:38
 """
 import os
 import time
@@ -302,7 +302,8 @@ def train_model(strategy,
         
             print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
                     epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
-            print("Epoch[{}/{}]: {:.4f}".format(epoch+1, epochs, epoch_time))
+            print("Epoch[{}/{}]: Train time: {:.4f}".format(epoch+1, epochs, epoch_trian_time))
+            print("Epoch[{}/{}]: Load data time: {:.4f}".format(epoch+1, epochs, epoch_load_data_time))
             
             if tensorboard_dir is not None:
                 with summary_writer.as_default(): # pylint: disable=not-context-manager
