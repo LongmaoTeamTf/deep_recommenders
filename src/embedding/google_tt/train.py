@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 15:59:29
+@LastEditTime: 2020-09-23 16:13:42
 """
 import os
 import time
@@ -90,9 +90,9 @@ def get_dataset_from_csv_files(filenames,
     list_ds = tf.data.Dataset.list_files(filenames)
     dataset = list_ds.interleave(
         lambda fp: tf.data.TextLineDataset(fp).skip(1),
-        cycle_length=6,
+        cycle_length=2,
         block_length=batch_size,
-        num_parallel_calls=6
+        num_parallel_calls=2
     )
     dataset = dataset.map(
         map_func=functools.partial(
@@ -100,7 +100,7 @@ def get_dataset_from_csv_files(filenames,
             left_columns,
             right_columns,
             csv_header),
-        num_parallel_calls=6
+        num_parallel_calls=2
     )
     dataset = dataset.cache()
     if epochs is not None:
@@ -242,8 +242,6 @@ def train_model(strategy,
         if tensorboard_dir is not None:
             summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
-        dataset_iter = iter(dataset)
-
         print("Start Traning ... ")
         for epoch in range(epochs):
             if streaming is True:
@@ -252,9 +250,7 @@ def train_model(strategy,
             total_loss = 0.0
             epoch_time = 0.0
             step = 1
-            # for inputs in dataset:
-            for _ in range(steps):
-                inputs = next(dataset_iter)
+            for inputs in dataset:
                 if streaming is True:
                     cand_ids = inputs[1].get(ids_column)
                     cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
