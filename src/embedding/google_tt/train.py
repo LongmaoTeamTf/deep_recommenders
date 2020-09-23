@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 16:14:33
+@LastEditTime: 2020-09-23 16:50:43
 """
 import os
 import time
@@ -91,7 +91,7 @@ def get_dataset_from_csv_files(filenames,
     dataset = list_ds.interleave(
         lambda fp: tf.data.TextLineDataset(fp).skip(1),
         cycle_length=2,
-        block_length=batch_size//2,
+        block_length=batch_size*2,
         num_parallel_calls=2
     )
     dataset = dataset.map(
@@ -250,7 +250,10 @@ def train_model(strategy,
             total_loss = 0.0
             epoch_time = 0.0
             step = 1
+            
+            batch_start = time.time()
             for inputs in dataset:
+                batch_stop = time.time()
                 if streaming is True:
                     cand_ids = inputs[1].get(ids_column)
                     cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
@@ -266,16 +269,19 @@ def train_model(strategy,
                 
                 if step % 50 == 0:
                     print("Epoch[{}/{}]: Batch[{}/{}] "
-                          "Speed[{:.4f}s/batch] "
+                          "DataSpeed[{:.4f}/batch] "
+                          "TrainSpeed[{:.4f}s/batch] "
                           "correct_sfx_loss={:.4f} "
                           "topk_recall={:.4f} "
                           "topk_positive={:.4f}".format(
-                            epoch+1, epochs, step, steps, 
+                            epoch+1, epochs, step, steps,
+                            batch_stop-batch_start,
                             step_time,
                             total_loss/step, 
                             epoch_recall_avg.result(), 
                             epoch_positive_avg.result()))
                 step += 1
+                batch_start = time.time()
 
             optimizer.lr = 0.1 * optimizer.lr
 
