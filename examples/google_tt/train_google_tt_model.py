@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 18:03:04
+@LastEditTime: 2020-09-23 18:09:39
 """
 import os
 import sys
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     }
     
     train_config = {
-        'workers_num': 1,
+        'workers_num': 2,
         'epochs': 10,
         'ids_column': 'cand_id',
         'ids_hash_bucket_size': 100000,

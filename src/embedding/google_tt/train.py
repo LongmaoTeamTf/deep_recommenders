@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 17:59:58
+@LastEditTime: 2020-09-23 18:10:02
 """
 import os
 import time
@@ -188,138 +188,138 @@ def train_model(strategy,
 
     # dataset = strategy.experimental_distribute_dataset(dataset)
 
-    # with strategy.scope():
-    left_model, right_model = build_model()
+    with strategy.scope():
+        left_model, right_model = build_model()
 
-    def pred(left_x, right_x, sampling_p):
-        left_y_ = left_model(left_x, training=True)
-        right_y_ = right_model(right_x, training=True)
-        output = corrected_batch_softmax(left_y_, right_y_, sampling_p=sampling_p)
-        return output
+        def pred(left_x, right_x, sampling_p):
+            left_y_ = left_model(left_x, training=True)
+            right_y_ = right_model(right_x, training=True)
+            output = corrected_batch_softmax(left_y_, right_y_, sampling_p=sampling_p)
+            return output
 
-    def loss(left_x, right_x, sampling_p, reward):
-        output = pred(left_x, right_x, sampling_p)
-        return reward_cross_entropy(reward, output)
+        def loss(left_x, right_x, sampling_p, reward):
+            output = pred(left_x, right_x, sampling_p)
+            return reward_cross_entropy(reward, output)
 
-    def grad(left_x, right_x, sampling_p, reward):
-        with tf.GradientTape(persistent=True) as tape:
-            loss_value = loss(left_x, right_x, sampling_p, reward)
-        left_grads = tape.gradient(loss_value, left_model.trainable_variables)
-        right_grads = tape.gradient(loss_value, right_model.trainable_variables)
-        return loss_value, left_grads, right_grads
+        def grad(left_x, right_x, sampling_p, reward):
+            with tf.GradientTape(persistent=True) as tape:
+                loss_value = loss(left_x, right_x, sampling_p, reward)
+            left_grads = tape.gradient(loss_value, left_model.trainable_variables)
+            right_grads = tape.gradient(loss_value, right_model.trainable_variables)
+            return loss_value, left_grads, right_grads
 
-    epoch_recall_avg = tf.keras.metrics.Mean()
-    epoch_positive_avg = tf.keras.metrics.Mean()
+        epoch_recall_avg = tf.keras.metrics.Mean()
+        epoch_positive_avg = tf.keras.metrics.Mean()
 
-    optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
+        optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
 
-    left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
-    right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
+        left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
+        right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
 
-    left_checkpoint_prefix = os.path.join(checkpoints_dir, "left-ckpt")
-    right_checkpoint_prefix = os.path.join(checkpoints_dir, "right-ckpt")
+        left_checkpoint_prefix = os.path.join(checkpoints_dir, "left-ckpt")
+        right_checkpoint_prefix = os.path.join(checkpoints_dir, "right-ckpt")
 
-    def train_step(inputs, sampling_p):
-        left_x, right_x, reward = inputs
-        loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
-        optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
-        optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
+        def train_step(inputs, sampling_p):
+            left_x, right_x, reward = inputs
+            loss_value, left_grads, right_grads = grad(left_x, right_x, sampling_p, reward)
+            optimizer.apply_gradients(zip(left_grads, left_model.trainable_variables))
+            optimizer.apply_gradients(zip(right_grads, right_model.trainable_variables))
 
-        epoch_recall_avg.update_state(topk_recall(pred(left_x, right_x, sampling_p), reward))
-        epoch_positive_avg.update_state(topk_positive(pred(left_x, right_x, sampling_p), reward))
+            epoch_recall_avg.update_state(topk_recall(pred(left_x, right_x, sampling_p), reward))
+            epoch_positive_avg.update_state(topk_positive(pred(left_x, right_x, sampling_p), reward))
 
-        return loss_value
+            return loss_value
 
-    @tf.function
-    def distributed_train_step(inputs, sampling_p=None):
-        per_replica_losses = strategy.run(train_step, args=(inputs, sampling_p,))
-        return strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
-        
-    loss_results = []
-    recall_results = []
-    positive_results = []
-    
-    if tensorboard_dir is not None:
-        summary_writer = tf.summary.create_file_writer(tensorboard_dir)
-
-    print("Start Traning ... ")
-    for epoch in range(epochs):
-        if streaming is True:
-            array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
-            array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
-        total_loss = 0.0
-        batches_train_time = 0.0
-        batches_load_data_time = 0.0
-        epoch_trian_time = 0.0
-        epoch_load_data_time = 0.0
-        step = 1
-        
-        batch_load_data_start = time.time()
-        for inputs in dataset:
-            batch_load_data_stop = time.time()
-            if streaming is True:
-                cand_ids = inputs[1].get(ids_column)
-                cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
-                array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
-            else:
-                sampling_p = None
+        @tf.function
+        def distributed_train_step(inputs, sampling_p=None):
+            per_replica_losses = strategy.run(train_step, args=(inputs, sampling_p,))
+            return strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
             
-            batch_train_start = time.time()
-            # total_loss += distributed_train_step(inputs, sampling_p=sampling_p)
-            total_loss += train_step(inputs, sampling_p=sampling_p)
-            batch_train_stop = time.time()
-            batch_train_time = batch_train_stop - batch_train_start
-            
-            batches_train_time += batch_train_time
-            epoch_trian_time += batch_train_time
-
-            batch_load_data_time = batch_load_data_stop - batch_load_data_start
-            batches_load_data_time += batch_load_data_time
-            epoch_load_data_time += batch_load_data_time
-            
-            if step % 50 == 0:
-                print("Epoch[{}/{}]: Batch[{}/{}] "
-                        "DataSpeed[{:.4f}s/batch] "
-                        "TrainSpeed[{:.4f}s/batch] "
-                        "correct_sfx_loss={:.4f} "
-                        "topk_recall={:.4f} "
-                        "topk_positive={:.4f}".format(
-                        epoch+1, epochs, step, steps,
-                        batches_load_data_time/50,
-                        batches_train_time/50,
-                        total_loss/step, 
-                        epoch_recall_avg.result(), 
-                        epoch_positive_avg.result()))
-                batches_train_time = 0.0
-                batches_load_data_time = 0.0
-            step += 1
-            batch_load_data_start = time.time()
-
-        optimizer.lr = 0.1 * optimizer.lr
-
-        loss_results.append(total_loss/steps)
-        recall_results.append(epoch_recall_avg.result())
-        positive_results.append(epoch_positive_avg.result())
-    
-        print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
-                epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
-        print("Epoch[{}/{}]: Train time: {:.4f}".format(epoch+1, epochs, epoch_trian_time))
-        print("Epoch[{}/{}]: Load data time: {:.4f}".format(epoch+1, epochs, epoch_load_data_time))
+        loss_results = []
+        recall_results = []
+        positive_results = []
         
         if tensorboard_dir is not None:
-            with summary_writer.as_default(): # pylint: disable=not-context-manager
-                tf.summary.scalar('correct_sfx_loss', total_loss/steps, step=epoch)
-                tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
-                tf.summary.scalar('topk_positive', epoch_positive_avg.result(), step=epoch)
+            summary_writer = tf.summary.create_file_writer(tensorboard_dir)
 
-        if epoch+1 % 2 == 0:
-            left_checkpointer.save(left_checkpoint_prefix)
-            print(f'Saved checkpoints to: {left_checkpoint_prefix}')
-            right_checkpointer.save(right_checkpoint_prefix)
-            print(f'Saved checkpoints to: {right_checkpoint_prefix}')
-
-        epoch_recall_avg.reset_states()
-        epoch_positive_avg.reset_states()
+        print("Start Traning ... ")
+        for epoch in range(epochs):
+            if streaming is True:
+                array_a = np.zeros(shape=(ids_hash_bucket_size,), dtype=np.float32)
+                array_b = np.ones(shape=(ids_hash_bucket_size,), dtype=np.float32) * beta
+            total_loss = 0.0
+            batches_train_time = 0.0
+            batches_load_data_time = 0.0
+            epoch_trian_time = 0.0
+            epoch_load_data_time = 0.0
+            step = 1
             
+            batch_load_data_start = time.time()
+            for inputs in dataset:
+                batch_load_data_stop = time.time()
+                if streaming is True:
+                    cand_ids = inputs[1].get(ids_column)
+                    cand_hash_indexs = hash_simple(cand_ids, ids_hash_bucket_size)
+                    array_a, array_b, sampling_p = sampling_p_estimation_single_hash(array_a, array_b, cand_hash_indexs, step)
+                else:
+                    sampling_p = None
+                
+                batch_train_start = time.time()
+                total_loss += distributed_train_step(inputs, sampling_p=sampling_p)
+                # total_loss += train_step(inputs, sampling_p=sampling_p)
+                batch_train_stop = time.time()
+                batch_train_time = batch_train_stop - batch_train_start
+                
+                batches_train_time += batch_train_time
+                epoch_trian_time += batch_train_time
+
+                batch_load_data_time = batch_load_data_stop - batch_load_data_start
+                batches_load_data_time += batch_load_data_time
+                epoch_load_data_time += batch_load_data_time
+                
+                if step % 50 == 0:
+                    print("Epoch[{}/{}]: Batch[{}/{}] "
+                            "DataSpeed[{:.4f}s/batch] "
+                            "TrainSpeed[{:.4f}s/batch] "
+                            "correct_sfx_loss={:.4f} "
+                            "topk_recall={:.4f} "
+                            "topk_positive={:.4f}".format(
+                            epoch+1, epochs, step, steps,
+                            batches_load_data_time/50,
+                            batches_train_time/50,
+                            total_loss/step, 
+                            epoch_recall_avg.result(), 
+                            epoch_positive_avg.result()))
+                    batches_train_time = 0.0
+                    batches_load_data_time = 0.0
+                step += 1
+                batch_load_data_start = time.time()
+
+            optimizer.lr = 0.1 * optimizer.lr
+
+            loss_results.append(total_loss/steps)
+            recall_results.append(epoch_recall_avg.result())
+            positive_results.append(epoch_positive_avg.result())
+        
+            print("Epoch[{}/{}]: correct_sfx_loss={:.4f} topk_recall={:.4f} topk_positive={:.4f}".format(
+                    epoch+1, epochs, total_loss/step, epoch_recall_avg.result(), epoch_positive_avg.result()))
+            print("Epoch[{}/{}]: Train time: {:.4f}".format(epoch+1, epochs, epoch_trian_time))
+            print("Epoch[{}/{}]: Load data time: {:.4f}".format(epoch+1, epochs, epoch_load_data_time))
+            
+            if tensorboard_dir is not None:
+                with summary_writer.as_default(): # pylint: disable=not-context-manager
+                    tf.summary.scalar('correct_sfx_loss', total_loss/steps, step=epoch)
+                    tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
+                    tf.summary.scalar('topk_positive', epoch_positive_avg.result(), step=epoch)
+
+            if epoch+1 % 2 == 0:
+                left_checkpointer.save(left_checkpoint_prefix)
+                print(f'Saved checkpoints to: {left_checkpoint_prefix}')
+                right_checkpointer.save(right_checkpoint_prefix)
+                print(f'Saved checkpoints to: {right_checkpoint_prefix}')
+
+            epoch_recall_avg.reset_states()
+            epoch_positive_avg.reset_states()
+                
     return left_model, right_model
 
