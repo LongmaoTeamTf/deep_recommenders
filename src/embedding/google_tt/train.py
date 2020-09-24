@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-23 19:06:31
+@LastEditTime: 2020-09-24 11:20:46
 """
 import os
 import time
@@ -74,7 +74,8 @@ def parse_csv_line(left_columns,
         inp=[labels[0]], 
         Tout=[tf.string])
     weight_labels = tf.math.reduce_sum(
-        tf.math.multiply(tf.strings.to_number(labels), tf.constant([1., 0., 0., 0., 0.])))
+        tf.math.multiply(tf.strings.to_number(labels), 
+        tf.constant([0.1, 0.3, 0.2, 0.3, 0.1]))) # 点击、点赞、分享、收藏、评论
 
     return left_features, right_features, weight_labels
 
@@ -211,7 +212,7 @@ def train_model(strategy,
         epoch_recall_avg = tf.keras.metrics.Mean()
         epoch_positive_avg = tf.keras.metrics.Mean()
 
-        optimizer = tf.keras.optimizers.SGD(learning_rate=lr)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
 
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
