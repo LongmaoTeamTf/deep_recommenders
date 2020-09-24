@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 11:09:05
+@LastEditTime: 2020-09-24 11:49:01
 """
 import os
 import sys
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         'epochs': 10,
         'ids_column': 'cand_id',
         'ids_hash_bucket_size': 100000,
-        'version': '20200922',
+        'version': '20200924',
         'tensorboard_dir': './training_tensorboard',
         'checkpoints_dir': './training_checkpoints',
         'query_saved_path': './models/google_tt_query',
