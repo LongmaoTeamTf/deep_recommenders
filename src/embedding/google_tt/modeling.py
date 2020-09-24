@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 15:50:29
+@LastEditTime: 2020-09-24 19:03:44
 """
 import numpy as np
 import tensorflow as tf
@@ -234,10 +234,10 @@ def build_model():
     ])
     query_x = tf.keras.layers.Dense(512, name='query_dense_0', kernel_initializer='he_uniform')(query_tower_inputs)
     query_x = tf.keras.layers.PReLU(name='query_prelu_0')(query_x)
-    query_x = tf.keras.layers.AlphaDropout(0.5, name='query_dropout_0')(query_x)
+    query_x = tf.keras.layers.Dropout(0.4, name='query_dropout_0')(query_x)
     query_x = tf.keras.layers.Dense(128, name='query_dense_1', kernel_initializer='he_uniform')(query_x)
     query_x = tf.keras.layers.PReLU(name='query_prelu_1')(query_x)
-    query_x = tf.keras.layers.AlphaDropout(0.5, name='query_dropout_1')(query_x)
+    query_x = tf.keras.layers.Dropout(0.2, name='query_dropout_1')(query_x)
     query_x = L2Normalization(128, name='query_l2_norm')(query_x)
 
     candidate_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='cand_features_concat')([
@@ -249,10 +249,10 @@ def build_model():
     ] + list(video_cand_numerical_features.values()))
     candidate_x = tf.keras.layers.Dense(512, name='candidate_dense_0', kernel_initializer='he_uniform')(candidate_tower_inputs)
     candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_0')(candidate_x)
-    candidate_x = tf.keras.layers.AlphaDropout(0.5, name='candidate_dropout_0')(candidate_x)
+    candidate_x = tf.keras.layers.Dropout(0.4, name='candidate_dropout_0')(candidate_x)
     candidate_x = tf.keras.layers.Dense(128, name='candidate_dense_1', kernel_initializer='he_uniform')(candidate_x)
     candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_1')(candidate_x)
-    candidate_x = tf.keras.layers.AlphaDropout(0.5, name='candidate_dropout_1')(candidate_x)
+    candidate_x = tf.keras.layers.Dropout(0.2, name='candidate_dropout_1')(candidate_x)
     candidate_x = L2Normalization(128, name='candidate_l2_norm')(candidate_x)
 
     query_tower = tf.keras.Model(
