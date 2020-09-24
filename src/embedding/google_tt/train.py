@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 11:20:46
+@LastEditTime: 2020-09-24 11:30:23
 """
 import os
 import time
@@ -279,9 +279,9 @@ def train_model(strategy,
                 epoch_load_data_time += batch_load_data_time
                 
                 if step % 50 == 0:
-                    print("Epoch[{}/{}]: Batch[{}/{}] "
-                            "DataSpeed[{:.4f}s/batch] "
-                            "TrainSpeed[{:.4f}s/batch] "
+                    print("Epoch[{}/{}]: Batch({}/{}) "
+                            "Data Speed={:.4f}(sec/batch) "
+                            "Train Speed=[{:.4f}(sec/batch) "
                             "correct_sfx_loss={:.4f} "
                             "topk_recall={:.4f} "
                             "topk_positive={:.4f}".format(
