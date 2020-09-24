@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 18:57:27
+@LastEditTime: 2020-09-24 18:59:44
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -77,6 +77,9 @@ csv_header = [
 ]
 
 filenames = sorted([str(fn) for fn in data_dir.glob("*.csv")])[-7:]
+print("Index filenames: ")
+for fn in filenames:
+    print(fn)
 
 dataset = get_dataset_from_csv_files(
     filenames, 
