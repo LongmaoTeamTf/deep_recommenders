@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-22 14:18:07
+@LastEditTime: 2020-09-24 18:57:27
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -26,8 +26,8 @@ from src.embedding.google_tt.train import get_dataset_from_csv_files
 mkl.get_max_threads()
 
 data_dir = pathlib.Path("/home/xddz/data/two_tower_data")
-model_dir = "/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_candidate/20200921"
-faiss_index_path = "./google_tt_20200921.faiss"
+model_dir = "/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_candidate/20200924"
+faiss_index_path = "./faiss/google_tt_20200924.faiss"
 
 left_columns = [
     'past_watches',
@@ -76,17 +76,14 @@ csv_header = [
     'cand_collect_count'
 ]
 
-filenames = [
-    str(fn)
-    for fn in data_dir.glob("*.csv")
-]
+filenames = sorted([str(fn) for fn in data_dir.glob("*.csv")])[-7:]
 
 dataset = get_dataset_from_csv_files(
     filenames, 
     left_columns, 
     right_columns,
     csv_header, 
-    batch_size=512
+    batch_size=1024
 )
 
 model = tf.keras.models.load_model(
