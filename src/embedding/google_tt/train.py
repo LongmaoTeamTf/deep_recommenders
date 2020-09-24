@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 11:47:34
+@LastEditTime: 2020-09-24 14:58:13
 """
 import os
 import time
@@ -313,7 +313,7 @@ def train_model(strategy,
                     tf.summary.scalar('topk_recall', epoch_recall_avg.result(), step=epoch)
                     tf.summary.scalar('topk_positive', epoch_positive_avg.result(), step=epoch)
 
-            if epoch+1 % 2 == 0:
+            if (epoch+1) % 2 == 0:
                 left_checkpointer.save(left_checkpoint_prefix)
                 print(f'Saved checkpoints to: {left_checkpoint_prefix}')
                 right_checkpointer.save(right_checkpoint_prefix)
