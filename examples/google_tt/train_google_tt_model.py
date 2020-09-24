@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 11:06:48
+@LastEditTime: 2020-09-24 11:09:05
 """
 import os
 import sys
@@ -40,7 +40,7 @@ def distribute_train_model(dataset_config, train_config):
 
     data_dir = dataset_config.get('data_dir')
     data_dir = pathlib.Path(data_dir)
-    filenames = sorted([str(fn) for fn in data_dir.glob("*.csv")])[:-7]
+    filenames = sorted([str(fn) for fn in data_dir.glob("*.csv")])[-7:]
     print("Train filenames: ")
     for fn in filenames:
         print(fn)
