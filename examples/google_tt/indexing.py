@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-24 18:59:44
+@LastEditTime: 2020-09-25 14:42:56
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -145,9 +145,10 @@ for _, candidates, _ in dataset:
 
     # json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
     # predictions = json.loads(json_response.text)['outputs']
+    global_datas.update(dict(zip(cand_ids, predictions)))
 
-    for cand_id, pred in zip(cand_ids, predictions):
-        global_datas[int(cand_id)] = pred
+    # for cand_id, pred in zip(cand_ids, predictions):
+    #     global_datas[int(cand_id)] = pred
     
     # candidates_ids = []
     # candidates_add_indexs = []
