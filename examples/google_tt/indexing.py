@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-25 16:31:57
+@LastEditTime: 2020-09-25 16:41:10
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -191,19 +191,7 @@ ids = np.array(list(global_datas.keys()), dtype=np.int64)
 faiss_index_id_map.train(vectors)               # pylint: disable=no-value-for-parameter
 faiss_index_id_map.add_with_ids(vectors, ids)   # pylint: disable=no-value-for-parameter
 
-
 print('Faiss index: ntotal={}'.format(faiss_index_id_map.ntotal))
 faiss.write_index(faiss_index_id_map, faiss_index_path)
 print('Faiss index saved.')
-    
-
-faiss_index_id_map = faiss.read_index(faiss_index_path)
-faiss_index_id_map.nprobe = 10
-
-query = np.array([[0.2] *  128], dtype=np.float32)
-
-distances, cand_ids = faiss_index_id_map.search(query, 10)
-print(distances)
-print(cand_ids)
-
 

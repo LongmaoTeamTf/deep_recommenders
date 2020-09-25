@@ -2,6 +2,7 @@ import sys
 sys.path.append('../..')
 import json
 import time
+import faiss
 import requests
 import numpy as np
 import tensorflow as tf
@@ -41,6 +42,7 @@ def check_model(model_dir, data):
 
     predictions = model.predict(data)
     print("Predictions: \n{}".format(predictions))
+    return predictions
     
 
 def check_checkpoints(checkpoints_path, model, data):
@@ -56,6 +58,16 @@ def check_checkpoints(checkpoints_path, model, data):
 
     predictions = model.predict(data)
     print("Predictions: \n{}".format(predictions))
+
+
+def check_faiss(faiss_path, query):
+    """检查faiss索引"""
+    faiss_index_id_map = faiss.read_index(faiss_path)
+    faiss_index_id_map.nprobe = 10
+
+    distances, cand_ids = faiss_index_id_map.search(query, 10)
+    print(distances)
+    print(cand_ids)
 
 
 if __name__ == "__main__":
@@ -78,7 +90,10 @@ if __name__ == "__main__":
     }
 
     model_dir = '/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_query/20200924'
+    faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200924.faiss'
 
-    check_model(model_dir, query_data)
+    predictions = check_model(model_dir, query_data)
+
+    check_faiss(faiss_path, predictions)
 
     
