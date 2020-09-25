@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-25 14:42:56
+@LastEditTime: 2020-09-25 16:31:57
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -26,8 +26,8 @@ from src.embedding.google_tt.train import get_dataset_from_csv_files
 mkl.get_max_threads()
 
 data_dir = pathlib.Path("/home/xddz/data/two_tower_data")
-model_dir = "/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_candidate/20200924"
-faiss_index_path = "./faiss/google_tt_20200924.faiss"
+model_dir = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200924"
+faiss_index_path = "/home/xddz/data/two_tower_data/index/google_tt_20200924.faiss"
 
 left_columns = [
     'past_watches',
