@@ -73,7 +73,7 @@ if __name__ == "__main__":
         'seed_share_count': np.array([[63]])
     }
 
-    model_dir = '/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_candidate/20200924'
+    model_dir = '/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_query/20200924'
 
     check_model(model_dir, query_data)
 
