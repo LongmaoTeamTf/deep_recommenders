@@ -89,7 +89,7 @@ if __name__ == "__main__":
         'seed_share_count': np.array([[63], [426], [156]])
     }
 
-    model_dir = '/home/xddz/code/DeepRecommend/examples/google_tt/models/google_tt_query/20200924'
+    model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
     faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200924.faiss'
 
     predictions = check_model(model_dir, query_data)
