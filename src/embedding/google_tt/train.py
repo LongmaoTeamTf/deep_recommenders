@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 11:08:03
+@LastEditTime: 2020-09-27 14:07:51
 """
 import os
 import time
@@ -184,7 +184,7 @@ def train_model(strategy,
                 checkpoints_dir=None,
                 streaming=False,
                 beta=100,
-                lr=0.001):
+                lr=0.2):
     """自定义训练"""
 
     dataset = strategy.experimental_distribute_dataset(dataset)
@@ -212,7 +212,7 @@ def train_model(strategy,
         epoch_recall_avg = tf.keras.metrics.Mean()
         epoch_positive_avg = tf.keras.metrics.Mean()
 
-        optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
+        optimizer = tf.keras.optimizers.Adagrad(learning_rate=lr)
 
         left_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=left_model)
         right_checkpointer = tf.train.Checkpoint(optimizer=optimizer, model=right_model)
