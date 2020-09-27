@@ -56,6 +56,7 @@ def check_checkpoints(checkpoints_path, model, data):
 
     predictions = model.predict(data)
     print("Predictions: \n{}".format(predictions))
+    return predictions
 
 
 def check_faiss(faiss_path, query):
