@@ -92,7 +92,8 @@ if __name__ == "__main__":
     faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200927.faiss'
 
     # predictions = check_model(model_dir, query_data)
-    predictions = check_checkpoints(checkpoints_dir, query_data)
+    model, _ = build_model()
+    predictions = check_checkpoints(checkpoints_dir, model, query_data)
 
     check_faiss(faiss_path, predictions)
 
