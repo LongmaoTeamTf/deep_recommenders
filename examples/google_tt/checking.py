@@ -47,9 +47,7 @@ def check_model(model_dir, data):
 
 def check_checkpoints(checkpoints_path, model, data):
     """检查checkpoints"""
-    optimizer = tf.keras.optimizers.Adagrad()
-
-    ckpt = tf.train.Checkpoint(optimizer=optimizer, model=model)
+    ckpt = tf.train.Checkpoint(model=model)
     ckpt.restore(checkpoints_path)
 
     for l in model.layers:
@@ -89,10 +87,12 @@ if __name__ == "__main__":
         'seed_share_count': np.array([[63], [426], [156]])
     }
 
-    model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
-    faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200924.faiss'
+    # model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
+    checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927/left-ckpt-3"
+    faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200927.faiss'
 
-    predictions = check_model(model_dir, query_data)
+    # predictions = check_model(model_dir, query_data)
+    predictions = check_checkpoints(checkpoints_dir, query_data)
 
     check_faiss(faiss_path, predictions)
 
