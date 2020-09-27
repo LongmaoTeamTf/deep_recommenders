@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-25 16:41:10
+@LastEditTime: 2020-09-27 14:21:53
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -19,15 +19,16 @@ import numpy as np
 import tensorflow as tf
 
 sys.path.append("../..")
-from src.embedding.google_tt.modeling import _log_norm, _time_exp_norm
+from src.embedding.google_tt.modeling import _log_norm, _time_exp_norm, build_model
 from src.embedding.google_tt.train import get_dataset_from_csv_files
 
 
 mkl.get_max_threads()
 
 data_dir = pathlib.Path("/home/xddz/data/two_tower_data")
-model_dir = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200924"
-faiss_index_path = "/home/xddz/data/two_tower_data/index/google_tt_20200924.faiss"
+# model_dir = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200924"
+checkpoints_path = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927/right-ckpt-3"
+faiss_index_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927.faiss"
 
 left_columns = [
     'past_watches',
@@ -89,28 +90,19 @@ dataset = get_dataset_from_csv_files(
     batch_size=1024
 )
 
-model = tf.keras.models.load_model(
-    model_dir, 
-    custom_objects={
-        '_log_norm': _log_norm, 
-        '_time_exp_norm': _time_exp_norm
-    },
-    compile=False
-)
+# model = tf.keras.models.load_model(
+#     model_dir, 
+#     custom_objects={
+#         '_log_norm': _log_norm, 
+#         '_time_exp_norm': _time_exp_norm
+#     },
+#     compile=False
+# )
 
-def get_invlists(index):
-    index = faiss.extract_index_ivf(index)
-    invlists = index.invlists
-    all_ids = []
-    for listno in range(index.nlist):
-        ls = invlists.list_size(listno)
-        if ls == 0:
-            continue
-        all_ids.append(
-            faiss.rev_swig_ptr(invlists.get_ids(listno), ls).copy()
-        )
-    all_ids = np.hstack(all_ids)
-    return all_ids
+_, model = build_model()
+
+ckpt = tf.train.Checkpoint(model=model)
+ckpt.restore(checkpoints_path)
 
 
 d = 128
@@ -120,10 +112,6 @@ quantizer = faiss.IndexFlatIP(d)
 faiss_index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_INNER_PRODUCT)
 faiss_index_id_map = faiss.IndexIDMap(faiss_index)
 
-global_ids = set()
-
-headers = {"content-type": "application/json"}
-
 batches = 0
 
 global_datas = {}
@@ -131,55 +119,10 @@ for _, candidates, _ in dataset:
 
     cand_ids = candidates.get('cand_id').numpy()
     predictions = model.predict(candidates)
-    # candidates_data = {}
-    # for k, v in candidates.items():
-    #     if v.dtype == 'string':
-    #         if len(v.shape) > 1:
-    #             candidates_data[k] = [[d.decode('utf-8') for d in x] for x in v.numpy()]
-    #         else:
-    #             candidates_data[k] = [[x.decode('utf-8')] for x in v.numpy()]
-    #     else:
-    #         candidates_data[k] = v.numpy().astype('float').reshape((-1, 1)).tolist()
 
-    # data = json.dumps({"signature": "serving_default", "inputs": candidates_data})
-
-    # json_response = requests.post('http://localhost:8501/v1/models/google_tt_candidate:predict', data=data, headers=headers)
-    # predictions = json.loads(json_response.text)['outputs']
-    global_datas.update(dict(zip(cand_ids, predictions)))
-
-    # for cand_id, pred in zip(cand_ids, predictions):
-    #     global_datas[int(cand_id)] = pred
+    for cand_id, pred in zip(cand_ids, predictions):
+        global_datas[int(cand_id)] = pred
     
-    # candidates_ids = []
-    # candidates_add_indexs = []
-    # candidates_update_ids = []
-    # candidates_update_indexs = []
-    # for i, cand_id in enumerate(candidates.get('cand_id').numpy()):
-    #     candidates_ids.append(int(cand_id))
-    #     if cand_id not in global_ids:
-    #         global_ids.add(cand_id)
-    #         candidates_add_indexs.append(i)
-    #     else:
-    #         if cand_id not in candidates_update_ids:
-    #             candidates_update_ids.append(cand_id)
-    #             candidates_update_indexs.append(i)
-    #         else:
-    #             candidates_update_indexs[candidates_update_ids.index(cand_id)] = i
-
-    # candidates_ids = np.array(candidates_ids, dtype=np.int64)
-
-    # predictions = model.predict(candidates)
-    
-    # faiss_index_id_map.train(predictions[candidates_add_indexs])                        # pylint: disable=no-value-for-parameter
-    # faiss_index_id_map.add_with_ids(                                                    # pylint: disable=no-value-for-parameter
-    #     predictions[candidates_add_indexs], candidates_ids[candidates_add_indexs])
-
-    # if candidates_ids[candidates_update_indexs].size != 0:
-    #     faiss_index_id_map.remove_ids(candidates_ids[candidates_update_indexs])
-    #     faiss_index_id_map.train(predictions[candidates_update_indexs])                 # pylint: disable=no-value-for-parameter
-    #     faiss_index_id_map.add_with_ids(                                                # pylint: disable=no-value-for-parameter
-    #         predictions[candidates_update_indexs], candidates_ids[candidates_update_indexs]) 
-
     if batches % 50 == 0:
         print('Faiss index: Batches[{}] ntotal={}'.format(batches, len(global_datas.keys())))
 
