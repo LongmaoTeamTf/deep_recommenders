@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 10:56:27
+@LastEditTime: 2020-09-27 11:07:45
 """
 import numpy as np
 import tensorflow as tf
@@ -129,7 +129,7 @@ def build_model():
     _video_categories_embedding_dim = 32
     _video_tags_embedding_dim = 32
     _max_tags_num = 5
-    _past_watches_num = 30
+    _past_watches_num = 10
 
     _boundaries = {
         'gap_time': [0, 1/365, 3/365, 7/365, 15/365, 30/365, 0.5, 1., 2., 3., 4.],
