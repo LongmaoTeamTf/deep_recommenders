@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 11:07:45
+@LastEditTime: 2020-09-27 17:15:22
 """
 import numpy as np
 import tensorflow as tf
@@ -20,14 +20,14 @@ class HashEmbeddings(Layer):
     def __init__(self, 
                  hash_bucket_size, 
                  embedding_dim,
-                 regularizer='l2',
+                 regularizer=0.5,
                  initializer='uniform',
                  trainable=True,
                  **kwargs):
         super(HashEmbeddings, self).__init__(**kwargs)
         self._hash_bucket_size = hash_bucket_size
         self._embedding_dim = embedding_dim
-        self._regularizer = regularizers.get(regularizer)
+        self._regularizer = regularizers.l2(regularizer)
         self._initializer = initializers.get(initializer)
         self._trainable = trainable
 
@@ -134,10 +134,10 @@ def build_model():
     _boundaries = {
         'gap_time': [0, 1/365, 3/365, 7/365, 15/365, 30/365, 0.5, 1., 2., 3., 4.],
         'duration_time': [x*60 for x in range(30)],
-        'play_count': [x*50 for x in range(101)],
-        'like_count': [x*20 for x in range(201)],
-        'collect_count': [x*10 for x in range(201)],
-        'share_count': [x*10 for x in range(101)]
+        'play_count': [0, 50, 100, 250, 500, 1000, 1500, 2000, 3000, 4000, 5000],
+        'like_count': [0, 10, 25, 50, 100, 200, 400, 600, 800, 1000, 2000],
+        'collect_count': [0, 10, 50, 100, 200, 350, 500, 750, 1000, 1500, 2000],
+        'share_count': [0, 10, 25, 50, 100, 200, 400, 600, 800, 1000, 2000]
     }
 
     video_ids_hash = tf.feature_column.categorical_column_with_hash_bucket(
@@ -233,13 +233,11 @@ def build_model():
         seed_features, user_past_watches_embeddings
     ])
     query_x = tf.keras.layers.Dense(512, name='query_dense_0', kernel_initializer='he_uniform')(query_tower_inputs)
-    query_x = tf.keras.layers.ReLU(name='query_relu_0')(query_x)
-    # query_x = tf.keras.layers.PReLU(name='query_prelu_0')(query_x)
-    # query_x = tf.keras.layers.Dropout(0.4, name='query_dropout_0')(query_x)
+    query_x = tf.keras.layers.PReLU(name='query_prelu_0')(query_x)
+    query_x = tf.keras.layers.Dropout(0.4, name='query_dropout_0')(query_x)
     query_x = tf.keras.layers.Dense(128, name='query_dense_1', kernel_initializer='he_uniform')(query_x)
-    query_x = tf.keras.layers.ReLU(name='query_relu_1')(query_x)
-    # query_x = tf.keras.layers.PReLU(name='query_prelu_1')(query_x)
-    # query_x = tf.keras.layers.Dropout(0.2, name='query_dropout_1')(query_x)
+    query_x = tf.keras.layers.PReLU(name='query_prelu_1')(query_x)
+    query_x = tf.keras.layers.Dropout(0.2, name='query_dropout_1')(query_x)
     query_x = L2Normalization(128, name='query_l2_norm')(query_x)
 
     candidate_tower_inputs = tf.keras.layers.Concatenate(axis=-1, name='cand_features_concat')([
@@ -250,13 +248,11 @@ def build_model():
         cand_video_duration_time,
     ] + list(video_cand_numerical_features.values()))
     candidate_x = tf.keras.layers.Dense(512, name='candidate_dense_0', kernel_initializer='he_uniform')(candidate_tower_inputs)
-    candidate_x = tf.keras.layers.ReLU(name='candidate_relu_0')(candidate_x)
-    # candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_0')(candidate_x)
-    # candidate_x = tf.keras.layers.Dropout(0.4, name='candidate_dropout_0')(candidate_x)
+    candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_0')(candidate_x)
+    candidate_x = tf.keras.layers.Dropout(0.4, name='candidate_dropout_0')(candidate_x)
     candidate_x = tf.keras.layers.Dense(128, name='candidate_dense_1', kernel_initializer='he_uniform')(candidate_x)
-    candidate_x = tf.keras.layers.ReLU(name='candidate_relu_1')(candidate_x)
-    # candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_1')(candidate_x)
-    # candidate_x = tf.keras.layers.Dropout(0.2, name='candidate_dropout_1')(candidate_x)
+    candidate_x = tf.keras.layers.PReLU(name='candidate_prelu_1')(candidate_x)
+    candidate_x = tf.keras.layers.Dropout(0.2, name='candidate_dropout_1')(candidate_x)
     candidate_x = L2Normalization(128, name='candidate_l2_norm')(candidate_x)
 
     query_tower = tf.keras.Model(

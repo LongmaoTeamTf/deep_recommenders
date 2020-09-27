@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-26 20:47:47
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 14:58:15
+@LastEditTime: 2020-09-27 17:17:42
 """
 import os
 import time
@@ -75,7 +75,7 @@ def parse_csv_line(left_columns,
         Tout=[tf.string])
     weight_labels = tf.math.reduce_sum(
         tf.math.multiply(tf.strings.to_number(labels), 
-        tf.constant([0.1, 0.3, 0.2, 0.3, 0.1]))) # 点击、点赞、分享、收藏、评论
+        tf.constant([0.5, 0.2, 0.1, 0.2, 0.]))) # 点击、点赞、分享、收藏、评论
 
     return left_features, right_features, weight_labels
 
@@ -184,7 +184,7 @@ def train_model(strategy,
                 checkpoints_dir=None,
                 streaming=False,
                 beta=100,
-                lr=0.01):
+                lr=0.001):
     """自定义训练"""
 
     dataset = strategy.experimental_distribute_dataset(dataset)
@@ -296,7 +296,7 @@ def train_model(strategy,
                 step += 1
                 batch_load_data_start = time.time()
 
-            optimizer.lr = 0.1 * optimizer.lr
+            # optimizer.lr = 0.1 * optimizer.lr
 
             loss_results.append(total_loss/steps)
             recall_results.append(epoch_recall_avg.result())

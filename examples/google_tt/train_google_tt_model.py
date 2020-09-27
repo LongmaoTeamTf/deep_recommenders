@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-09-03 16:26:18
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 15:02:06
+@LastEditTime: 2020-09-27 17:15:55
 """
 import os
 import sys
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         'epochs': 10,
         'ids_column': 'cand_id',
         'ids_hash_bucket_size': 200000,
-        'version': '20200927_adam_0.01',
+        'version': '20200927_debug',
         'tensorboard_dir': '/home/xddz/data/two_tower_data/model/training_tensorboard',
         'checkpoints_dir': '/home/xddz/data/two_tower_data/model/training_checkpoints',
         'query_saved_path': '/home/xddz/data/two_tower_data/model/models/google_tt_query',
