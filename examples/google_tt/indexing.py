@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-04-30 15:18:32
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-27 14:21:53
+@LastEditTime: 2020-09-27 20:49:42
 """
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
@@ -27,8 +27,8 @@ mkl.get_max_threads()
 
 data_dir = pathlib.Path("/home/xddz/data/two_tower_data")
 # model_dir = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200924"
-checkpoints_path = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927/right-ckpt-3"
-faiss_index_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927.faiss"
+checkpoints_path = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/right-ckpt-3"
+faiss_index_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss"
 
 left_columns = [
     'past_watches',
