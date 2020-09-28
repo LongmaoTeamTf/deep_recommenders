@@ -73,44 +73,64 @@ if __name__ == "__main__":
    
     query_data = {
         'past_watches': np.array([
-            ['214318', '216388', '181692', '208917', '216444', '192761', '215891', '215969', '213241', '215971', '215849', '215930', '215902', '215772', '215612', '209749', '215901', '215903', '215366', '215776', '128415', '215757', '215490', '214615', '215190', '214990', '215777', '2104', '170828', '155349', '154290', '155149', '5614', '179233', '176368', '170321', '209965', '209966', '154751', '209684', '13885', '215888', '155885', '167643', '209963', '166176', '177235', '153110', '7746', '168968', '209686'][:10], 
-            ['213680', '213740', '216747', '214813', '213372', '212192', '215915', '216141', '209191', '132922', '215766', '216828', '216221', '216783', '616', '175433', '3284', '215431', '200927', '211212', '213824', '209411', '216004', '216459', '214784', '216193', '216415', '216486', '216567', '216568', '214471', '127541', '215933', '210790', '145700', '211952', '211931', '215970', '213176', '211058', '215366', '214345', '214656', '213184', '210025', '214660', '214990', '207742', '215190', '215968', '214955'][:10],
-            ['212192', '213680', '213740', '216747', '214813', '213372', '215915', '216141', '209191', '132922', '215766', '216828', '216221', '216783', '616', '175433', '3284', '215431', '200927', '211212', '213824', '209411', '216004', '216459', '214784', '216193', '216415', '216486', '216567', '216568', '214471', '127541', '215933', '210790', '145700', '211952', '211931', '215970', '213176', '211058', '215366', '214345', '214656', '213184', '210025', '214660', '214990', '207742', '215190', '215968', '214955'][:10]
+            ['214318', '216388', '181692', '208917', '216444'], 
+            ['213680', '213740', '216747', '214813', '213372'],
+            ['212192', '213680', '213740', '216747', '214813'],
+            ['215915', '73574', '213190', '216450', '200319'],
+            ['214439', '207264', '213830', '216450', '123042']
         ]), 
-        'seed_id': np.array([['212199'], ['212192'], ['213372']]), 
-        'seed_category': np.array([['记录'], ['旅行'], ['动画']]), 
-        'seed_tags': np.array([['催泪', '温情', '浪漫', '记录精选', ''], ['混剪', '跟着开眼看世界', '集锦', '风光大片', '星空'], ['搞笑', '动画梦工厂', '魔性', '童趣', '喜剧']]), 
-        'seed_gap_time': np.array([[288781.0], [2253378.0], [1908595.0]]), 
-        'seed_duration_time': np.array([[767], [325], [420]]), 
-        'seed_play_count': np.array([[1836], [7311], [6950]]), 
-        'seed_like_count': np.array([[87],[654], [539]]), 
-        'seed_collect_count': np.array([[35], [250], [152]]), 
-        'seed_share_count': np.array([[63], [426], [156]])
+        'seed_id': np.array([
+            ['212199'], 
+            ['212192'], 
+            ['213372'], 
+            ['44236'], 
+            ['172221']
+        ]), 
+        'seed_category': np.array([['记录'], ['旅行'], ['动画'], ['生活'], ['记录']]), 
+        'seed_tags': np.array([
+            ['催泪', '温情', '浪漫', '记录精选', ''], 
+            ['混剪', '跟着开眼看世界', '集锦', '风光大片', '星空'], 
+            ['搞笑', '动画梦工厂', '魔性', '童趣', '喜剧'],
+            ['生活', '', '', '', ''],
+            ['', '', '', '', '']
+        ]), 
+        'seed_gap_time': np.array([
+            [288781.0], 
+            [2253378.0], 
+            [1908595.0],
+            [98364354.0],
+            [33854679.0]
+        ]), 
+        'seed_duration_time': np.array([[767], [325], [420], [69], [283]]), 
+        'seed_play_count': np.array([[1836], [7311], [6950], [529], [75]]), 
+        'seed_like_count': np.array([[87],[654], [539], [31], [3]]), 
+        'seed_collect_count': np.array([[35], [250], [152], [2], [0]]), 
+        'seed_share_count': np.array([[63], [426], [156], [32], [3]])
     }
 
     # model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
     left_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/left-ckpt-3"
-    right_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/right-ckpt-3"
-    # faiss_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss"
-    left_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_query/20200927"
-    right_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200927"
+    # right_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/right-ckpt-3"
+    faiss_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss"
+    # left_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_query/20200927"
+    # right_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200927"
 
     left_model, right_model = build_model()
 
     left_ckpt = tf.train.Checkpoint(model=left_model)
     left_ckpt.restore(left_checkpoints_dir)
 
-    left_model.save(left_saved_model_path)
+    # left_model.save(left_saved_model_path)
 
-    right_ckpt = tf.train.Checkpoint(model=right_model)
-    right_ckpt.restore(right_checkpoints_dir)
+    # right_ckpt = tf.train.Checkpoint(model=right_model)
+    # right_ckpt.restore(right_checkpoints_dir)
 
-    right_model.save(right_saved_model_path)
+    # right_model.save(right_saved_model_path)
 
     # predictions = check_model(model_dir, query_data)
-    # 
-    # predictions = check_checkpoints(checkpoints_dir, model, query_data)
+    
+    predictions = check_checkpoints(left_checkpoints_dir, left_model, query_data)
 
-    # check_faiss(faiss_path, predictions)
+    check_faiss(faiss_path, predictions)
 
     
