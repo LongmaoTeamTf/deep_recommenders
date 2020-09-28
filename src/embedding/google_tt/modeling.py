@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-08-27 17:22:16
 @LastEditors: Wang Yao
-@LastEditTime: 2020-09-28 11:01:44
+@LastEditTime: 2020-09-28 13:56:34
 """
 import numpy as np
 import tensorflow as tf
@@ -110,7 +110,8 @@ def _time_exp_norm(value, time_dancy=3.0):
     
     def _true_fn(val):
         val = val / (60 * 60 * 24 * 365)
-        return 1 / tf.math.pow(time_dancy, tf.cast(val, tf.float32))
+        # return 1 / tf.math.pow(time_dancy, tf.cast(val, tf.float32))
+        return tf.cast(val, 'float32')
     
     def _false_fn(val):
         return tf.cast(val, 'float32')
