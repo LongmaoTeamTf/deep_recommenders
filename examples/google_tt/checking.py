@@ -89,13 +89,28 @@ if __name__ == "__main__":
     }
 
     # model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
-    checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/left-ckpt-3"
-    faiss_path = '/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss'
+    left_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/left-ckpt-3"
+    right_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/right-ckpt-3"
+    # faiss_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss"
+    left_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_query/20200927"
+    right_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200927"
+
+    left_model, right_model = build_model()
+
+    left_ckpt = tf.train.Checkpoint(model=left_model)
+    left_ckpt.restore(left_checkpoints_dir)
+
+    left_model.save(left_saved_model_path)
+
+    right_ckpt = tf.train.Checkpoint(model=right_model)
+    right_ckpt.restore(right_checkpoints_dir)
+
+    right_model.save(right_saved_model_path)
 
     # predictions = check_model(model_dir, query_data)
-    model, _ = build_model()
-    predictions = check_checkpoints(checkpoints_dir, model, query_data)
+    # 
+    # predictions = check_checkpoints(checkpoints_dir, model, query_data)
 
-    check_faiss(faiss_path, predictions)
+    # check_faiss(faiss_path, predictions)
 
     
