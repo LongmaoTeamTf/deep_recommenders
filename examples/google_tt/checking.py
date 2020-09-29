@@ -109,9 +109,9 @@ if __name__ == "__main__":
     }
 
     # model_dir = '/home/xddz/data/two_tower_data/model/models/google_tt_query/20200924'
-    left_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/left-ckpt-3"
+    left_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200928/left-ckpt-3"
     # right_checkpoints_dir = "/home/xddz/data/two_tower_data/model/training_checkpoints/20200927_debug/right-ckpt-3"
-    faiss_path = "/home/xddz/data/two_tower_data/index/google_tt_20200927_debug.faiss"
+    faiss_path = "/home/xddz/data/two_tower_data/index/google_tt_20200928.faiss"
     # left_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_query/20200927"
     # right_saved_model_path = "/home/xddz/data/two_tower_data/model/models/google_tt_candidate/20200927"
 
