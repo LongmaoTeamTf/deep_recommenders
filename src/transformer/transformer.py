@@ -16,7 +16,6 @@ from layers import PositionEncoding
 from layers import MultiHeadAttention, PositionWiseFeedForward
 from layers import Add, LayerNormalization
 
-tf.config.experimental_run_functions_eagerly(True)
 
 class Transformer(tf.keras.layers.Layer):
 
@@ -37,9 +36,50 @@ class Transformer(tf.keras.layers.Layer):
             initializer='glorot_uniform',
             trainable=True,
             name="embeddings")
+        self.EncoderPositionEncoding = PositionEncoding(self._model_dim)
+        self.EncoderMultiHeadAttetions = [
+            MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
+            for _ in range(self._encoder_stack)
+        ]
+        self.EncoderLayerNorms0 = [
+            LayerNormalization()
+            for _ in range(self._encoder_stack)
+        ]
+        self.EncoderPositionWiseFeedForwards = [
+            PositionWiseFeedForward(self._model_dim, self._feed_forward_size)
+            for _ in range(self._encoder_stack)
+        ]
+        self.EncoderLayerNorms1 = [
+            LayerNormalization()
+            for _ in range(self._encoder_stack)
+        ]
+        self.DecoderPositionEncoding = PositionEncoding(self._model_dim)
+        self.DecoderMultiHeadAttetions0 = [
+            MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads, future=True)
+            for _ in range(self._decoder_stack)
+        ]
+        self.DecoderLayerNorms0 = [
+            LayerNormalization()
+            for _ in range(self._decoder_stack)
+        ]
+        self.DecoderMultiHeadAttetions1 = [
+            MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
+            for _ in range(self._decoder_stack)
+        ]
+        self.DecoderLayerNorms1 = [
+            LayerNormalization()
+            for _ in range(self._decoder_stack)
+        ]
+        self.DecoderPositionWiseFeedForwards = [
+            PositionWiseFeedForward(self._model_dim, self._feed_forward_size)
+            for _ in range(self._decoder_stack)
+        ]
+        self.DecoderLayerNorms2 = [
+            LayerNormalization()
+            for _ in range(self._decoder_stack)
+        ]
         super(Transformer, self).build(input_shape)
-
-
+        
     def encoder(self, inputs):
         if K.dtype(inputs) != 'int32':
             inputs = K.cast(inputs, 'int32')
@@ -49,7 +89,7 @@ class Transformer(tf.keras.layers.Layer):
         embeddings = K.gather(self.embeddings, inputs)
         embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
-        position_encodings = PositionEncoding(self._model_dim)(embeddings)
+        position_encodings = self.EncoderPositionEncoding(embeddings)
         # Embedings + Postion-encodings
         encodings = embeddings + position_encodings
         # Dropout
@@ -57,21 +97,20 @@ class Transformer(tf.keras.layers.Layer):
 
         for i in range(self._encoder_stack):
             # Multi-head-Attention
-            attention = MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
+            attention = self.EncoderMultiHeadAttetions[i]
             attention_input = [encodings, encodings, encodings, masks]
             attention_out = attention(attention_input)
             # Add & Norm
             attention_out += encodings
-            attention_out = LayerNormalization()(attention_out)
+            attention_out = self.EncoderLayerNorms0[i](attention_out)
             # Feed-Forward
-            ff = PositionWiseFeedForward(self._model_dim, self._feed_forward_size)
+            ff = self.EncoderPositionWiseFeedForwards[i]
             ff_out = ff(attention_out)
             # Add & Norm
             ff_out += attention_out
-            encodings = LayerNormalization()(ff_out)
+            encodings = self.EncoderLayerNorms1[i](ff_out)
 
         return encodings, masks
-
 
     def decoder(self, inputs):
         decoder_inputs, encoder_encodings, encoder_masks = inputs
@@ -83,7 +122,7 @@ class Transformer(tf.keras.layers.Layer):
         embeddings = K.gather(self.embeddings, decoder_inputs)
         embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
-        position_encodings = PositionEncoding(self._model_dim)(embeddings)
+        position_encodings = self.DecoderPositionEncoding(embeddings)
         # Embedings + Postion-encodings
         encodings = embeddings + position_encodings
         # Dropout
@@ -91,27 +130,27 @@ class Transformer(tf.keras.layers.Layer):
         
         for i in range(self._decoder_stack):
             # Masked-Multi-head-Attention
-            masked_attention = MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads, future=True)
+            masked_attention = self.DecoderMultiHeadAttetions0[i]
             masked_attention_input = [encodings, encodings, encodings, decoder_masks]
             masked_attention_out = masked_attention(masked_attention_input)
             # Add & Norm
             masked_attention_out += encodings
-            masked_attention_out = LayerNormalization()(masked_attention_out)
+            masked_attention_out = self.DecoderLayerNorms0[i](masked_attention_out)
 
             # Multi-head-Attention
-            attention = MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
+            attention = self.DecoderMultiHeadAttetions1[i]
             attention_input = [masked_attention_out, encoder_encodings, encoder_encodings, encoder_masks]
             attention_out = attention(attention_input)
             # Add & Norm
             attention_out += masked_attention_out
-            attention_out = LayerNormalization()(attention_out)
+            attention_out = self.DecoderLayerNorms1[i](attention_out)
 
             # Feed-Forward
-            ff = PositionWiseFeedForward(self._model_dim, self._feed_forward_size)
+            ff = self.DecoderPositionWiseFeedForwards[i]
             ff_out = ff(attention_out)
             # Add & Norm
             ff_out += attention_out
-            encodings = LayerNormalization()(ff_out)
+            encodings = self.DecoderLayerNorms2[i](ff_out)
 
         # Pre-Softmax 与 Embeddings 共享参数
         linear_projection = K.dot(encodings, K.transpose(self.embeddings))
@@ -123,7 +162,6 @@ class Transformer(tf.keras.layers.Layer):
         encoder_encodings, encoder_masks = self.encoder(encoder_inputs)
         encoder_outputs = self.decoder([decoder_inputs, encoder_encodings, encoder_masks])
         return encoder_outputs
-
 
     def compute_output_shape(self, input_shape):
         return  (input_shape[0][0], input_shape[0][1], self._vocab_size)
@@ -160,7 +198,7 @@ class Noam(Callback):
     
 
 def label_smoothing(inputs, epsilon=0.1):
-
+    """目标平滑"""
     output_dim = inputs.shape[-1]
     smooth_label = (1 - epsilon) * inputs + (epsilon / output_dim)
     return smooth_label
@@ -170,15 +208,38 @@ if __name__ == "__main__":
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import Input
     from tensorflow.keras.utils import plot_model
+    from tensorflow.keras.datasets import imdb
+    from tensorflow.keras.preprocessing import sequence
+    from tensorflow.keras.utils import to_categorical
 
     vocab_size = 5000
     max_seq_len = 256
-    model_dim = 512
+    model_dim = 128
+
+    print("Data downloading and pre-processing ... ")
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_seq_len, num_words=vocab_size)
+    x_train = sequence.pad_sequences(x_train, maxlen=max_seq_len)
+    x_test = sequence.pad_sequences(x_test, maxlen=max_seq_len)
+    x_train_masks = tf.equal(x_train, 0)
+    x_test_masks = tf.equal(x_test, 0)
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
 
     encoder_inputs = Input(shape=(max_seq_len,), name='encoder_inputs')
     decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
     outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
+    outputs = tf.keras.layers.GlobalAveragePooling1D()(outputs)
+    outputs = tf.keras.layers.Dense(2)(outputs)
     model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
-    model.summary()
-    plot_model(model, 'transformer.png')
+    model.compile(
+        loss=tf.keras.losses.binary_crossentropy, 
+        optimizer='Adam',
+        metrics=['accuracy']
+    )
+
+    model.fit(
+        [x_train, x_train],
+        y_train
+    )
+    

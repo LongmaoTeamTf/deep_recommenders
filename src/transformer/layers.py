@@ -16,7 +16,6 @@ import tensorflow.keras.backend as K
 from tensorflow.keras.layers import Layer
 
 
-
 class Embedding(Layer):
 
     def __init__(self, vocab_size, model_dim, **kwargs):
