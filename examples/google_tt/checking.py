@@ -131,6 +131,6 @@ if __name__ == "__main__":
     
     predictions = check_checkpoints(left_checkpoints_dir, left_model, query_data)
 
-    check_faiss(faiss_path, predictions)
+    check_faiss(faiss_path, predictions/0.05)
 
     
