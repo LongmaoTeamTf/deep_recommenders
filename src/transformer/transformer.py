@@ -229,7 +229,7 @@ if __name__ == "__main__":
     decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
     outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
     outputs = tf.keras.layers.GlobalAveragePooling1D()(outputs)
-    outputs = tf.keras.layers.Dense(2)(outputs)
+    outputs = tf.keras.layers.Dense(2, activation='softmax')(outputs)
     model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
     model.compile(
