@@ -233,7 +233,7 @@ if __name__ == "__main__":
     model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
     model.compile(
-        loss=tf.keras.losses.binary_crossentropy, 
+        loss=tf.keras.losses.categorical_crossentropy, 
         optimizer='Adam',
         metrics=['accuracy']
     )
