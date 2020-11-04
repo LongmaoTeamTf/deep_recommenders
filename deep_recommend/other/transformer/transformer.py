@@ -7,17 +7,121 @@
 @LastEditors: Wang Yao
 @LastEditTime: 2020-03-27 17:50:33
 '''
+from __future__ import print_function
+
 import os
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
+from tensorflow.keras.layers import Layer
 from tensorflow.keras.callbacks import Callback
-from layers import PositionEncoding
-from layers import MultiHeadAttention, PositionWiseFeedForward
-from layers import Add, LayerNormalization
+from multi_head_attention import MultiHeadAttention
 
 
-class Transformer(tf.keras.layers.Layer):
+class PositionEncoding(Layer):
+
+    def __init__(self, model_dim, **kwargs):
+        self._model_dim = model_dim
+        super(PositionEncoding, self).__init__(**kwargs)
+
+    def call(self, inputs):
+        seq_length = inputs.shape[1]
+        position_encodings = np.zeros((seq_length, self._model_dim))
+        for pos in range(seq_length):
+            for i in range(self._model_dim):
+                position_encodings[pos, i] = pos / np.power(10000, (i-i%2) / self._model_dim)
+        position_encodings[:, 0::2] = np.sin(position_encodings[:, 0::2]) # 2i
+        position_encodings[:, 1::2] = np.cos(position_encodings[:, 1::2]) # 2i+1
+        position_encodings = K.cast(position_encodings, 'float32')
+        return position_encodings
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
+class Add(Layer):
+
+    def __init__(self, **kwargs):
+        super(Add, self).__init__(**kwargs)
+
+    def call(self, inputs):
+        input_a, input_b = inputs
+        return input_a + input_b
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[0]
+
+
+class PositionWiseFeedForward(Layer):
+    
+    def __init__(self, model_dim, inner_dim, trainable=True, **kwargs):
+        self._model_dim = model_dim
+        self._inner_dim = inner_dim
+        self._trainable = trainable
+        super(PositionWiseFeedForward, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.weights_inner = self.add_weight(
+            shape=(input_shape[-1], self._inner_dim),
+            initializer='glorot_uniform',
+            trainable=self._trainable,
+            name="weights_inner")
+        self.weights_out = self.add_weight(
+            shape=(self._inner_dim, self._model_dim),
+            initializer='glorot_uniform',
+            trainable=self._trainable,
+            name="weights_out")
+        self.bais_inner = self.add_weight(
+            shape=(self._inner_dim,),
+            initializer='uniform',
+            trainable=self._trainable,
+            name="bais_inner")
+        self.bais_out = self.add_weight(
+            shape=(self._model_dim,),
+            initializer='uniform',
+            trainable=self._trainable,
+            name="bais_out")
+        super(PositionWiseFeedForward, self).build(input_shape)
+
+    def call(self, inputs):
+        if K.dtype(inputs) != 'float32':
+            inputs = K.cast(inputs, 'float32')
+        inner_out = K.relu(K.dot(inputs, self.weights_inner) + self.bais_inner)
+        outputs = K.dot(inner_out, self.weights_out) + self.bais_out
+        return outputs
+
+    def compute_output_shape(self, input_shape):
+        return self._model_dim
+
+
+class LayerNormalization(Layer):
+
+    def __init__(self, epsilon=1e-8, **kwargs):
+        self._epsilon = epsilon
+        super(LayerNormalization, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.beta = self.add_weight(
+            shape=(input_shape[-1],),
+            initializer='zero',
+            name='beta')
+        self.gamma = self.add_weight(
+            shape=(input_shape[-1],),
+            initializer='one',
+            name='gamma')
+        super(LayerNormalization, self).build(input_shape)
+
+    def call(self, inputs):
+        mean, variance = tf.nn.moments(inputs, [-1], keepdims=True)
+        normalized = (inputs - mean) / ((variance + self._epsilon) ** 0.5)
+        outputs = self.gamma * normalized + self.beta
+        return outputs
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
+class Transformer(Layer):
 
     def __init__(self, vocab_size, model_dim, 
             n_heads=8, encoder_stack=6, decoder_stack=6, feed_forward_size=2048, dropout_rate=0.1, **kwargs):
@@ -211,10 +315,16 @@ if __name__ == "__main__":
     from tensorflow.keras.datasets import imdb
     from tensorflow.keras.preprocessing import sequence
     from tensorflow.keras.utils import to_categorical
+    from tensorflow.keras.optimizers import Adam
+    from tensorflow.keras.callbacks import EarlyStopping
+
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
     vocab_size = 5000
     max_seq_len = 256
-    model_dim = 128
+    model_dim = 8
+    batch_size = 128
+    epochs = 10
 
     print("Data downloading and pre-processing ... ")
     (x_train, y_train), (x_test, y_test) = imdb.load_data(maxlen=max_seq_len, num_words=vocab_size)
@@ -225,21 +335,30 @@ if __name__ == "__main__":
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
 
+    print('Model building ... ')
     encoder_inputs = Input(shape=(max_seq_len,), name='encoder_inputs')
     decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
-    outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
+    outputs = Transformer(
+        vocab_size, 
+        model_dim, 
+        n_heads=2, 
+        encoder_stack=2,
+        decoder_stack=2, 
+        feed_forward_size=50
+    )([encoder_inputs, decoder_inputs])
     outputs = tf.keras.layers.GlobalAveragePooling1D()(outputs)
     outputs = tf.keras.layers.Dense(2, activation='softmax')(outputs)
     model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
-    model.compile(
-        loss=tf.keras.losses.categorical_crossentropy, 
-        optimizer='Adam',
-        metrics=['accuracy']
-    )
+    model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
+        loss='categorical_crossentropy', metrics=['accuracy'])
 
-    model.fit(
-        [x_train, x_train],
-        y_train
-    )
+    print("Model Training ... ")
+    es = EarlyStopping(patience=5)
+    model.fit([x_train, x_train_masks], y_train, 
+        batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[es])
+
+    test_metrics = model.evaluate([x_test, x_test_masks], y_test, batch_size=batch_size, verbose=0)
+    print("loss on Test: %.4f" % test_metrics[0])
+    print("accu on Test: %.4f" % test_metrics[1])
     
