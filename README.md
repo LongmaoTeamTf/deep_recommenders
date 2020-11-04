@@ -1,6 +1,8 @@
 # DeepRecSys
 [![tensorflow](https://img.shields.io/badge/tensorflow-2.0%2B-brightgreen)]()
 [![python](https://img.shields.io/badge/python-3.6+-brightgreen)]()
+[![license](https://img.shields.io/badge/license-MIT-green)]()
+
 
 此代码库包含推荐系统领域中经典或最新的 `CTR` 模型和 `Match` 模型，以及其他相关深度模型的实现。<br/>
 此代码库主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步。
