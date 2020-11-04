@@ -13,7 +13,10 @@ from tqdm import tqdm
 from contextlib import closing
 from zipfile import ZipFile
 
-filename = "xiaohuangji50w_fenciA.conv.zip"
+data_dir = "./data"
+if not os.path.exists(data_dir):
+    os.mkdir(data_dir)
+filename = os.path.join(data_dir, "xiaohuangji50w_fenciA.conv.zip")
 url = "https://github.com/candlewill/Dialog_Corpus/raw/master/{}".format(filename)
 
 with closing(requests.get(url, stream=True)) as response:
