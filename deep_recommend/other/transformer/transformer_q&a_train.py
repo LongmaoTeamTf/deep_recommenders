@@ -15,9 +15,11 @@ import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
 from tensorflow.keras.optimizers import Adam
-from transformer import Transformer, Noam, label_smoothing
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+from transformer import Transformer
+from transformer import Noam, label_smoothing
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -63,7 +65,14 @@ decoder_targets = label_smoothing(decoder_targets)
 print("Model Building ... ")
 encoder_inputs = Input(shape=(max_seq_len,), name='encoder_inputs')
 decoder_inputs = Input(shape=(max_seq_len,), name='decoder_inputs')
-outputs = Transformer(vocab_size, model_dim)([encoder_inputs, decoder_inputs])
+outputs = Transformer(
+        vocab_size, 
+        model_dim, 
+        n_heads=2, 
+        encoder_stack=2,
+        decoder_stack=2, 
+        feed_forward_size=50
+)([encoder_inputs, decoder_inputs])
 model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
 
 model.compile(optimizer=Adam(beta_1=0.9, beta_2=0.98, epsilon=1e-9), 
