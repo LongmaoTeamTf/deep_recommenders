@@ -1,4 +1,4 @@
-# DeepRecommend Learning
+# DeepRecSys Learning
 [![tensorflow](https://img.shields.io/badge/tensorflow-2.0%2B-brightgreen)]()
 [![python](https://img.shields.io/badge/python-3.6+-brightgreen)]()
 
