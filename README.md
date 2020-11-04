@@ -1,6 +1,6 @@
 # DeepRecSys
-[![python](https://img.shields.io/badge/python-3.6+-brightgreen)](requirement.txt)
-[![tensorflow](https://img.shields.io/badge/tensorflow-2.0%2B-brightgreen)](requirement.txt)
+[![python](https://img.shields.io/badge/python-3.6+-brightgreen)](requirements.txt)
+[![tensorflow](https://img.shields.io/badge/tensorflow-2.0%2B-brightgreen)](requirements.txt)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 
