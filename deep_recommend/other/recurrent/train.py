@@ -8,20 +8,15 @@
 @LastEditTime: 2020-04-02 23:29:20
 '''
 import os
-import sys
-sys.path.append("../")
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Dropout, GlobalAveragePooling1D
+from tensorflow.keras.layers import Input, Dense, Dropout, GlobalAveragePooling1D, Embedding
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.datasets import imdb
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras.utils import to_categorical
-from embeddings import Embedding
-from rnn import RNN
+from rnn import RNN, BiDirectional
 from gru import GRU
-from recurrent import BiDirectional
-from attention import Attention
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -40,7 +35,7 @@ y_test = to_categorical(y_test)
 
 print('Model building ... ')
 inputs = Input(shape=(max_len,), name="inputs")
-embeddings = Embedding(vocab_size, model_dim, scale=False)(inputs)
+embeddings = Embedding(vocab_size, model_dim, input_length=max_len)(inputs)
 outputs = BiDirectional(GRU(model_dim, return_outputs=True))(embeddings)
 x = GlobalAveragePooling1D()(outputs)
 x = Dropout(0.2)(x)

@@ -20,7 +20,8 @@ class GRU(Layer):
             units, 
             activation='tanh', 
             return_outputs=False,
-            use_bias=True, 
+            use_bias=True,
+            go_backwards=False,
             **kwargs):
         self._units = units
         self._activation = activations.get(activation)
@@ -78,7 +79,7 @@ class GRU(Layer):
         super(GRU, self).build(input_shape)
 
     def call(self, inputs):
-        h_t = K.zeros(shape=(1, self._units))
+        h_t = tf.zeros(shape=(1, self._units), name='h_t')
         states = []
         for t in range(inputs.shape[1]):
             x_t = K.expand_dims(inputs[:, t, :], 1)
@@ -109,3 +110,13 @@ class GRU(Layer):
                 input_shape[:-1] + (self._units,),
                 input_shape[0] + (1, self._units,)]
         return output_shape
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            "units": self._units,
+            "activation": self._activation,
+            "return_outputs": self._return_outputs,
+            "use_bias": self._use_bias,
+        })
+        return config
