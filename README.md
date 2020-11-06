@@ -12,17 +12,17 @@
 ## Projects
 
 ### CTR
-* [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) ![status](https://img.shields.io/badge/status-Done-brightgreen)
+* [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) <font color="green">Done.</font>
 
-* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) ![status](https://img.shields.io/badge/status-Doing-orange)
-* [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems]()(KDD 2018) ![status](https://img.shields.io/badge/status-Doing-orange)
+* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) <font color="orange" >Doing.</font>
+* [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems]()(KDD 2018) <font color="orange" >Doing.</font>
 * [Deep Interest Network for Click-Through Rate Prediction](deep_recommend/recommend/ctr/din)(KDD 2018) 
-![status](https://img.shields.io/badge/status-Doing-orange)
+<font color="orange" >Doing.</font>
 
 ### Match
-* [Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations](deep_recommend/recommend/match/google_tt)(RecSys 2019) ![status](https://img.shields.io/badge/status-Done-brightgreen)
+* [Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations](deep_recommend/recommend/match/google_tt)(RecSys 2019) <font color="green" >Done.</font>
 
 ### Other
-* [Attention Is All You Need](deep_recommend/other/transformer)(NeurlPS ![status](https://img.shields.io/badge/status-Done-brightgreen)
+* [Attention Is All You Need](deep_recommend/other/transformer)(NeurlPS 2017) <font color="green" >Done.</font>
 
 
