@@ -5,11 +5,11 @@
 @Author: Wang Yao
 @Date: 2020-11-10 11:14:39
 @LastEditors: Wang Yao
-@LastEditTime: 2020-11-10 16:15:53
+@LastEditTime: 2020-11-10 16:25:28
 """
 import sys
 sys.path.append("..")
-from data.criteo import criteoDataFLow
+from dataset.criteo import criteoDataFLow
 from dcn import build_dcn
 
 from math import floor, ceil
