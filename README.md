@@ -14,7 +14,7 @@
 ### CTR
 * [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) <font color="green">Done.</font>
 
-* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) <font color="orange" >Doing.</font>
+* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) <font color="green" >Done.</font>
 * [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems]()(KDD 2018) <font color="orange" >Doing.</font>
 * [Deep Interest Network for Click-Through Rate Prediction](deep_recommend/recommend/ctr/din)(KDD 2018) 
 <font color="orange" >Doing.</font>
