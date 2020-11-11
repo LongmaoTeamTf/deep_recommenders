@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-11-10 11:14:39
 @LastEditors: Wang Yao
-@LastEditTime: 2020-11-10 16:25:28
+@LastEditTime: 2020-11-11 14:02:47
 """
 import sys
 sys.path.append("..")
@@ -25,7 +25,7 @@ cross_layers_num = 3
 dnn_layers_num = 3
 
 # 创建Criteo数据集
-criteo_dataflow = criteoDataFLow(data_path, batch_size=batch_size, epochs=epochs)
+criteo_dataflow = criteoDataFLow(data_path, batch_size=batch_size, epochs=1)
 dataset = criteo_dataflow.create_criteo_dataset_from_generator()
 train_steps = floor(total_examples_num * 0.8) // batch_size
 test_steps = ceil(total_examples_num * 0.2) // batch_size
@@ -48,9 +48,9 @@ dcn.compile(loss="binary_crossentropy", optimizer="adam", metrics=[AUC()])
 # 训练
 print("Train DCN model ... ")
 dcn.fit(
-    train_dataset,
+    train_dataset.repeat(epochs),
     steps_per_epoch=train_steps,
-    validation_data=valid_dataset,
+    validation_data=valid_dataset.repeat(epochs),
     validation_steps=valid_steps,
     epochs=epochs,
     callbacks=[EarlyStopping(patience=3)],
