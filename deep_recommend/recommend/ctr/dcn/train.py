@@ -5,20 +5,37 @@
 @Author: Wang Yao
 @Date: 2020-11-10 11:14:39
 @LastEditors: Wang Yao
-@LastEditTime: 2020-11-11 14:02:47
+@LastEditTime: 2020-11-12 11:48:49
 """
 import sys
 sys.path.append("..")
 from dataset.criteo import criteoDataFLow
-from dcn import build_dcn
+from dcn import build_dcn 
 
 from math import floor, ceil
 from tensorflow.keras.metrics import AUC
+from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import EarlyStopping
 
 
-data_path = "/root/dac/train.txt"
-total_examples_num = 45840617
+class ReportValidationStatus(Callback):
+
+    def __init__(self, valid_steps):
+        self.valid_steps = valid_steps
+
+    def on_test_begin(self, logs=None):
+        print("\nValidating ... ")
+
+    def on_test_end(self, logs=None): 
+        print("\nValidating: done.")
+
+    def on_test_batch_end(self, batch, logs):
+        print('Validating: batch[{}/{}] val_loss={:.4f} val_auc={:.4f}'.format(
+            batch+1, self.valid_steps, logs['loss'], logs['auc']), end='\r')
+
+
+data_path = "/Users/wangyao/Desktop/Recommend/dac/train.txt"
+total_examples_num = 10000
 batch_size = 512
 epochs = 10
 cross_layers_num = 3
@@ -53,8 +70,9 @@ dcn.fit(
     validation_data=valid_dataset.repeat(epochs),
     validation_steps=valid_steps,
     epochs=epochs,
-    callbacks=[EarlyStopping(patience=3)],
-    shuffle=True
+    callbacks=[EarlyStopping(patience=3), ReportValidationStatus(valid_steps)],
+    shuffle=True,
+    verbose=1
 )
 # 测试集验证
 print("Evaluate DCN model ... ")
