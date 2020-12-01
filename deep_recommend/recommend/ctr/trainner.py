@@ -5,14 +5,14 @@
 @Author: Wang Yao
 @Date: 2020-11-30 11:31:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-11-30 16:06:18
+@LastEditTime: 2020-12-01 16:31:49
 """
 import os
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import EarlyStopping
-from dataset.criteo import criteoDataFLow
+from deep_recommend.recommend.ctr.dataset.criteo import criteoDataFLow
 
 
 class ReportValidationStatus(Callback):
