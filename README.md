@@ -12,17 +12,15 @@
 ## Projects
 
 ### CTR
-* [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) <font color="green">Done.</font>
-
-* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) <font color="green" >Done.</font>
-* [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems]()(KDD 2018) <font color="orange" >Doing.</font>
-* [Deep Interest Network for Click-Through Rate Prediction](deep_recommend/recommend/ctr/din)(KDD 2018) 
-<font color="orange" >Doing.</font>
+* [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) `Done`
+* [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) `Done`
+* [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](deep_recommend/recommend/ctr/xdeepfm)(KDD 2018) `Done`
+* [Deep Interest Network for Click-Through Rate Prediction](deep_recommend/recommend/ctr/din)(KDD 2018) `Doing`
 
 ### Match
-* [Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations](deep_recommend/recommend/match/google_tt)(RecSys 2019) <font color="green" >Done.</font>
+* [Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations](deep_recommend/recommend/match/google_tt) `Done`
 
 ### Other
-* [Attention Is All You Need](deep_recommend/other/transformer)(NeurlPS 2017) <font color="green" >Done.</font>
+* [Attention Is All You Need](deep_recommend/other/transformer)(NeurlPS 2017) `Done`
 
 
