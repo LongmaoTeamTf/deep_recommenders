@@ -1,0 +1,171 @@
+sparse_features:
+  - name: C1
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C2
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C3
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C4
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C5
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C6
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C7
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C8
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C9
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C10
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C11
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C12
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C13
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C14
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C15
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C16
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C17
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C18
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C19
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C20
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C21
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C22
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C23
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C24
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C25
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+  - name: C26
+    input_length: 1
+    hash_bucket_size: 10000
+    embedding_dim: 10
+dense_features:
+  - name: I1
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I2
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I3
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I4
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I5
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I6
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I7
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I8
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I9
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I10
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I11
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I12
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
+  - name: I13
+    boundaries: 0,100,200,300,400,500,600,700,800,900,1000,2000,3000,4000,5000
+    default: -1
+    norm: null
+    embedding_dim: 10
