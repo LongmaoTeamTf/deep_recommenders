@@ -5,11 +5,9 @@
 @Author: Wang Yao
 @Date: 2020-11-09 14:19:38
 @LastEditors: Wang Yao
-@LastEditTime: 2020-11-30 16:17:40
+@LastEditTime: 2020-12-01 16:59:48
 """
-import numpy as np
 import tensorflow as tf
-from dataset.utils import numeric_log_normalizer
 
 
 class criteoDataFLow():
@@ -21,8 +19,8 @@ class criteoDataFLow():
         self._epochs = epochs
         self._integer_cols_num = 13
         self._categorical_cols_num = 26
-        self.integer_cols_names = [f"I{i}" for i in range(self._integer_cols_num)]
-        self.categorical_cols_names = [f"C{i}" for i in range(self._categorical_cols_num)]
+        self.integer_cols_names = [f"I{i+1}" for i in range(self._integer_cols_num)]
+        self.categorical_cols_names = [f"C{i+1}" for i in range(self._categorical_cols_num)]
 
     def create_criteo_generator(self):
         """创建Criteo数据迭代器"""
@@ -56,29 +54,3 @@ class criteoDataFLow():
         criteo_dataset = criteo_dataset.prefetch(self._batch_size)
 
         return criteo_dataset
-
-
-def create_feature_layers():
-    """ 构造Criteo数据的特征处理层 """ 
-    integer_cols_names = [f"I{i}" for i in range(13)]
-    categorical_cols_names = [f"C{i}" for i in range(26)]
-
-    dense_inputs, dense_cols = [], []
-    for integer_col_name in integer_cols_names:
-        dense_input = tf.keras.Input(shape=(1,), name=integer_col_name)
-        dense_col = tf.feature_column.numeric_column(
-            key=integer_col_name, default_value=-1, normalizer_fn=None)
-        dense_col = tf.feature_column.bucketized_column(dense_col, list(range(0, 5000, 10)))
-        dense_col = tf.feature_column.embedding_column(dense_col, 10, trainable=True)
-        dense_inputs.append(dense_input)
-        dense_cols.append(dense_col)
-        
-    sparse_inputs, sparse_cols = [], []
-    for categorical_col_name in categorical_cols_names:
-        sparse_input = tf.keras.Input(shape=(1,), name=categorical_col_name, dtype=tf.string)
-        sparse_col = tf.feature_column.categorical_column_with_hash_bucket(key=categorical_col_name, hash_bucket_size=10000)
-        sparse_embed_col = tf.feature_column.embedding_column(sparse_col, 10, trainable=True)
-        sparse_inputs.append(sparse_input)
-        sparse_cols.append(sparse_embed_col)
-
-    return (sparse_inputs, sparse_cols), (dense_inputs, dense_cols)
