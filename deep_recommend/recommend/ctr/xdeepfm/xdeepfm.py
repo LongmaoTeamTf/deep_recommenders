@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-11-28 11:16:54
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-01 17:39:35
+@LastEditTime: 2020-12-01 21:46:10
 """
 import tensorflow as tf
 from tensorflow.keras import initializers
@@ -27,7 +27,7 @@ class CinBlock(Layer):
             name="filter")
         self.built = True
         
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         xk, x0 = inputs
         h, m, d = xk.shape[1], x0.shape[1], x0.shape[-1]
         split_x0 = tf.split(x0, d, axis=-1)
@@ -43,6 +43,7 @@ class CinBlock(Layer):
 
 class CIN(object):
     """ build Compressed Intercation Network """
+    __layer_name__ = "cin_"
 
     def __init__(self, feature_maps: list, feature_embedding_dim: int, **kwargs):
         super(CIN, self).__init__(**kwargs)
@@ -55,8 +56,8 @@ class CIN(object):
         x0 = tf.reshape(concat_embeddings, (-1, features_num, self._feature_embedding_dim))
         x = x0
         cin_sumpoolings = []
-        for h in self._feature_maps:
-            x = CinBlock(int(h))([x, x0])
+        for i, h in enumerate(self._feature_maps):
+            x = CinBlock(int(h), name=self.__layer_name__ + str(i))([x, x0])
             x_sumpooling = self.sumpooling(x)
             cin_sumpoolings.append(x_sumpooling)
         return Concatenate(axis=-1)(cin_sumpoolings)
