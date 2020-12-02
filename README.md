@@ -24,3 +24,14 @@
 * [Attention Is All You Need](deep_recommend/other/transformer)(NeurlPS 2017) `Done`
 
 
+## Quick Start
+``` shell
+python run.py {ctr} {deepfm,dcn,xdeepfm} {criteo} \
+    train_data_dir \
+    valid_data_dir \
+    test_data_dir \
+    --batch_size BATCH_SIZE \
+    --epochs EPOCHS
+```
+
+
