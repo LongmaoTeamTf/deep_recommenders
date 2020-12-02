@@ -30,6 +30,8 @@ python run.py {ctr} {deepfm,dcn,xdeepfm} {criteo} \
     train_data_dir \
     valid_data_dir \
     test_data_dir \
+    save_path \
+    --version VERSION \
     --batch_size BATCH_SIZE \
     --epochs EPOCHS
 ```
