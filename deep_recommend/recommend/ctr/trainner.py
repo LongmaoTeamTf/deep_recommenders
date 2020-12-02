@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2020-11-30 11:31:00
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-01 16:31:49
+@LastEditTime: 2020-12-02 14:11:48
 """
 import os
 import tensorflow as tf
@@ -46,8 +46,12 @@ class CtrModelTrainer(object):
         self.batch_size = batch_size
         self.epochs = epochs
 
-    def __call__(self, train_filepaths, valid_filepaths, test_filepaths):
+    def __call__(self, train_dir, valid_dir, test_dir):
         """ 执行 """
+        train_filepaths = [os.path.join(train_dir, fp) for fp in os.listdir(train_dir)]
+        valid_filepaths = [os.path.join(valid_dir, fp) for fp in os.listdir(valid_dir)]
+        test_filepaths = [os.path.join(test_dir, fp) for fp in os.listdir(test_dir)]
+
         train_steps = self.calc_steps(train_filepaths)
         valid_steps = self.calc_steps(valid_filepaths)
         test_steps = self.calc_steps(test_filepaths)

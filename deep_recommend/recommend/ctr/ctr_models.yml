@@ -1,0 +1,10 @@
+models:
+  deepfm:
+    yaml: deep_recommend/recommend/ctr/deepfm/deepfm.yml
+  dcn:
+    yaml: deep_recommend/recommend/ctr/dcn/dcn.yml
+  xdeepfm:
+    yaml: deep_recommend/recommend/ctr/xdeepfm/xdeepfm.yml
+datasets:
+  criteo:
+    yaml: deep_recommend/recommend/ctr/dataset/criteo.yml
