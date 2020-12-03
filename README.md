@@ -12,6 +12,7 @@
 ## Projects
 
 ### CTR
+* [Factorization Machines](deep_recommend/recommend/ctr/fm) `Done`
 * [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](deep_recommend/recommend/ctr/deepfm)(IJCAI 2017) `Done`
 * [Deep & Cross Network for Ad Click Predictions](deep_recommend/recommend/ctr/dcn)(KDD 2017) `Done`
 * [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](deep_recommend/recommend/ctr/xdeepfm)(KDD 2018) `Done`
@@ -26,7 +27,10 @@
 
 ## Quick Start
 ``` shell
-python run.py {ctr} {deepfm,dcn,xdeepfm} {criteo} \
+python run.py \
+    {ctr} \
+    {fm,deepfm,dcn,xdeepfm} \
+    {criteo} \
     train_data_dir \
     valid_data_dir \
     test_data_dir \
