@@ -1,21 +1,20 @@
 """
 @Description: 训练模型
-@version: 1.0.0
+@version: 1.0.1
 @License: MIT
 @Author: Wang Yao
 @Date: 2020-12-01 16:26:40
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-02 19:00:27
+@LastEditTime: 2020-12-03 11:53:17
 """
 import argparse
 from pathlib import Path
 import yaml
 from deep_recommend.recommend.ctr.dataset.dataset import TfDatasetCSV
-from deep_recommend.recommend.ctr.embedding_mlp import EmbeddingMLP
 from deep_recommend.trainner import ModelTrainer
-from deep_recommend.recommend.ctr.deepfm.fm import FmPart
-from deep_recommend.recommend.ctr.dcn.cross_net import CrossNet
-from deep_recommend.recommend.ctr.xdeepfm.xdeepfm import CIN
+from deep_recommend.recommend.ctr.deepfm.deepfm import DeepFM
+from deep_recommend.recommend.ctr.dcn.dcn import DCN
+from deep_recommend.recommend.ctr.xdeepfm.xdeepfm import xDeepFM
 
 
 parser = argparse.ArgumentParser()
@@ -59,30 +58,14 @@ def run_ctr_model(args):
     test_dataset, test_steps = dataseter(
         [str(fn) for fn in Path(args.test_data_dir).glob("*.txt")])
 
-    embedding_mlp = EmbeddingMLP(
-        dataset_config.get("features").get("dense_features"),
-        dataset_config.get("features").get("sparse_features"),
-        model_config.get("ff").get("hidden_sizes").split(","),
-        model_config.get("ff").get("hidden_activation"),
-        model_config.get("ff").get("hidden_dropout_rates").split(","),
-        model_config.get("logits").get("size"),
-        model_config.get("logits").get("activation"),
-        model_config.get("model").get("name"),
-        model_config.get("model").get("loss"),
-        model_config.get("model").get("optimizer")
-    )
     if args.model == "deepfm":
-        explicit_part = FmPart(model_config.get("fm").get("factors"))
+        model = DeepFM(dataset_config, model_config)()
     elif args.model == "dcn":
-        explicit_part = CrossNet(model_config.get("dcn").get("cross_layers_num"))
+        model = DCN(dataset_config, model_config)()
     elif args.model == "xdeepfm":
-        explicit_part = CIN(
-            model_config.get("cin").get("feature_maps").split(","),
-            model_config.get("cin").get("feature_embedding_dim"))
+        model = xDeepFM(dataset_config, model_config)()
     else:
         return f"Unsupport model {args.model}"
-
-    model = embedding_mlp(explicit_part)
 
     trainer = ModelTrainer(
         model,
@@ -93,6 +76,7 @@ def run_ctr_model(args):
         args.version,
         epochs=args.epochs)
     trainer(train_dataset, valid_dataset, test_dataset)
+    return f"Train {args.model} model successed."
 
 
 if __name__ == "__main__":
@@ -104,4 +88,5 @@ if __name__ == "__main__":
     print("Valid Data Dir: {}".format(args.valid_data_dir))
     print("Test Data Dir: {}".format(args.test_data_dir))
     print("Save Path: {}".format(args.save_path))
-    run_ctr_model(args)
+    status = run_ctr_model(args)
+    print(status)
