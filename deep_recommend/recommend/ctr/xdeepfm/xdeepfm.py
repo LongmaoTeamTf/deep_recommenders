@@ -5,12 +5,13 @@
 @Author: Wang Yao
 @Date: 2020-11-28 11:16:54
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-03 11:01:54
+@LastEditTime: 2020-12-03 20:11:33
 """
 import tensorflow as tf
 from tensorflow.keras import initializers
 from tensorflow.keras.layers import Layer, Concatenate
 from deep_recommend.recommend.ctr.embedding_mlp import EmbeddingMLP
+from deep_recommend.recommend.ctr.embedding_layer import EmbeddingLayer
 
 
 class CinBlock(Layer):
@@ -77,9 +78,12 @@ class xDeepFM(object):
         self._model_config = model_config
 
     def __call__(self):
-        embedding_mlp = EmbeddingMLP(
-            self._dataset_config.get("features").get("dense_features"),
+        embedding_layer = EmbeddingLayer(
             self._dataset_config.get("features").get("sparse_features"),
+            self._dataset_config.get("features").get("dense_features"),
+            return_raw_features=True
+        )
+        embedding_mlp = EmbeddingMLP(
             self._model_config.get("ff").get("hidden_sizes").split(","),
             self._model_config.get("ff").get("hidden_activation"),
             self._model_config.get("ff").get("hidden_dropout_rates").split(","),
@@ -87,9 +91,11 @@ class xDeepFM(object):
             self._model_config.get("logits").get("activation"),
             self._model_config.get("model").get("name"),
             self._model_config.get("model").get("loss"),
-            self._model_config.get("model").get("optimizer")
+            self._model_config.get("model").get("optimizer"),
+            need_raw_features=True
         )
         return embedding_mlp(CIN(
                 self._model_config.get("cin").get("feature_maps").split(","),
-                self._model_config.get("cin").get("feature_embedding_dim")))
+                self._model_config.get("cin").get("feature_embedding_dim")),
+                embedding_layer)
     
