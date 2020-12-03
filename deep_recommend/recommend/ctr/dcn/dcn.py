@@ -5,11 +5,12 @@
 @Author: Wang Yao
 @Date: 2020-08-06 18:44:25
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-01 21:44:22
+@LastEditTime: 2020-12-03 11:50:12
 """
 import tensorflow as tf
 from tensorflow.keras import initializers
 from tensorflow.keras.layers import Layer
+from deep_recommend.recommend.ctr.embedding_mlp import EmbeddingMLP
 
 
 class CrossLayer(Layer):
@@ -54,4 +55,28 @@ class CrossNet(object):
         for i in range(self._cross_layers_num):
             x = CrossLayer(name=self.__layer_name__+str(i))([concat_embeddings, x])
         return x
+
+
+class DCN(object):
+    """ Deep & Cross Network """
+    
+    def __init__(self, dataset_config: dict, model_config: dict, **kwargs):
+        super(DCN, self).__init__(**kwargs)
+        self._dataset_config = dataset_config
+        self._model_config = model_config
+
+    def __call__(self):
+        embedding_mlp = EmbeddingMLP(
+            self._dataset_config.get("features").get("dense_features"),
+            self._dataset_config.get("features").get("sparse_features"),
+            self._model_config.get("ff").get("hidden_sizes").split(","),
+            self._model_config.get("ff").get("hidden_activation"),
+            self._model_config.get("ff").get("hidden_dropout_rates").split(","),
+            self._model_config.get("logits").get("size"),
+            self._model_config.get("logits").get("activation"),
+            self._model_config.get("model").get("name"),
+            self._model_config.get("model").get("loss"),
+            self._model_config.get("model").get("optimizer")
+        )
+        return embedding_mlp(CrossNet(self._model_config.get("dcn").get("cross_layers_num")))
  
