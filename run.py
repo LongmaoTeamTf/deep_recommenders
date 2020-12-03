@@ -5,13 +5,14 @@
 @Author: Wang Yao
 @Date: 2020-12-01 16:26:40
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-03 11:53:17
+@LastEditTime: 2020-12-03 20:42:52
 """
 import argparse
 from pathlib import Path
 import yaml
 from deep_recommend.recommend.ctr.dataset.dataset import TfDatasetCSV
 from deep_recommend.trainner import ModelTrainer
+from deep_recommend.recommend.ctr.fm.fm import FM
 from deep_recommend.recommend.ctr.deepfm.deepfm import DeepFM
 from deep_recommend.recommend.ctr.dcn.dcn import DCN
 from deep_recommend.recommend.ctr.xdeepfm.xdeepfm import xDeepFM
@@ -19,7 +20,7 @@ from deep_recommend.recommend.ctr.xdeepfm.xdeepfm import xDeepFM
 
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", type=str, choices=["ctr"])
-parser.add_argument("model", type=str, choices=["deepfm", "dcn", "xdeepfm"])
+parser.add_argument("model", type=str, choices=["fm", "deepfm", "dcn", "xdeepfm"])
 parser.add_argument("dataset", type=str, choices=["criteo"])
 parser.add_argument("train_data_dir", type=str)
 parser.add_argument("valid_data_dir", type=str)
@@ -58,7 +59,9 @@ def run_ctr_model(args):
     test_dataset, test_steps = dataseter(
         [str(fn) for fn in Path(args.test_data_dir).glob("*.txt")])
 
-    if args.model == "deepfm":
+    if args.model == "fm":
+        model = FM(dataset_config, model_config)()
+    elif args.model == "deepfm":
         model = DeepFM(dataset_config, model_config)()
     elif args.model == "dcn":
         model = DCN(dataset_config, model_config)()

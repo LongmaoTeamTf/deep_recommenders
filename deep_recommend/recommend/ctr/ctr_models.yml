@@ -1,4 +1,6 @@
 models:
+  fm:
+    yaml: deep_recommend/recommend/ctr/fm/fm.yml
   deepfm:
     yaml: deep_recommend/recommend/ctr/deepfm/deepfm.yml
   dcn:
