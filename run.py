@@ -1,11 +1,11 @@
 """
 @Description: 训练模型
-@version: 1.0.1
+@version: 1.0.2
 @License: MIT
 @Author: Wang Yao
 @Date: 2020-12-01 16:26:40
 @LastEditors: Wang Yao
-@LastEditTime: 2020-12-03 20:42:52
+@LastEditTime: 2020-12-03 20:57:24
 """
 import argparse
 from pathlib import Path
@@ -47,17 +47,17 @@ def run_ctr_model(args):
         dataset_config.get("dataset").get("select_indexs").split(","),
         dataset_config.get("dataset").get("select_defs").split(","),
         dataset_config.get("dataset").get("label_index"),
-        dataset_config.get("dataset").get("batch_size"),
-        dataset_config.get("dataset").get("skip_head_lines"),
+        args.batch_size,
+        skip_head_lines=dataset_config.get("dataset").get("skip_head_lines"),
         field_delim=dataset_config.get("dataset").get("field_delim"),
         na_value=dataset_config.get("dataset").get("na_value")
     )
     train_dataset, train_steps = dataseter(
-        [str(fn) for fn in Path(args.train_data_dir).glob("*.txt")])
+        [str(fn) for fn in Path(args.train_data_dir).glob("*.csv")])
     valid_dataset, valid_steps = dataseter(
-        [str(fn) for fn in Path(args.valid_data_dir).glob("*.txt")])
+        [str(fn) for fn in Path(args.valid_data_dir).glob("*.csv")])
     test_dataset, test_steps = dataseter(
-        [str(fn) for fn in Path(args.test_data_dir).glob("*.txt")])
+        [str(fn) for fn in Path(args.test_data_dir).glob("*.csv")])
 
     if args.model == "fm":
         model = FM(dataset_config, model_config)()
