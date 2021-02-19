@@ -1,6 +1,0 @@
-fm:
-  factors: 10
-model:
-  name: fm
-  loss: binary_crossentropy
-  optimizer: adam
