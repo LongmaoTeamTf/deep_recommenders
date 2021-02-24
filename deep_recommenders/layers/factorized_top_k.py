@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-18 14:13:41
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-20 16:16:59
+@LastEditTime: 2021-02-24 10:52:15
 """
 from typing import Dict, Optional, Text, Tuple, Union
 
@@ -150,7 +150,7 @@ class Streaming(TopK):
     """Retrieves top k scoring items and identifiers from large dataset."""
 
     def __init__(self, 
-                 k: int, 
+                 k: int = 10, 
                  query_model: Optional[tf.keras.Model] = None,
                  handle_incomplete_batches: bool = True,
                  num_parallel_calls: int = tf.data.experimental.AUTOTUNE,
@@ -273,7 +273,7 @@ class BruteForce(TopK):
     """暴力检索"""
 
     def __init__(self, 
-                 k: int,
+                 k: int = 10,
                  query_model: Optional[tf.keras.Model] = None,
                  *args, 
                  **kwargs):
@@ -351,10 +351,10 @@ class Faiss(TopK):
     """(Facebook)Faiss retrieval index for a factorized retrieval model"""
 
     def __init__(self, 
-                 k: int,
+                 k: int = 10,
                  query_model: Optional[tf.keras.Model] = None,
-                 nlist: Optional[int] = 100,
-                 nprobe: Optional[int] = 10,
+                 nlist: Optional[int] = 1,
+                 nprobe: Optional[int] = 1,
                  normalize: bool = False,
                  *args, 
                  **kwargs):
@@ -377,7 +377,7 @@ class Faiss(TopK):
 
             if candidates.dtype != "float32":
                 candidates = candidates.astype(np.float32)
-
+    
             d = candidates.shape[1]
             quantizer = faiss.IndexFlatIP(d)
             index = faiss.IndexIVFFlat(quantizer, d, self._nlist, faiss.METRIC_INNER_PRODUCT)
@@ -469,7 +469,7 @@ class Faiss(TopK):
             distances, indices = self._searcher.search(queries, int(k))
             return distances, indices
         
-        distances, indices = tf.py_function(_search, [queries, k], [tf.float32, tf.int32])        
+        distances, indices = tf.py_function(_search, [queries, k], [tf.float32, tf.int32])
 
         if self._identifiers is None:
             return distances, indices
