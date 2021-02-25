@@ -5,10 +5,10 @@
 @Author: Wang Yao
 @Date: 2021-02-23 10:41:28
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-24 10:54:56
+@LastEditTime: 2021-02-25 11:49:44
 """
 from absl.testing import parameterized
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union, Text
 
 import numpy as np
 import tensorflow as tf
@@ -23,8 +23,9 @@ class FactorizedTopK(tf.keras.layers.Layer):
                  candidates: Union[layers.factorized_top_k.TopK, tf.data.Dataset], 
                  metrics: Optional[Sequence[tf.keras.metrics.Metric]] = None,
                  k: int = 100,
+                 name: Text = "factorized_top_k",
                  **kwargs):
-        super(FactorizedTopK, self).__init__(**kwargs)
+        super(FactorizedTopK, self).__init__(name=name, **kwargs)
 
         if metrics is None:
             metrics = [
@@ -51,7 +52,7 @@ class FactorizedTopK(tf.keras.layers.Layer):
         top_k_predictions, _ = self._candidates(query_embeddings, k=self._k)
 
         y_true = tf.concat([
-            tf.ones_like(positive_scores),
+            tf.ones(tf.shape(positive_scores)),
             tf.zeros_like(top_k_predictions)
         ], axis=1)
         y_pred = tf.concat([
