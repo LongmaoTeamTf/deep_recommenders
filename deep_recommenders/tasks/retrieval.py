@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-24 11:23:29
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-24 14:42:08
+@LastEditTime: 2021-02-24 19:36:34
 """
 from typing import Optional
 
@@ -58,7 +58,10 @@ class Retrieval(tf.keras.layers.Layer, base.Task):
 
         scores = tf.matmul(query_embeddings, candidate_embeddings, transpose_b=True)
 
-        labels = tf.eye(*tf.shape(scores))
+        num_queries = tf.shape(scores)[0]
+        num_candidates = tf.shape(scores)[1]
+
+        labels = tf.eye(num_queries, num_candidates)
 
         if candidate_sampling_probability is not None:
             scores = layers.loss.SamplingProbablityCorrection()(
@@ -75,7 +78,7 @@ class Retrieval(tf.keras.layers.Layer, base.Task):
         if self._temperature is not None:
             scores = scores / self._temperature
 
-        loss = self._loss(y_ture=labels, y_pred=scores, sample_weight=sample_weight)
+        loss = self._loss(y_true=labels, y_pred=scores, sample_weight=sample_weight)
 
         if compute_metrics is False:
             return loss
