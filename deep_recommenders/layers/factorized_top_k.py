@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-18 14:13:41
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-24 10:52:15
+@LastEditTime: 2021-02-24 19:22:44
 """
 from typing import Dict, Optional, Text, Tuple, Union
 
@@ -22,7 +22,7 @@ from absl.testing import parameterized
 
 
 @contextlib.contextmanager
-def _warp_batch_too_small_error(k: int):
+def _wrap_batch_too_small_error(k: int):
     """ Candidate batch too small error """
     try:
         yield
@@ -245,8 +245,9 @@ class Streaming(TopK):
             index_dtype = self._identifiers.element_spec.dtype
         else:
             index_dtype = tf.int32
+
         initial_state = (tf.zeros((tf.shape(queries)[0], 0), dtype=tf.float32),
-                         tf.zeros((tf.shape(queries)[0], 0), dtype=index_dtype))
+                     tf.zeros((tf.shape(queries)[0], 0), dtype=index_dtype))
         
         def enumerate_rows(batch: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
             """Enumerates rows in each batch using a total element counter."""
@@ -260,7 +261,7 @@ class Streaming(TopK):
         else:
             dataset = self._candidates.map(enumerate_rows)
 
-        with _warp_batch_too_small_error(k):
+        with _wrap_batch_too_small_error(k):
             result = (dataset
                 # Map: 计算每个batch的TopK
                 .map(top_scores, num_parallel_calls=self._num_parallel_calls)
