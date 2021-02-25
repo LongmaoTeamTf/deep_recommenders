@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-20 16:23:44
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-22 22:09:02
+@LastEditTime: 2021-02-24 19:43:14
 """
 from typing import Tuple
 
@@ -79,7 +79,7 @@ class RemoveAccidentalNegative(tf.keras.layers.Layer):
         positive_identifier = tf.gather(identifiers, positive_indices)
 
         duplicate = tf.equal(positive_identifier, tf.transpose(identifiers))
-        duplicate = tf.cast(duplicate, tf.float32)
+        duplicate = tf.cast(duplicate, labels.dtype)
 
         duplicate = duplicate - labels
 
