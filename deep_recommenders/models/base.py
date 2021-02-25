@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-04 16:48:20
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-04 18:43:41
+@LastEditTime: 2021-02-25 10:57:30
 """
 import tensorflow as tf
 
@@ -24,7 +24,7 @@ class Model(tf.keras.Model):
 
     def train_step(self, inputs):
         """ 自定义模型训练 """
-        with tf.GradientTape as tape:
+        with tf.GradientTape() as tape:
             loss = self.compute_loss(inputs, training=True)
     
             # 正则化损失
@@ -44,7 +44,7 @@ class Model(tf.keras.Model):
         
     def test_step(self, inputs):
         """ 自定义模型验证 """
-        loss = self.compiled_loss(inputs, training=False)
+        loss = self.compute_loss(inputs, training=False)
 
         # 正则化损失
         regularization_loss = sum(self.losses)
@@ -56,3 +56,4 @@ class Model(tf.keras.Model):
         metrics["regularization_loss"] = regularization_loss
         metrics["total_loss"] = total_loss
         
+        return metrics
