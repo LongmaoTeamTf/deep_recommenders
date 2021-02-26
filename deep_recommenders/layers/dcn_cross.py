@@ -5,13 +5,10 @@
 @Author: Wang Yao
 @Date: 2020-08-06 18:44:25
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-22 22:31:07
+@LastEditTime: 2021-02-26 15:09:18
 """
 from typing import Optional, Union, Text
 
-import os
-import tempfile
-import numpy as np
 import tensorflow as tf
 
 
@@ -119,42 +116,3 @@ class Cross(tf.keras.layers.Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-class CrossTest(tf.test.TestCase):
-
-    def test_full_matrix(self):
-        x0 = np.asarray([[0.1, 0.2, 0.3]]).astype(np.float32)
-        x = np.asarray([[0.4, 0.5, 0.6]]).astype(np.float32)
-        
-        layer = Cross(projection_dim=None, kernel_init="ones")
-        output = layer(x0, x)
-        self.evaluate(tf.compat.v1.global_variables_initializer())
-        self.assertAllClose(np.asarray([[0.55, 0.8, 1.05]]), output)
-
-    def test_save_model(self):
-
-        def get_model():
-            x0 = tf.keras.layers.Input(shape=(13,))
-            x1 = Cross(projection_dim=None)(x0, x0)
-            x2 = Cross(projection_dim=None)(x0, x1)
-            logits = tf.keras.layers.Dense(units=1)(x2)
-            model = tf.keras.Model(x0, logits)
-            return model
-
-        model = get_model()
-        random_input = np.random.uniform(size=(10, 13))
-        model_pred = model.predict(random_input)
-
-        with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "dcn_model")
-            model.save(
-                path,
-                options=tf.saved_model.SaveOptions(namespace_whitelist=["Addons"]))
-            loaded_model = tf.keras.models.load_model(path)
-            loaded_pred = loaded_model.predict(random_input)
-        for i in range(3):
-            assert model.layers[i].get_config() == loaded_model.layers[i].get_config()
-        self.assertAllEqual(model_pred, loaded_pred)
-
-
-if __name__ == "__main__":
-    tf.test.main()
