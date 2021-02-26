@@ -17,7 +17,7 @@
 Papers | Tags | Status
 ------ | ---- | ------
 [Factorization Machines](experiments/) | Osaka,2010 | **已完成**
-[Wide & Deep Learning for Recommender Systems]() | w&d,Google,DLRS,2016 | 未开始
+[Wide & Deep Learning for Recommender Systems]() | W&D,Google,DLRS,2016 | 未开始
 [Product-based Neural Networks for User Response Prediction]() | PNN,IEEE,2016 | 未开始
 [Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction]() | FNN,RayCloud,ECIR,2016 | 未开始
 [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](experiments/) | DeepFM,Huawei,IJCAI,2017 | **已完成**
