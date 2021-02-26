@@ -19,7 +19,7 @@ Papers | Tags | Status
 [Factorization Machines](experiments/) | Osaka,2010 | **已完成**
 [Wide & Deep Learning for Recommender Systems]() | w&d,Google,DLRS,2016 | 未开始
 [Product-based Neural Networks for User Response Prediction]() | PNN,IEEE,2016 | 未开始
-[Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction]() | FNN,RayCloud,ECIR,2016 ｜ 未开始
+[Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction]() | FNN,RayCloud,ECIR,2016 | 未开始
 [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](experiments/) | DeepFM,Huawei,IJCAI,2017 | **已完成**
 [Deep & Cross Network for Ad Click Predictions](experiments/) | DCN,Google,KDD,2017 | **已完成**
 [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](experiments/) | xDeepFM,Microsoft,KDD,2018 | **已完成**
@@ -36,7 +36,7 @@ Papers | Tags | Status
 [Item2Vec: Neural Item Embedding for Collaborative Filtering]() | Item2Vec,Microsoft,MLSP,2016 | 未开始
 [Deep Neural Networks for YouTube Recommendations]() | YoutubeNet,Google,RecSys,2016 | 未开始
 [Real-time Personalization using Embeddings for Search Ranking at Airbnb]() | Airbnb,KDD,2018 | 未开始
-[Billion-scale Commodity Embedding for E-commerce Recommendation in Alibaba]() | EGES,Alibaba,KDD,2018 ｜ 未开始
+[Billion-scale Commodity Embedding for E-commerce Recommendation in Alibaba]() | EGES,Alibaba,KDD,2018 | 未开始
 [Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations](experiments/deep_retrieval.ipynb) | Google,RecSys,2019 | **已完成**
 [MOBIUS: Towards the Next Generation of Query-Ad Matching in Baidu’s Sponsored Search]() | MOBIUS,Baidu,KDD,2019 | 未开始
 [IntentGC: a Scalable Graph Convolution Framework Fusing Heterogeneous Information for Recommendation]() | IntentGC,Alibaba,KDD,2019 | 未开始
