@@ -5,7 +5,7 @@
 [![test](https://img.shields.io/badge/test-passing-brightgreen)](TEST)
 
 
-此代码库主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步～
+***Deep Recommenders***主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步～
 
 由于本人水平有限，如有错误，还望指正～
 
