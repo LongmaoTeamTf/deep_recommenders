@@ -23,7 +23,7 @@ Papers | Tags | Status
 [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](experiments/) | DeepFM,Huawei,IJCAI,2017 | **已完成**
 [Deep & Cross Network for Ad Click Predictions](experiments/) | DCN,Google,KDD,2017 | **已完成**
 [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](experiments/) | xDeepFM,Microsoft,KDD,2018 | **已完成**
-[Deep Interest Network for Click-Through Rate Prediction](experiments/) | DIN,Alibaba,KDD,2018 | *进行中*
+[Deep Interest Network for Click-Through Rate Prediction](experiments/) | DIN,Alibaba,KDD,2018 | **已完成**
 [Deep Interest Evolution Network for Click-Through Rate Prediction]() | DIEN,Alibaba,AAAI,2019 | 未开始
 [Deep Learning Recommendation Model for Personalization and Recommendation Systems]() | DLRM,Facebook,2019 | 未开始
 [DeepLight: Deep Lightweight Feature Interactions for Accelerating CTR Predictions in Ad Serving]() | DeepLight,WSDM,2021 | 未开始
