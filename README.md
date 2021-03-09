@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-# DeepRecSys
-[![python](https://img.shields.io/badge/python-=3.7-brightgreen)](requirements.txt)
-[![tensorflow](https://img.shields.io/badge/tensorflow-=2.2-brightgreen)](requirements.txt)
-=======
 # Deep Recommenders
 [![python](https://img.shields.io/badge/python-3.7-brightgreen)](requirements.txt)
 [![tensorflow](https://img.shields.io/badge/tensorflow-2.3-brightgreen)](requirements.txt)
->>>>>>> dev
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![test](https://img.shields.io/badge/test-passing-brightgreen)](TEST)
 
