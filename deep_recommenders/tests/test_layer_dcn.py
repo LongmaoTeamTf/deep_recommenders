@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-26 15:08:52
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-26 15:15:38
+@LastEditTime: 2021-03-09 14:09:26
 """
 import sys
 sys.dont_write_bytecode = True
@@ -15,7 +15,7 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.layers.dcn_cross import Cross
+from deep_recommenders.layers.dcn import Cross
 
 
 class TestCross(tf.test.TestCase):

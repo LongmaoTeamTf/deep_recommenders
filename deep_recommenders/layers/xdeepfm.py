@@ -5,9 +5,9 @@
 @Author: Wang Yao
 @Date: 2020-11-28 11:16:54
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-26 15:19:37
+@LastEditTime: 2021-02-28 16:51:06
 """
-from typing import Optional, Union, Text, Tuple, Callable
+from typing import Optional, Union, Text, Tuple
 
 import tensorflow as tf
 
@@ -19,7 +19,7 @@ class CIN(tf.keras.layers.Layer):
     def __init__(self, 
                  feature_map: Optional[int] = 3,
                  use_bias: bool = False,
-                 activation: Union[Text, None, Callable] = "sigmoid",
+                 activation: Union[Text, None, tf.keras.layers.Layer] = "sigmoid",
                  kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
                  kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
                  bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
@@ -30,7 +30,14 @@ class CIN(tf.keras.layers.Layer):
         
         self._feature_map = feature_map
         self._use_bias = use_bias
-        self._activation = tf.keras.activations.get(activation)
+
+        if isinstance(activation, tf.keras.layers.Layer):
+            self._activation = activation      
+        elif isinstance(activation, str):
+            self._activation = tf.keras.activations.get(activation)
+        else:
+            self._activation = None
+
         self._kernel_init = tf.keras.initializers.get(kernel_init)
         self._kernel_regu = tf.keras.regularizers.get(kernel_regu)
         self._bias_init = tf.keras.initializers.get(bias_init)

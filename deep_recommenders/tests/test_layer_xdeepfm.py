@@ -5,7 +5,7 @@
 @Author: Wang Yao
 @Date: 2021-02-26 15:18:44
 @LastEditors: Wang Yao
-@LastEditTime: 2021-02-26 15:19:23
+@LastEditTime: 2021-03-09 14:10:00
 """
 import sys
 sys.dont_write_bytecode = True
@@ -15,7 +15,7 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.layers.xdeepfm_cin import CIN
+from deep_recommenders.layers.xdeepfm import CIN
 
 
 class TestCIN(tf.test.TestCase):
