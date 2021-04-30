@@ -121,13 +121,22 @@
     
 ### NLP
 
+- **Word2Vec**
+        [<sub>
+            *Distributed Representations of Words and Phrases and their Compositionality, Google, NIPS, 2013*
+        </sub>](https://papers.nips.cc/paper/2013/file/9aa42b31882ec039965f3c4923ce901b-Paper.pdf)
+
 - **Transformer** 
         [[Code]](deep_recommenders/layers/nlp/transformer.py) 
         [[Expr]](experiments/transformer.ipynb)
         [<sub>
             *Attention Is All You Need, Google, NeurlPS, 2017*
         </sub>](https://arxiv.org/abs/1706.03762)
-        <br>
+
+- **BERT**
+        [<sub>
+            *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Google, NAACL, 2019*
+        </sub>](https://arxiv.org/abs/1810.04805)
         
 
 
