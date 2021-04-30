@@ -4,6 +4,7 @@
 __pycache__
 
 *.zip
+*.tgz
 env
 .vscode
 .idea
