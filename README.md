@@ -19,7 +19,7 @@
         [<sub>
             *Factorization Machines, Osaka, 2010*
         </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
-        [[Code]](deep_recommenders/layers/fm.py)
+        <br>[[Code]](deep_recommenders/layers/fm.py)
 - **WDL**
         [<sub>
             *Wide & Deep Learning for Recommender Systems, Google, DLRS, 2016*
@@ -36,22 +36,22 @@
         [<sub>
             *DeepFM: A Factorization-Machine based Neural Network for CTR Prediction, Huawei, IJCAI, 2017*
         </sub>](https://www.ijcai.org/proceedings/2017/0239.pdf)
-        [[Expr]](experiments/deepfm.ipynb)
+        <br>[[Expr]](experiments/deepfm.ipynb)
 - **DCN**
         [<sub>
             *Deep & Cross Network for Ad Click Predictions, Google, KDD, 2017*
         </sub>](https://arxiv.org/abs/1708.05123)
-        [[Code]](deep_recommenders/layers/dcn.py) 
+        <br>[[Code]](deep_recommenders/layers/dcn.py) 
 - **xDeepFM**
         [<sub>
             *xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems, Microsoft, KDD, 2018*
         </sub>](https://arxiv.org/pdf/1803.05170.pdf)
-        [[Code]](deep_recommenders/layers/xdeepfm.py)
+        <br>[[Code]](deep_recommenders/layers/xdeepfm.py)
 - **DIN**
         [<sub>
             *Deep Interest Network for Click-Through Rate Prediction, Alibaba, KDD, 2018*
         </sub>](https://arxiv.org/abs/1706.06978)
-        [[Code]](deep_recommenders/layers/din.py)
+        <br>[[Code]](deep_recommenders/layers/din.py)
 - **DIEN**
         [<sub>
             *Deep Interest Evolution Network for Click-Through Rate Prediction, Alibaba, AAAI, 2019*
@@ -75,7 +75,7 @@
         [<sub>
             *Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations, Google, RecSys, 2019*
         </sub>](https://dl.acm.org/doi/10.1145/3298689.3346996)
-        [[Code]](deep_recommenders/layers/factorized_top_k.py) 
+        <br>[[Code]](deep_recommenders/layers/factorized_top_k.py) 
         [[Expr]](experiments/deep_retrieval.ipynb)
 - **EBR**
         [<sub>
@@ -101,7 +101,7 @@
         [<sub>
             *Semi-Supervised Classification with Graph Convolutional Networks, ICLR, 2017*
         </sub>](https://arxiv.org/abs/1609.02907)
-        [[Code]](deep_recommenders/layers/gnn.py#L16)
+        <br>[[Code]](deep_recommenders/layers/gnn.py#L16)
 - **GraphSAGE**
         [<sub>
             *Inductive Representation Learning on Large Graphs, NIPS, 2017*
@@ -125,7 +125,7 @@
         [<sub>
             *Attention Is All You Need, Google, NeurlPS, 2017*
         </sub>](https://arxiv.org/abs/1706.03762)
-        [[Code]](deep_recommenders/layers/nlp/transformer.py) 
+        <br>[[Code]](deep_recommenders/layers/nlp/transformer.py) 
         [[Expr]](experiments/transformer.ipynb)
 
 
