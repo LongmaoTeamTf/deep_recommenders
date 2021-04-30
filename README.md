@@ -98,7 +98,8 @@
             *Billion-scale Commodity Embedding for E-commerce Recommendation in Alibaba, Alibaba, KDD, 2018*
         </sub>](https://arxiv.org/abs/1803.02349)
 - **GCN** 
-        [[Code]](deep_recommenders/layers/gnn.py#L16)
+        [[Code]](deep_recommenders/layers/gnn.py#L16) 
+        [[Expr]](experiments/gcn.ipynb)
         [<sub>
             *Semi-Supervised Classification with Graph Convolutional Networks, ICLR, 2017*
         </sub>](https://arxiv.org/abs/1609.02907)       
