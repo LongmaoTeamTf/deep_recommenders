@@ -16,7 +16,7 @@
 ### Ranking
 
 - **FM**, [
-        <font size=1.5>
+        <font size="1.5">
             *Factorization Machines, Osaka, 2010*
         </font>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
         [Code](deep_recommenders/layers/fm.py) Expr
