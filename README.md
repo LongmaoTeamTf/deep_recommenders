@@ -1,9 +1,10 @@
-# Deep Recommenders
+# Deep Recommenders 2.x
 [![python](https://img.shields.io/badge/python-3.7-brightgreen)](requirements.txt)
 [![tensorflow](https://img.shields.io/badge/tensorflow-2.3-brightgreen)](requirements.txt)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![test](https://img.shields.io/badge/test-passing-brightgreen)](TEST)
 
+[Deep Recommenders 1.x](https://github.com/LongmaoTeamTf/deep_recommenders/tree/1.x)
 
 ***Deep Recommenders***主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步～
 
