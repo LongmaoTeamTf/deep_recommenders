@@ -4,6 +4,7 @@
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![test](https://img.shields.io/badge/test-passing-brightgreen)](TEST)
 
+[Deep Recommenders 1.x](https://github.com/LongmaoTeamTf/deep_recommenders/tree/1.x)
 
 ***Deep Recommenders***主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步～
 
