@@ -9,7 +9,7 @@ import tensorflow as tf
 import tempfile
 from absl.testing import parameterized
 
-from deep_recommenders.models.multi_task_learning.mixture_of_experts import synthetic_data_input_fn
+from deep_recommenders.models.multi_task_learning import synthetic_data_input_fn
 from deep_recommenders.models.multi_task_learning import shared_bottom
 from deep_recommenders.models.multi_task_learning import shared_bottom_estimator
 
@@ -32,7 +32,7 @@ class TestSharedBottom(tf.test.TestCase, parameterized.TestCase):
             "num_tasks": 2,
             "bottom_units": [32, 16],
             "task_units": [10, 5],
-            "task_output_activation": [None, None],
+            "task_output_activations": [None, None],
             "task_losses": ["mse", "mse"],
             "lr": 0.001
         }

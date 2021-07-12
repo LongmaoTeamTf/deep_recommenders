@@ -60,11 +60,49 @@ def shared_bottom(x: tf.Tensor,
     return outputs
 
 
+def tasks_tower(inputs,
+                num_tasks,
+                task_hidden_units,
+                task_output_activations,
+                task_activation=tf.nn.relu,
+                task_initializer=None,
+                task_dropout=None):
+
+    def _task_tower(x, index):
+        for i, units in enumerate(task_hidden_units):
+            x = tf.layers.dense(x,
+                                units,
+                                activation=task_activation,
+                                kernel_initializer=task_initializer,
+                                name="task{}_dense{}".format(index, i))
+
+            if task_dropout is not None:
+                x = tf.layers.dropout(x, rate=task_dropout, name="task{}_dropout{}".format(index, j))
+
+        y = tf.layers.dense(x, 1, kernel_initializer=task_initializer, name="task{}_out".format(index))
+
+        output_activation = task_output_activations[index]
+        if output_activation is not None:
+            y = output_activation(y)
+        return y
+
+    outputs = []
+
+    for idx in range(num_tasks):
+
+        task_inputs = inputs[idx] if isinstance(inputs, list) else inputs
+
+        output = _task_tower(task_inputs, index=idx)
+        outputs.append(output)
+
+    return outputs
+
+
 def shared_bottom_v2(x: tf.Tensor,
                      num_tasks: int,
                      bottom_units: list,
-                     task_units: list,
-                     task_output_activation: list,
+                     task_hidden_units: list,
+                     task_output_activations: list,
                      bottom_initializer: tf.Tensor = None,
                      bottom_activation=tf.nn.relu,
                      bottom_dropout: float = None,
@@ -84,28 +122,13 @@ def shared_bottom_v2(x: tf.Tensor,
 
     bottom_out = tf.layers.dense(x, bottom_units[-1], kernel_initializer=bottom_initializer, name="bottom_out")
 
-    outputs = []
-
-    for i in range(num_tasks):
-        x = bottom_out
-
-        for j, units in enumerate(task_units):
-            x = tf.layers.dense(x,
-                                units,
-                                activation=task_activation,
-                                kernel_initializer=task_initializer,
-                                name="task{}_dense{}".format(i, j))
-
-            if task_dropout is not None:
-                x = tf.layers.dropout(x, rate=task_dropout, name="task{}_dropout{}".format(i, j))
-
-        task_out = tf.layers.dense(x, 1, kernel_initializer=task_initializer, name="task{}_out".format(i))
-
-        output_activation = task_output_activation[i]
-        if output_activation is not None:
-            task_out = output_activation(task_out)
-
-        outputs.append(task_out)
+    outputs = tasks_tower(bottom_out,
+                          num_tasks,
+                          task_hidden_units,
+                          task_output_activations,
+                          task_activation=task_activation,
+                          task_initializer=task_initializer,
+                          task_dropout=task_dropout)
 
     return outputs
 
@@ -115,8 +138,8 @@ def model_fn(features, labels, mode, params):
     outputs = shared_bottom_v2(features["inputs"],
                                num_tasks=params.get("num_tasks"),
                                bottom_units=params.get("bottom_units"),
-                               task_units=params.get("task_units"),
-                               task_output_activation=params.get("task_output_activation"))
+                               task_hidden_units=params.get("task_units"),
+                               task_output_activations=params.get("task_output_activations"))
     predictions = {
         "y{}".format(i): y
         for i, y in enumerate(outputs)
