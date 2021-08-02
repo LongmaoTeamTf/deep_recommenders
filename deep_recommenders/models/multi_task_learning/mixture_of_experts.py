@@ -4,7 +4,7 @@
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.models.multi_task_learning import tasks_tower
+from deep_recommenders.models.multi_task_learning import multi_task
 
 
 def _synthetic_data(num_examples, example_dim=100, c=0.3, p=0.8, m=5):
@@ -92,14 +92,15 @@ def one_gate(inputs,
 
     outputs = tf.linalg.matmul(experts_selector, experts_outputs)
 
-    tasks_tower_inputs = tf.squeeze(outputs)
-    return tasks_tower(tasks_tower_inputs,
-                       num_tasks,
-                       task_hidden_units,
-                       task_output_activations,
-                       task_activation=task_hidden_activation,
-                       task_initializer=task_initializer,
-                       task_dropout=task_dropout)
+    multi_task_inputs = tf.squeeze(outputs)
+
+    return multi_task(multi_task_inputs,
+                      num_tasks,
+                      task_hidden_units,
+                      task_output_activations,
+                      hidden_activation=task_hidden_activation,
+                      hidden_dropout=task_dropout,
+                      initializer=task_initializer)
 
 
 def multi_gate(inputs,
@@ -134,11 +135,10 @@ def multi_gate(inputs,
 
         outputs.append(tf.squeeze(output))
 
-    return tasks_tower(outputs,
-                       num_tasks,
-                       task_hidden_units,
-                       task_output_activations,
-                       task_activation=task_hidden_activation,
-                       task_initializer=task_initializer,
-                       task_dropout=task_dropout)
-
+    return multi_task(outputs,
+                      num_tasks,
+                      task_hidden_units,
+                      task_output_activations,
+                      hidden_activation=task_hidden_activation,
+                      hidden_dropout=task_dropout,
+                      initializer=task_initializer)

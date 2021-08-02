@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
 import tensorflow as tf
+
+from deep_recommenders.models.multi_task_learning import multi_task
 
 
 def _dense(x, units, activation=None, dropout=None, name=None):
@@ -60,44 +61,6 @@ def shared_bottom(x: tf.Tensor,
     return outputs
 
 
-def tasks_tower(inputs,
-                num_tasks,
-                task_hidden_units,
-                task_output_activations,
-                task_activation=tf.nn.relu,
-                task_initializer=None,
-                task_dropout=None):
-
-    def _task_tower(x, index):
-        for i, units in enumerate(task_hidden_units):
-            x = tf.layers.dense(x,
-                                units,
-                                activation=task_activation,
-                                kernel_initializer=task_initializer,
-                                name="task{}_dense{}".format(index, i))
-
-            if task_dropout is not None:
-                x = tf.layers.dropout(x, rate=task_dropout, name="task{}_dropout{}".format(index, j))
-
-        y = tf.layers.dense(x, 1, kernel_initializer=task_initializer, name="task{}_out".format(index))
-
-        output_activation = task_output_activations[index]
-        if output_activation is not None:
-            y = output_activation(y)
-        return y
-
-    outputs = []
-
-    for idx in range(num_tasks):
-
-        task_inputs = inputs[idx] if isinstance(inputs, list) else inputs
-
-        output = _task_tower(task_inputs, index=idx)
-        outputs.append(output)
-
-    return outputs
-
-
 def shared_bottom_v2(x: tf.Tensor,
                      num_tasks: int,
                      bottom_units: list,
@@ -122,13 +85,13 @@ def shared_bottom_v2(x: tf.Tensor,
 
     bottom_out = tf.layers.dense(x, bottom_units[-1], kernel_initializer=bottom_initializer, name="bottom_out")
 
-    outputs = tasks_tower(bottom_out,
-                          num_tasks,
-                          task_hidden_units,
-                          task_output_activations,
-                          task_activation=task_activation,
-                          task_initializer=task_initializer,
-                          task_dropout=task_dropout)
+    outputs = multi_task(bottom_out,
+                         num_tasks,
+                         task_hidden_units,
+                         task_output_activations,
+                         hidden_activation=task_activation,
+                         hidden_dropout=task_dropout,
+                         initializer=task_initializer)
 
     return outputs
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from deep_recommenders.models.multi_task_learning.shared_bottom import tasks_tower
+from deep_recommenders.models.multi_task_learning.multi_task import multi_task
 from deep_recommenders.models.multi_task_learning.shared_bottom import shared_bottom
 from deep_recommenders.models.multi_task_learning.shared_bottom import shared_bottom_estimator
 from deep_recommenders.models.multi_task_learning.mixture_of_experts import _synthetic_data as synthetic_data
