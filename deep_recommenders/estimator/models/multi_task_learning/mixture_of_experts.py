@@ -4,7 +4,7 @@
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.models.multi_task_learning import multi_task
+from deep_recommenders.estimator.models.multi_task_learning import multi_task
 
 
 def _synthetic_data(num_examples, example_dim=100, c=0.3, p=0.8, m=5):

@@ -3,15 +3,14 @@
 import sys
 sys.dont_write_bytecode = True
 
-import numpy as np
 import tensorflow as tf
 
 import tempfile
 from absl.testing import parameterized
 
-from deep_recommenders.models.multi_task_learning import synthetic_data_input_fn
-from deep_recommenders.models.multi_task_learning import shared_bottom
-from deep_recommenders.models.multi_task_learning import shared_bottom_estimator
+from deep_recommenders.estimator.models.multi_task_learning import synthetic_data_input_fn
+from deep_recommenders.estimator.models.multi_task_learning import shared_bottom
+from deep_recommenders.estimator.models.multi_task_learning import shared_bottom_estimator
 
 
 class TestSharedBottom(tf.test.TestCase, parameterized.TestCase):

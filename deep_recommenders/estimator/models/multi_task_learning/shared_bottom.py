@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 
-from deep_recommenders.models.multi_task_learning import multi_task
+from deep_recommenders.estimator.models.multi_task_learning import multi_task
 
 
 def _dense(x, units, activation=None, dropout=None, name=None):

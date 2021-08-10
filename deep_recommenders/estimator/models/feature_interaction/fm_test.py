@@ -5,7 +5,7 @@ import sys
 sys.dont_write_bytecode = True
 
 import tensorflow as tf
-from deep_recommenders.models.feature_interaction import fm
+from deep_recommenders.estimator.models.feature_interaction import fm
 
 
 class TestFM(tf.test.TestCase):

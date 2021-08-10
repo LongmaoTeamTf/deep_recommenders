@@ -7,9 +7,9 @@ import numpy as np
 import tensorflow as tf
 
 from absl.testing import parameterized
-from deep_recommenders.models.multi_task_learning import synthetic_data
-from deep_recommenders.models.multi_task_learning import OMoE
-from deep_recommenders.models.multi_task_learning import MMoE
+from deep_recommenders.estimator.models.multi_task_learning import synthetic_data
+from deep_recommenders.estimator.models.multi_task_learning import OMoE
+from deep_recommenders.estimator.models.multi_task_learning import MMoE
 
 
 class TestMixtureOfExperts(tf.test.TestCase, parameterized.TestCase):

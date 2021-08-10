@@ -1,22 +1,21 @@
-# Deep Recommenders 1.x
-[![python](https://img.shields.io/badge/python-3.7-brightgreen)](requirements.txt)
-[![tensorflow](https://img.shields.io/badge/tensorflow-1.15-brightgreen)](requirements.txt)
-[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![test](https://img.shields.io/badge/test-passing-brightgreen)](TEST)
+# Deep Recommenders
+[![Python](https://img.shields.io/badge/python-3.7-brightgreen)](requirements.txt)
+[![TensorFlow](https://img.shields.io/badge/tensorflow-1.15_|_2.3-brightgreen)](requirements.txt)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Test](https://img.shields.io/badge/test-passing-brightgreen)]()
 
-[Deep Recommenders 2.x](https://github.com/LongmaoTeamTf/deep_recommenders/tree/2.x)
+Deep Recommenders is an open-source recommendation system algorithm library 
+built by `tf.estimator` and `tf.keras` that the advanced APIs of TensorFlow.
+  
+🤗️ This Library mainly used for self-learning and improvement, 
+but also hope to help friends and classmates who are interested in the recommendation system to make progress together!
 
-***Deep Recommenders***主要用于自我学习和提升, 还希望能够帮助对推荐系统感兴趣的朋友和同学，共同进步～
-
-由于本人水平有限，如有错误，还望指正～
-
-
-
-## Experiments
+## Models
 
 ### Ranking
 
-- **FM**
+- **FM** 
+        [[Code]](deep_recommenders/keras/layers/fm.py) 
         [<sub>
             *Factorization Machines, Osaka, 2010*
         </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
@@ -32,22 +31,26 @@
         [<sub>
             *Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction, RayCloud, ECIR, 2016*
         </sub>](https://arxiv.org/abs/1601.02376)
-- **DeepFM**
+- **DeepFM** 
+        [[Expr]](experiments/deepfm.ipynb) 
         [<sub>
             *DeepFM: A Factorization-Machine based Neural Network for CTR Prediction, Huawei, IJCAI, 2017*
         </sub>](https://www.ijcai.org/proceedings/2017/0239.pdf)
-- **DCN**
+- **DCN** 
+        [[Code]](deep_recommenders/keras/layers/dcn.py) 
         [<sub>
             *Deep & Cross Network for Ad Click Predictions, Google, KDD, 2017*
         </sub>](https://arxiv.org/abs/1708.05123)
-- **xDeepFM**
+- **xDeepFM** 
+        [[Code]](deep_recommenders/keras/layers/xdeepfm.py) 
         [<sub>
             *xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems, Microsoft, KDD, 2018*
         </sub>](https://arxiv.org/pdf/1803.05170.pdf)
-- **DIN**
+- **DIN** 
+        [[Code]](deep_recommenders/keras/layers/din.py) 
         [<sub>
             *Deep Interest Network for Click-Through Rate Prediction, Alibaba, KDD, 2018*
-        </sub>](https://arxiv.org/abs/1706.06978)
+        </sub>](https://arxiv.org/abs/1706.06978)   
 - **DIEN**
         [<sub>
             *Deep Interest Evolution Network for Click-Through Rate Prediction, Alibaba, AAAI, 2019*
@@ -67,7 +70,9 @@
         [<sub>
             *Deep Neural Networks for YouTube Recommendations, Google, RecSys, 2016*
         </sub>](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/45530.pdf)
-- **SBC**
+- **SBC** 
+        [[Code]](deep_recommenders/keras/layers/factorized_top_k.py) 
+        [[Expr]](experiments/deep_retrieval.ipynb)
         [<sub>
             *Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations, Google, RecSys, 2019*
         </sub>](https://dl.acm.org/doi/10.1145/3298689.3346996)
@@ -91,10 +96,12 @@
         [<sub>
             *Billion-scale Commodity Embedding for E-commerce Recommendation in Alibaba, Alibaba, KDD, 2018*
         </sub>](https://arxiv.org/abs/1803.02349)
-- **GCN**
+- **GCN** 
+        [[Code]](deep_recommenders/keras/layers/gnn.py#L16) 
+        [[Expr]](experiments/gcn.ipynb)
         [<sub>
             *Semi-Supervised Classification with Graph Convolutional Networks, ICLR, 2017*
-        </sub>](https://arxiv.org/abs/1609.02907)
+        </sub>](https://arxiv.org/abs/1609.02907)       
 - **GraphSAGE**
         [<sub>
             *Inductive Representation Learning on Large Graphs, NIPS, 2017*
@@ -112,12 +119,35 @@
             *Graph Neural Network for Tag Ranking in Tag-enhanced Video Recommendation, Tencent, CIKM, 2020*
         </sub>](https://dl.acm.org/doi/abs/10.1145/3340531.3416021)
     
+### Multi-task learning
+
+- **MMoE**
+        [<sub>
+            *Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts, Google, KDD, 2018*
+        </sub>](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007)
+- **ESMM**
+        [<sub>
+            *Entire Space Multi-Task Model: An Effective Approach for Estimating Post-Click Conversion Rate, Alibaba, SIGIR, 2018*
+        </sub>](https://arxiv.org/pdf/1804.07931.pdf)
+
 ### NLP
 
-- **Transformer**
+- **Word2Vec**
+        [<sub>
+            *Distributed Representations of Words and Phrases and their Compositionality, Google, NIPS, 2013*
+        </sub>](https://papers.nips.cc/paper/2013/file/9aa42b31882ec039965f3c4923ce901b-Paper.pdf)
+
+- **Transformer** 
+        [[Code]](deep_recommenders/keras/layers/nlp/transformer.py) 
+        [[Expr]](experiments/transformer.ipynb)
         [<sub>
             *Attention Is All You Need, Google, NeurlPS, 2017*
         </sub>](https://arxiv.org/abs/1706.03762)
+
+- **BERT**
+        [<sub>
+            *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Google, NAACL, 2019*
+        </sub>](https://arxiv.org/abs/1810.04805)
 
 
 
