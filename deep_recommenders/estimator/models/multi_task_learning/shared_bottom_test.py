@@ -5,6 +5,10 @@ sys.dont_write_bytecode = True
 
 import tensorflow as tf
 
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+    tf.disable_eager_execution()
+
 import tempfile
 from absl.testing import parameterized
 

@@ -3,6 +3,9 @@
 
 import tensorflow as tf
 
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+
 
 def fm(x: tf.Tensor, num_factors: int = None):
     """

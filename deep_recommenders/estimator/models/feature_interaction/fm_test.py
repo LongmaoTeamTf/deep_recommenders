@@ -5,6 +5,11 @@ import sys
 sys.dont_write_bytecode = True
 
 import tensorflow as tf
+
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+    tf.disable_eager_execution()
+
 from deep_recommenders.estimator.models.feature_interaction import fm
 
 
@@ -13,7 +18,7 @@ class TestFM(tf.test.TestCase):
     def test_fm_with_factors(self):
         inputs = tf.random_normal(shape=(2, 3))
 
-        with self.test_session() as sess:
+        with self.session() as sess:
             y = fm(inputs, num_factors=5)
             init = tf.global_variables_initializer()
             sess.run(init)

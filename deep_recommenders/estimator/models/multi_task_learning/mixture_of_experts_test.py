@@ -6,6 +6,10 @@ sys.dont_write_bytecode = True
 import numpy as np
 import tensorflow as tf
 
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+    tf.disable_eager_execution()
+
 from absl.testing import parameterized
 from deep_recommenders.estimator.models.multi_task_learning import synthetic_data
 from deep_recommenders.estimator.models.multi_task_learning import OMoE

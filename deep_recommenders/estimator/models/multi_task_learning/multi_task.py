@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+
 
 def task_network(inputs,
                  hidden_units,

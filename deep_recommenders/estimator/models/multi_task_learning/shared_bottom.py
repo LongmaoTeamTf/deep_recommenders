@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 
+if tf.__version__ >= "2.3.0":
+    import tensorflow.compat.v1 as tf
+
 from deep_recommenders.estimator.models.multi_task_learning import multi_task
 
 
@@ -134,7 +137,7 @@ def model_fn(features, labels, mode, params):
             loss = tf.losses.mean_squared_error(labels=labels[i], predictions=y)
 
         losses.append(loss)
-        total_loss += loss
+        total_loss = total_loss + loss
         metrics["loss_{}".format(t)] = loss
         tf.summary.scalar("loss_{}".format(t), loss)
 
