@@ -1,4 +1,5 @@
 # Deep Recommenders
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6e9e50031edf46d4a1f4d39fa461b815)](https://app.codacy.com/gh/LongmaoTeamTf/deep_recommenders?utm_source=github.com&utm_medium=referral&utm_content=LongmaoTeamTf/deep_recommenders&utm_campaign=Badge_Grade_Settings)
 [![Python](https://img.shields.io/badge/python-3.7-brightgreen)](requirements.txt)
 [![TensorFlow](https://img.shields.io/badge/tensorflow-1.15_|_2.3-brightgreen)](requirements.txt)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
