@@ -5,7 +5,6 @@ from typing import Optional, Union, Text, Tuple
 import tensorflow as tf
 
 
-@tf.keras.utils.register_keras_serializable()
 class CIN(tf.keras.layers.Layer):
     """ Compressed Interaction Network in xDeepFM """
 
@@ -68,7 +67,7 @@ class CIN(tf.keras.layers.Layer):
             )
         self.built = True
         
-    def call(self, inputs: Tuple[tf.Tensor, tf.Tensor]):
+    def call(self, inputs: Tuple[tf.Tensor, tf.Tensor], **kwargs):
 
         x0, x = inputs
         
@@ -114,4 +113,3 @@ class CIN(tf.keras.layers.Layer):
         }
         base_config = super(CIN, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-        

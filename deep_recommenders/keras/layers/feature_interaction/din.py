@@ -5,7 +5,6 @@ from typing import Callable, Optional, Union, Text
 import tensorflow as tf
 
 
-@tf.keras.utils.register_keras_serializable()
 class ActivationUnit(tf.keras.layers.Layer):
     """DIN激活单元"""
     
@@ -60,7 +59,9 @@ class ActivationUnit(tf.keras.layers.Layer):
         )
         self.built = True
     
-    def call(self, x_embeddings, y_embeddings):
+    def call(self, inputs, **kwargs):
+
+        x_embeddings, y_embeddings = inputs
 
         x = tf.concat([x_embeddings, y_embeddings], axis=1)
 
@@ -96,7 +97,6 @@ class ActivationUnit(tf.keras.layers.Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-@tf.keras.utils.register_keras_serializable()
 class Dice(tf.keras.layers.Layer):
     """Dice Adaptive Activation."""
 
@@ -119,13 +119,12 @@ class Dice(tf.keras.layers.Layer):
         )
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         
         inputs_mean = tf.math.reduce_mean(inputs, axis=1, keepdims=True)
         inputs_var = tf.math.reduce_std(inputs, axis=1, keepdims=True)
 
-        p = tf.nn.sigmoid((inputs - inputs_mean) / \
-            (tf.sqrt(inputs_var + self._epsilon)))
+        p = tf.nn.sigmoid((inputs - inputs_mean) / (tf.sqrt(inputs_var + self._epsilon)))
 
         x = self.prelu(inputs)
 
@@ -143,3 +142,4 @@ class Dice(tf.keras.layers.Layer):
         }
         base_config = super(Dice, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+

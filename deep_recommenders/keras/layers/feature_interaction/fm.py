@@ -5,7 +5,6 @@ from typing import Optional, Union, Text
 import tensorflow as tf
 
 
-@tf.keras.utils.register_keras_serializable()
 class FM(tf.keras.layers.Layer):
     """ Factorization Machine """
 
@@ -22,8 +21,7 @@ class FM(tf.keras.layers.Layer):
         self._kernel_regu = tf.keras.regularizers.get(kernel_regu)
 
         if (self._factors is not None) and (self._factors <= 0):
-            raise ValueError("`factors` should be bigger than 0. "
-                    "Got `factors` = {}".format(self._factors))
+            raise ValueError("`factors` should be bigger than 0. Got `factors` = {}".format(self._factors))
 
     def build(self, input_shape):
         last_dim = input_shape[-1]
@@ -38,7 +36,7 @@ class FM(tf.keras.layers.Layer):
             )
         self.built = True
 
-    def call(self, x: tf.Tensor):
+    def call(self, x: tf.Tensor, **kwargs):
 
         if self._factors is None:
 
@@ -76,4 +74,3 @@ class FM(tf.keras.layers.Layer):
         }
         base_config = super(FM, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-
