@@ -8,10 +8,10 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.keras.layers.fm import FM
+from deep_recommenders.keras.models.ranking.deepfm import FM
 
 
-class TestFM(tf.test.TestCase):
+class TestDeepFM(tf.test.TestCase):
 
     def test_invalid_factors(self):
         """ 测试 factors <= 0 """

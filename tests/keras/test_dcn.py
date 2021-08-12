@@ -8,29 +8,28 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.keras.layers.dcn import Cross
+from deep_recommenders.keras.models.ranking.dcn import Cross
 
 
-class TestCross(tf.test.TestCase):
+class TestDCN(tf.test.TestCase):
 
-    def test_full_matrix(self):
+    def test_cross_full_matrix(self):
         x0 = np.asarray([[0.1, 0.2, 0.3]]).astype(np.float32)
         x = np.asarray([[0.4, 0.5, 0.6]]).astype(np.float32)
         
-        layer = Cross(projection_dim=None, kernel_init="ones")
-        output = layer(x0, x)
+        cross = Cross(projection_dim=None, kernel_init="ones")
+        output = cross(x0, x)
         self.evaluate(tf.compat.v1.global_variables_initializer())
         self.assertAllClose(np.asarray([[0.55, 0.8, 1.05]]), output)
 
-    def test_save_model(self):
+    def test_cross_save_model(self):
 
         def get_model():
             x0 = tf.keras.layers.Input(shape=(13,))
             x1 = Cross(projection_dim=None)(x0, x0)
             x2 = Cross(projection_dim=None)(x0, x1)
             logits = tf.keras.layers.Dense(units=1)(x2)
-            model = tf.keras.Model(x0, logits)
-            return model
+            return tf.keras.Model(x0, logits)
 
         model = get_model()
         random_input = np.random.uniform(size=(10, 13))
@@ -38,14 +37,12 @@ class TestCross(tf.test.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "dcn_model")
-            model.save(
-                path,
-                options=tf.saved_model.SaveOptions(namespace_whitelist=["Addons"]))
+            model.save(path)
             loaded_model = tf.keras.models.load_model(path)
             loaded_pred = loaded_model.predict(random_input)
-        for i in range(3):
+        for i in range(len(model.layers)):
             assert model.layers[i].get_config() == loaded_model.layers[i].get_config()
-        self.assertAllEqual(model_pred, loaded_pred)
+        self.assertAllClose(model_pred, loaded_pred)
 
 
 if __name__ == "__main__":

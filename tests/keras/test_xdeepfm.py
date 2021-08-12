@@ -8,10 +8,10 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.keras.layers.xdeepfm import CIN
+from deep_recommenders.keras.models.ranking.xdeepfm import CIN
 
 
-class TestCIN(tf.test.TestCase):
+class TestXDeepFM(tf.test.TestCase):
     
     def test_invalid_inputs_type(self):
         """ 测试输入类型 """

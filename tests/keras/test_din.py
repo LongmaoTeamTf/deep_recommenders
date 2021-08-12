@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from absl.testing import parameterized
-from deep_recommenders.keras.layers import din
+from deep_recommenders.keras.models.ranking import din
 
 
 class TestDIN(tf.test.TestCase, parameterized.TestCase):
@@ -36,8 +36,8 @@ class TestDIN(tf.test.TestCase, parameterized.TestCase):
         
         interacter = tf.keras.layers.Subtract()
 
-        activation_unit = din.ActivationUnit(10, 
-            interacter=interacter, kernel_init="ones")
+        activation_unit = din.ActivationUnit(10,
+                                             interacter=interacter, kernel_init="ones")
         outputs = activation_unit(x, y)
 
         dense = tf.keras.layers.Dense(10, activation="relu", kernel_initializer="ones")
@@ -63,7 +63,6 @@ class TestDIN(tf.test.TestCase, parameterized.TestCase):
         self.evaluate(tf.compat.v1.global_variables_initializer())
         self.assertAllClose(outputs, expected_outputs)
 
-
     def test_din(self):
 
         def build_model():
@@ -85,7 +84,7 @@ class TestDIN(tf.test.TestCase, parameterized.TestCase):
         model_pred = model.predict([x_embeddings, y_embeddings])
 
         with tempfile.TemporaryDirectory() as tmp:
-            path = os.path.join(tmp, "din")
+            path = os.path.join(tmp, "din_model")
             model.save(
                 path,
                 options=tf.saved_model.SaveOptions(namespace_whitelist=["din"]))

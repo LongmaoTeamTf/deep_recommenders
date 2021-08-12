@@ -10,7 +10,7 @@ import scipy as sp
 import tensorflow as tf
 from absl.testing import parameterized
 
-from deep_recommenders.keras.layers.gnn import GCN
+from deep_recommenders.keras.models.retrieval import GCN
 
 
 class TestGCN(tf.test.TestCase, parameterized.TestCase):

@@ -8,11 +8,10 @@ import tensorflow as tf
 
 from absl.testing import parameterized
 
-from deep_recommenders.keras.layers import loss
+from deep_recommenders.keras.models.retrieval import sbcnm
 
 
-class TestLoss(tf.test.TestCase, parameterized.TestCase):
-
+class TestSBCNM(tf.test.TestCase, parameterized.TestCase):
 
     @parameterized.parameters(3, 5, 10, 15)
     def test_hard_negative_mining(self, num_hard_negatives):
@@ -23,7 +22,7 @@ class TestLoss(tf.test.TestCase, parameterized.TestCase):
         logits = rng.uniform(size=logits_shape).astype(np.float32)
         labels = rng.permutation(np.eye(*logits_shape).T).T.astype(np.float32)
 
-        out_logits, out_labels = loss.HardNegativeMining(num_hard_negatives)(logits, labels)
+        out_logits, out_labels = sbcnm.HardNegativeMining(num_hard_negatives)(logits, labels)
 
         self.assertEqual(out_logits.shape[-1], num_hard_negatives + 1)
 
@@ -33,7 +32,7 @@ class TestLoss(tf.test.TestCase, parameterized.TestCase):
 
         logits = logits + labels * 1000.0
 
-        out_logits, out_labels = loss.HardNegativeMining(num_hard_negatives)(logits, labels)
+        out_logits, out_labels = sbcnm.HardNegativeMining(num_hard_negatives)(logits, labels)
         out_logits, out_labels = out_logits.numpy(), out_labels.numpy()
 
         # Highest K logits are always returned.
@@ -50,7 +49,7 @@ class TestLoss(tf.test.TestCase, parameterized.TestCase):
         labels = rng.permutation(np.eye(*logits_shape).T).T.astype(np.float32)
         identifiers = rng.randint(0, 3, size=logits_shape[-1])
 
-        out_logits = loss.RemoveAccidentalNegative()(logits, labels, identifiers)
+        out_logits = sbcnm.RemoveAccidentalNegative()(logits, labels, identifiers)
 
         self.assertAllClose(tf.reduce_sum(out_logits * labels, axis=1),
                             tf.reduce_sum(logits * labels, axis=1))
