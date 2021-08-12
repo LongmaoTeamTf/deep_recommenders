@@ -11,19 +11,6 @@ built by `tf.estimator` and `tf.keras` that the advanced APIs of TensorFlow.
 🤗️ This Library mainly used for self-learning and improvement, 
 but also hope to help friends and classmates who are interested in the recommendation system to make progress together!
 
-## Supports
-
-[1.15-passing]: https://img.shields.io/badge/1.15-passing-brightgreen
-[1.15-failing]: https://img.shields.io/badge/1.15-failing-red
-[2.0+-passing]: https://img.shields.io/badge/2.0+-passing-brightgreen
-[2.3+-passing]: https://img.shields.io/badge/2.3+-passing-brightgreen
-
-| Modules | TensorFlow |
-| ------- | ---------------- |
-| *deep_recommenders.estimator* | ![1.15-passing]<br><br>![2.0+-passing]
-| *deep_recommenders.keras* | ![1.15-failing]<br><br>![2.3+-passing]
-
-
 ## Models
 
 ### Ranking
@@ -162,6 +149,18 @@ but also hope to help friends and classmates who are interested in the recommend
     [<sub>
       *BERT: Pre-training of Dßep Bidirectional Transformers for Language Understanding, Google, NAACL, 2019*
     </sub>](https://arxiv.org/abs/1810.04805)
+
+## Supports
+
+[1.15-passing]: https://img.shields.io/badge/1.15-passing-brightgreen
+[1.15-failing]: https://img.shields.io/badge/1.15-failing-red
+[2.0+-passing]: https://img.shields.io/badge/2.0+-passing-brightgreen
+[2.3+-passing]: https://img.shields.io/badge/2.3+-passing-brightgreen
+
+| Modules | TensorFlow |
+| ------- | ---------------- |
+| *deep_recommenders.estimator* | ![1.15-passing]<br>![2.0+-passing]
+| *deep_recommenders.keras* | ![1.15-failing]<br>![2.3+-passing]
 
 ## License
 [Apache License 2.0](LICENSE)
