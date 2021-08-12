@@ -5,6 +5,7 @@ from typing import Optional, Union, Text, Tuple
 import tensorflow as tf
 
 
+@tf.keras.utils.register_keras_serializable()
 class CIN(tf.keras.layers.Layer):
     """ Compressed Interaction Network in xDeepFM """
 
@@ -112,4 +113,8 @@ class CIN(tf.keras.layers.Layer):
                 tf.keras.regularizers.serialize(self._bias_regu),
         }
         base_config = super(CIN, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**base_config, **config}
+
+
+class XDeepFM(object):
+    pass

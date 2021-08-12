@@ -5,6 +5,7 @@ from typing import Optional, Union, Text
 import tensorflow as tf
 
 
+@tf.keras.utils.register_keras_serializable()
 class Cross(tf.keras.layers.Layer):
     """ Cross net in Deep & Cross Network (DCN) """
 
@@ -32,7 +33,7 @@ class Cross(tf.keras.layers.Layer):
             ValueError("diag scale must be non-negative, got {}".format(self._diag_scale))
 
     def build(self, input_shape):
-        last_dim = input_shape[0][-1]
+        last_dim = input_shape[-1]
 
         if self._projection_dim is None:
             self._dense = tf.keras.layers.Dense(
@@ -66,9 +67,10 @@ class Cross(tf.keras.layers.Layer):
             )
         super(Cross, self).build(input_shape)
 
-    def call(self, inputs: list, **kwargs):
+    def call(self, x0, x=None, **kwargs):
 
-        x0, x = inputs
+        if x is None:
+            x = x0
         
         if x0.shape[-1] != x.shape[-1]:
             raise ValueError("`x0` and `x` dim mismatch. " 
@@ -103,4 +105,8 @@ class Cross(tf.keras.layers.Layer):
                 tf.keras.regularizers.serialize(self._bias_regu),
         }
         base_config = super(Cross, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**base_config, **config}
+
+
+class DCN(object):
+    pass

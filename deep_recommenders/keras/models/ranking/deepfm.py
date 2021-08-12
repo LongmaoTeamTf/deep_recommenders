@@ -5,6 +5,7 @@ from typing import Optional, Union, Text
 import tensorflow as tf
 
 
+@tf.keras.utils.register_keras_serializable()
 class FM(tf.keras.layers.Layer):
     """ Factorization Machine """
 
@@ -73,4 +74,8 @@ class FM(tf.keras.layers.Layer):
                 tf.keras.regularizers.serialize(self._kernel_regu),
         }
         base_config = super(FM, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**base_config, **config}
+
+
+class DeepFM(object):
+    pass

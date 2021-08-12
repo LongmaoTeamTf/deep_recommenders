@@ -5,6 +5,7 @@ from typing import Callable, Optional, Union, Text
 import tensorflow as tf
 
 
+@tf.keras.utils.register_keras_serializable()
 class ActivationUnit(tf.keras.layers.Layer):
     """DIN激活单元"""
     
@@ -59,9 +60,10 @@ class ActivationUnit(tf.keras.layers.Layer):
         )
         self.built = True
     
-    def call(self, inputs, **kwargs):
+    def call(self, x_embeddings, y_embeddings=None, **kwargs):
 
-        x_embeddings, y_embeddings = inputs
+        if y_embeddings is None:
+            y_embeddings = x_embeddings
 
         x = tf.concat([x_embeddings, y_embeddings], axis=1)
 
@@ -77,8 +79,8 @@ class ActivationUnit(tf.keras.layers.Layer):
             "units":
                 self._kernel_units,
             "interacter":
-                # tf.keras.layers.serialize(self._interacter) \
-                # if isinstance(self._interacter, tf.keras.layers.Layer) \
+                # tf.keras.models.serialize(self._interacter) \
+                # if isinstance(self._interacter, tf.keras.models.Layer) \
                 # else self._interacter,
                 self._interacter,
             "use_bias": self._use_bias,
@@ -94,9 +96,10 @@ class ActivationUnit(tf.keras.layers.Layer):
                 tf.keras.regularizers.serialize(self._bias_regu),
         }
         base_config = super(ActivationUnit, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**base_config, **config}
 
 
+@tf.keras.utils.register_keras_serializable()
 class Dice(tf.keras.layers.Layer):
     """Dice Adaptive Activation."""
 
@@ -141,5 +144,8 @@ class Dice(tf.keras.layers.Layer):
                 tf.keras.regularizers.serialize(self._alpha_regularizer)
         }
         base_config = super(Dice, self).get_config()
-        return dict(list(base_config.items()) + list(config.items()))
+        return {**base_config, **config}
 
+
+class DIN(object):
+    pass
