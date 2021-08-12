@@ -19,7 +19,7 @@ class Embedding(tf.keras.layers.Layer):
             name="embeddings")
         super(Embedding, self).build(input_shape)
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         if K.dtype(inputs) != 'int32':
             inputs = K.cast(inputs, 'int32')
         embeddings = K.gather(self.embeddings, inputs)
@@ -55,7 +55,7 @@ class ScaledDotProductAttention(tf.keras.layers.Layer):
         outputs = tf.where(tf.equal(future_masks, 0), paddings, inputs)
         return outputs
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         if self._masking:
             assert len(inputs) == 4, "inputs should be set [queries, keys, values, masks]."
             queries, keys, values, masks = inputs
@@ -116,8 +116,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             name='weights_values')
         super(MultiHeadAttention, self).build(input_shape)
 
-
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         if self._masking:
             assert len(inputs) == 4, "inputs should be set [queries, keys, values, masks]."
             queries, keys, values, masks = inputs
@@ -148,4 +147,3 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape
-        

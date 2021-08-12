@@ -15,7 +15,7 @@ class PositionEncoding(Layer):
         self._model_dim = model_dim
         super(PositionEncoding, self).__init__(**kwargs)
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         seq_length = inputs.shape[1]
         position_encodings = np.zeros((seq_length, self._model_dim))
         for pos in range(seq_length):
@@ -35,7 +35,7 @@ class Add(Layer):
     def __init__(self, **kwargs):
         super(Add, self).__init__(**kwargs)
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         input_a, input_b = inputs
         return input_a + input_b
 
@@ -62,23 +62,23 @@ class PositionWiseFeedForward(Layer):
             initializer='glorot_uniform',
             trainable=self._trainable,
             name="weights_out")
-        self.bais_inner = self.add_weight(
+        self.bias_inner = self.add_weight(
             shape=(self._inner_dim,),
             initializer='uniform',
             trainable=self._trainable,
-            name="bais_inner")
-        self.bais_out = self.add_weight(
+            name="bias_inner")
+        self.bias_out = self.add_weight(
             shape=(self._model_dim,),
             initializer='uniform',
             trainable=self._trainable,
-            name="bais_out")
+            name="bias_out")
         super(PositionWiseFeedForward, self).build(input_shape)
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         if K.dtype(inputs) != 'float32':
             inputs = K.cast(inputs, 'float32')
-        inner_out = K.relu(K.dot(inputs, self.weights_inner) + self.bais_inner)
-        outputs = K.dot(inner_out, self.weights_out) + self.bais_out
+        inner_out = K.relu(K.dot(inputs, self.weights_inner) + self.bias_inner)
+        outputs = K.dot(inner_out, self.weights_out) + self.bias_out
         return outputs
 
     def compute_output_shape(self, input_shape):
@@ -102,7 +102,7 @@ class LayerNormalization(Layer):
             name='gamma')
         super(LayerNormalization, self).build(input_shape)
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         mean, variance = tf.nn.moments(inputs, [-1], keepdims=True)
         normalized = (inputs - mean) / ((variance + self._epsilon) ** 0.5)
         outputs = self.gamma * normalized + self.beta
@@ -114,8 +114,16 @@ class LayerNormalization(Layer):
 
 class Transformer(Layer):
 
-    def __init__(self, vocab_size, model_dim, 
-            n_heads=8, encoder_stack=6, decoder_stack=6, feed_forward_size=2048, dropout_rate=0.1, **kwargs):
+    def __init__(self,
+                 vocab_size,
+                 model_dim,
+                 n_heads=8,
+                 encoder_stack=6,
+                 decoder_stack=6,
+                 feed_forward_size=2048,
+                 dropout_rate=0.1,
+                 **kwargs):
+
         self._vocab_size = vocab_size
         self._model_dim = model_dim
         self._n_heads = n_heads
@@ -132,7 +140,7 @@ class Transformer(Layer):
             trainable=True,
             name="embeddings")
         self.EncoderPositionEncoding = PositionEncoding(self._model_dim)
-        self.EncoderMultiHeadAttetions = [
+        self.EncoderMultiHeadAttentions = [
             MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
             for _ in range(self._encoder_stack)
         ]
@@ -149,7 +157,7 @@ class Transformer(Layer):
             for _ in range(self._encoder_stack)
         ]
         self.DecoderPositionEncoding = PositionEncoding(self._model_dim)
-        self.DecoderMultiHeadAttetions0 = [
+        self.DecoderMultiHeadAttentions0 = [
             MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads, future=True)
             for _ in range(self._decoder_stack)
         ]
@@ -157,7 +165,7 @@ class Transformer(Layer):
             LayerNormalization()
             for _ in range(self._decoder_stack)
         ]
-        self.DecoderMultiHeadAttetions1 = [
+        self.DecoderMultiHeadAttentions1 = [
             MultiHeadAttention(self._n_heads, self._model_dim // self._n_heads)
             for _ in range(self._decoder_stack)
         ]
@@ -185,14 +193,14 @@ class Transformer(Layer):
         embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
         position_encodings = self.EncoderPositionEncoding(embeddings)
-        # Embedings + Postion-encodings
+        # Embeddings + Position-encodings
         encodings = embeddings + position_encodings
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
 
         for i in range(self._encoder_stack):
             # Multi-head-Attention
-            attention = self.EncoderMultiHeadAttetions[i]
+            attention = self.EncoderMultiHeadAttentions[i]
             attention_input = [encodings, encodings, encodings, masks]
             attention_out = attention(attention_input)
             # Add & Norm
@@ -218,14 +226,14 @@ class Transformer(Layer):
         embeddings *= self._model_dim ** 0.5 # Scale
         # Position Encodings
         position_encodings = self.DecoderPositionEncoding(embeddings)
-        # Embedings + Postion-encodings
+        # Embeddings + Position-encodings
         encodings = embeddings + position_encodings
         # Dropout
         encodings = K.dropout(encodings, self._dropout_rate)
         
         for i in range(self._decoder_stack):
             # Masked-Multi-head-Attention
-            masked_attention = self.DecoderMultiHeadAttetions0[i]
+            masked_attention = self.DecoderMultiHeadAttentions0[i]
             masked_attention_input = [encodings, encodings, encodings, decoder_masks]
             masked_attention_out = masked_attention(masked_attention_input)
             # Add & Norm
@@ -233,7 +241,7 @@ class Transformer(Layer):
             masked_attention_out = self.DecoderLayerNorms0[i](masked_attention_out)
 
             # Multi-head-Attention
-            attention = self.DecoderMultiHeadAttetions1[i]
+            attention = self.DecoderMultiHeadAttentions1[i]
             attention_input = [masked_attention_out, encoder_encodings, encoder_encodings, encoder_masks]
             attention_out = attention(attention_input)
             # Add & Norm
@@ -247,29 +255,29 @@ class Transformer(Layer):
             ff_out += attention_out
             encodings = self.DecoderLayerNorms2[i](ff_out)
 
-        # Pre-Softmax 与 Embeddings 共享参数
+        # Pre-SoftMax 与 Embeddings 共享参数
         linear_projection = K.dot(encodings, K.transpose(self.embeddings))
         outputs = K.softmax(linear_projection)
         return outputs
 
-    def call(self, inputs):
+    def call(self, inputs, **kwargs):
         encoder_inputs, decoder_inputs = inputs
         encoder_encodings, encoder_masks = self.encoder(encoder_inputs)
         encoder_outputs = self.decoder([decoder_inputs, encoder_encodings, encoder_masks])
         return encoder_outputs
 
     def compute_output_shape(self, input_shape):
-        return  (input_shape[0][0], input_shape[0][1], self._vocab_size)
+        return input_shape[0][0], input_shape[0][1], self._vocab_size
 
 
 class Noam(Callback):
 
-    def __init__(self, model_dim, step_num=0, warmup_steps=4000, verbose=False, **kwargs):
+    def __init__(self, model_dim, step_num=0, warmup_steps=4000, verbose=False):
         self._model_dim = model_dim
         self._step_num = step_num
         self._warmup_steps = warmup_steps
         self.verbose = verbose
-        super(Noam, self).__init__(**kwargs)
+        super(Noam, self).__init__()
 
     def on_train_begin(self, logs=None):
         logs = logs or {}
