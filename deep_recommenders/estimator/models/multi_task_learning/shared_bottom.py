@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 
-if tf.__version__ >= "2.3.0":
+if tf.__version__ >= "2.0.0":
     import tensorflow.compat.v1 as tf
 
 from deep_recommenders.estimator.models.multi_task_learning import multi_task
@@ -158,9 +158,9 @@ def model_fn(features, labels, mode, params):
 
 def shared_bottom_estimator(model_dir, inter_op, intra_op, params):
 
-    config_proto = tf.compat.v1.ConfigProto(device_count={'GPU': 0},
-                                            inter_op_parallelism_threads=inter_op,
-                                            intra_op_parallelism_threads=intra_op)
+    config_proto = tf.ConfigProto(device_count={'GPU': 0},
+                                  inter_op_parallelism_threads=inter_op,
+                                  intra_op_parallelism_threads=intra_op)
 
     run_config = tf.estimator.RunConfig().replace(
         tf_random_seed=42,
