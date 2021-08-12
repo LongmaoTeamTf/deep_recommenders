@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from typing import Dict, Optional, Text, Tuple, Union
+from typing import Dict, Optional, Text, Tuple, Union, Sequence, List
 
 import abc
 import contextlib
 import tensorflow as tf
 
-import mkl
 import faiss
 import numpy as np
 
@@ -87,7 +86,7 @@ class TopK(tf.keras.Model, abc.ABC):
         """创建索引 
         args:
             candidates: 候选 embeddings
-            indentifiers: 候选 embeddings对应标识 (Opt)
+            identifiers: 候选 embeddings对应标识 (Opt)
         returns:
             Self.
         """
@@ -97,7 +96,8 @@ class TopK(tf.keras.Model, abc.ABC):
     @abc.abstractmethod
     def call(self,
              queries: Union[tf.Tensor, Dict[Text, tf.Tensor]],
-             k: Optional[int] = None) -> Tuple[tf.Tensor, tf.Tensor]:
+             k: Optional[int] = None,
+             **kwargs) -> Tuple[tf.Tensor, tf.Tensor]:
         """检索索引
         args:
             queries: queries embeddings,
@@ -125,8 +125,8 @@ class TopK(tf.keras.Model, abc.ABC):
         k = k if k is not None else self._k
 
         adjusted_k = k + exclusions.shape[1]
-        scores, indentifiers = self(queries=queries, k=adjusted_k)
-        return _exclude(scores, indentifiers, exclusions, adjusted_k)
+        scores, identifiers = self(queries=queries, k=adjusted_k)
+        return _exclude(scores, identifiers, exclusions, adjusted_k)
 
     def _reset_tf_function_cache(self):
         """Resets the tf.function cache."""
@@ -161,11 +161,12 @@ class Streaming(TopK):
 
     def index(self, 
               candidates: tf.data.Dataset, 
-              identifiers: Optional[tf.data.Dataset] = None) -> "Streaming":
+              identifiers: Optional[tf.data.Dataset] = None,
+              **kwargs) -> "Streaming":
         """构建索引
         Args:
             candidates: 候选embeddings的Dataset
-            indentifiers: 候选 embeddings对应标识的Dataset(Opt)
+            identifiers: 候选 embeddings对应标识的Dataset(Opt)
         Returns:
             Self.
         """
@@ -176,13 +177,14 @@ class Streaming(TopK):
 
     def call(self,
              queries: Union[tf.Tensor, Dict[Text, tf.Tensor]],
-             k: Optional[int] = None) -> Tuple[tf.Tensor, tf.Tensor]:
+             k: Optional[int] = None,
+             **kwargs) -> Tuple[tf.Tensor, tf.Tensor]:
         """检索索引
         args:
             queries: queries embeddings,
             k: 返回候选个数
         returns:
-            Tuple(top k candidates scores, top k candidates indentifiers)
+            Tuple(top k candidates scores, top k candidates identifiers)
         """
         k = k if k is not None else self._k
 
@@ -212,7 +214,7 @@ class Streaming(TopK):
 
         def top_k(state: Tuple[tf.Tensor, tf.Tensor],
                   x: Tuple[tf.Tensor, tf.Tensor]) -> Tuple[tf.Tensor, tf.Tensor]:
-            """Reduction fucntion.
+            """Reduction function.
             合并现在的topk和新的topk，重新从中选出topk
             """
             state_scores, state_indices = state
@@ -237,7 +239,7 @@ class Streaming(TopK):
             index_dtype = tf.int32
 
         initial_state = (tf.zeros((tf.shape(queries)[0], 0), dtype=tf.float32),
-                     tf.zeros((tf.shape(queries)[0], 0), dtype=index_dtype))
+                         tf.zeros((tf.shape(queries)[0], 0), dtype=index_dtype))
         
         def enumerate_rows(batch: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
             """Enumerates rows in each batch using a total element counter."""
@@ -253,10 +255,8 @@ class Streaming(TopK):
 
         with _wrap_batch_too_small_error(k):
             result = (dataset
-                # Map: 计算每个batch的TopK
-                .map(top_scores, num_parallel_calls=self._num_parallel_calls)
-                # Reduce: 计算全局TopK
-                .reduce(initial_state, top_k))
+                      .map(top_scores, num_parallel_calls=self._num_parallel_calls)  # Map: 计算每个batch的TopK
+                      .reduce(initial_state, top_k))                                 # Reduce: 计算全局TopK
         return result
 
 
@@ -271,7 +271,6 @@ class BruteForce(TopK):
         super().__init__(k, *args, **kwargs)
 
         self._query_model = query_model
-
 
     def index(self, 
               candidates: Union[tf.Tensor, tf.data.Dataset],
@@ -316,7 +315,8 @@ class BruteForce(TopK):
 
     def call(self,
              queries: Union[tf.Tensor, Dict[Text, tf.Tensor]],
-             k: Optional[int] = None) -> Tuple[tf.Tensor, tf.Tensor]:
+             k: Optional[int] = None,
+             **kwargs) -> Tuple[tf.Tensor, tf.Tensor]:
         
         k = k if k is not None else self._k
 
@@ -334,20 +334,16 @@ class BruteForce(TopK):
         return scores, tf.gather(self._identifiers, indices)
 
 
-class ScaNN(TopK):
-    """(Google)ScaNN approximate retrieval index for a factorized retrieval model"""
-
-
 class Faiss(TopK):
     """(Facebook)Faiss retrieval index for a factorized retrieval model"""
 
-    def __init__(self, 
+    def __init__(self,
                  k: int = 10,
                  query_model: Optional[tf.keras.Model] = None,
                  nlist: Optional[int] = 1,
                  nprobe: Optional[int] = 1,
                  normalize: bool = False,
-                 *args, 
+                 *args,
                  **kwargs):
         super().__init__(k, *args, **kwargs)
 
@@ -356,25 +352,23 @@ class Faiss(TopK):
         self._nprobe = nprobe
         self._normalize = normalize
 
-        mkl.get_max_threads()
-
         def build_searcher(
-            candidates: Union[np.ndarray, tf.Tensor],
-            identifiers: Optional[Union[np.ndarray, tf.Tensor]] = None,
+                candidates: Union[np.ndarray, tf.Tensor],
+                identifiers: Optional[Union[np.ndarray, tf.Tensor]] = None,
         ) -> Union[faiss.swigfaiss.IndexIDMap, faiss.swigfaiss.IndexIVFFlat]:
-            
+
             if isinstance(candidates, tf.Tensor):
                 candidates = candidates.numpy()
 
             if candidates.dtype != "float32":
                 candidates = candidates.astype(np.float32)
-    
+
             d = candidates.shape[1]
             quantizer = faiss.IndexFlatIP(d)
             index = faiss.IndexIVFFlat(quantizer, d, self._nlist, faiss.METRIC_INNER_PRODUCT)
             if self._normalize is True:
                 faiss.normalize_L2(candidates)
-            index.train(candidates) # pylint: disable=no-value-for-parameter
+            index.train(candidates)  # pylint: disable=no-value-for-parameter
 
             if identifiers is not None:
                 if isinstance(identifiers, tf.Tensor):
@@ -384,10 +378,9 @@ class Faiss(TopK):
                         identifiers = identifiers.astype(np.int64)
                     except:
                         raise ValueError("`identifiers` dtype must be `int64`."
-                                    "Got `dtype` = {}".format(identifiers.dtype))
+                                         "Got `dtype` = {}".format(identifiers.dtype))
 
-                index = faiss.IndexIDMap(index)
-                index.add_with_ids(candidates, identifiers) # pylint: disable=no-value-for-parameter
+                index.add_with_ids(candidates, identifiers)  # pylint: disable=no-value-for-parameter
             else:
                 index.add(candidates)
 
@@ -396,8 +389,8 @@ class Faiss(TopK):
         self._build_searcher = build_searcher
         self._searcher = None
         self._identifiers = None
-            
-    def index(self, 
+
+    def index(self,
               candidates: Union[tf.Tensor, tf.data.Dataset],
               identifiers: Optional[Union[tf.Tensor, tf.data.Dataset]] = None) -> "Faiss":
 
@@ -418,7 +411,7 @@ class Faiss(TopK):
             self._searcher = self._build_searcher(candidates, identifiers=None)
             # 初始化identifiers
             identifiers_initial_value = tf.zeros((), dtype=identifiers.dtype)
-            
+
             self._identifiers = self.add_weight(
                 name="identifiers",
                 dtype=identifiers.dtype,
@@ -429,37 +422,37 @@ class Faiss(TopK):
             self._identifiers.assign(identifiers)
         else:
             self._searcher = self._build_searcher(candidates, identifiers=identifiers)
-            
+
         self._reset_tf_function_cache()
-    
+
         return self
 
     def call(self,
              queries: Union[tf.Tensor, Dict[Text, tf.Tensor]],
              k: Optional[int] = None) -> Tuple[tf.Tensor, tf.Tensor]:
-        
+
         k = k if k is not None else self._k
 
         if self._searcher is None:
             raise ValueError("The `index` method must be called first to "
-                            "create the retrieval index.")
-        
+                             "create the retrieval index.")
+
         if self._query_model is not None:
             queries = self._query_model(queries)
 
         if not isinstance(queries, tf.Tensor):
             raise ValueError(f"Queries must be a tensor, got {type(queries)}.")
-        
+
         def _search(queries, k):
             queries = tf.make_ndarray(tf.make_tensor_proto(queries))
-            
+
             if self._normalize is True:
                 faiss.normalize_L2(queries)
 
             self._searcher.nprobe = self._nprobe
             distances, indices = self._searcher.search(queries, int(k))
             return distances, indices
-        
+
         distances, indices = tf.py_function(_search, [queries, k], [tf.float32, tf.int32])
 
         if self._identifiers is None:
@@ -467,3 +460,63 @@ class Faiss(TopK):
 
         return distances, tf.gather(self._identifiers, indices)
 
+
+class FactorizedTopK(tf.keras.layers.Layer):
+    """ Metric for a retrieval model. """
+
+    def __init__(self,
+                 candidates: Union[TopK, tf.data.Dataset],
+                 metrics: Optional[Sequence[tf.keras.metrics.Metric]] = None,
+                 k: int = 100,
+                 name: Text = "factorized_top_k",
+                 **kwargs):
+        super(FactorizedTopK, self).__init__(name=name, **kwargs)
+
+        if metrics is None:
+            metrics = [
+                tf.keras.metrics.TopKCategoricalAccuracy(
+                    k=n, name=f"{self.name}/top_{n}_categorical_accuracy")
+                for n in [1, 5, 10, 50, 100]
+            ]
+
+        if isinstance(candidates, tf.data.Dataset):
+            candidates = Streaming(k=k).index(candidates)
+
+        self._candidates = candidates
+        self._metrics = metrics
+        self._k = k
+
+    def update_state(self,
+                     query_embeddings: tf.Tensor,
+                     true_candidate_embeddings: tf.Tensor) -> tf.Operation:
+        """Update metric"""
+
+        positive_scores = tf.reduce_sum(
+            query_embeddings * true_candidate_embeddings, axis=1, keepdims=True)
+
+        top_k_predictions, _ = self._candidates(query_embeddings, k=self._k)
+
+        y_true = tf.concat([
+            tf.ones(tf.shape(positive_scores)),
+            tf.zeros_like(top_k_predictions)
+        ], axis=1)
+        y_pred = tf.concat([
+            positive_scores,
+            top_k_predictions
+        ], axis=1)
+
+        update_ops = []
+        for metric in self._metrics:
+            update_ops.append(metric.update_state(y_true=y_true, y_pred=y_pred))
+
+        return tf.group(update_ops)
+
+    def reset_states(self) -> None:
+        """Resets the metrics."""
+        for metric in self.metrics:
+            metric.reset_states()
+
+    def result(self) -> List[tf.Tensor]:
+        """Returns a list of metric results."""
+
+        return [metric.result() for metric in self.metrics]
