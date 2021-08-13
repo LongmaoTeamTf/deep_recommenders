@@ -7,7 +7,6 @@ import tensorflow as tf
 
 @tf.keras.utils.register_keras_serializable()
 class ActivationUnit(tf.keras.layers.Layer):
-    """DIN激活单元"""
     
     def __init__(self,
                  units: int,
