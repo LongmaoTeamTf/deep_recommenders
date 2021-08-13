@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from deep_recommenders.keras.models.ranking.dcn import Cross
+from deep_recommenders.keras.models.ranking import DCN
 
 
 class TestDCN(tf.test.TestCase):

@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from deep_recommenders.keras.models.ranking.xdeepfm import CIN
+from deep_recommenders.keras.models.ranking import XDeepFM
 
 
 class TestXDeepFM(tf.test.TestCase):

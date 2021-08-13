@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from absl.testing import parameterized
 from deep_recommenders.keras.models.ranking import din
+from deep_recommenders.keras.models.ranking import DIN
 
 
 class TestDIN(tf.test.TestCase, parameterized.TestCase):

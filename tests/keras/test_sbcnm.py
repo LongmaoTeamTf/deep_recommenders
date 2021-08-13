@@ -9,6 +9,7 @@ import tensorflow as tf
 from absl.testing import parameterized
 
 from deep_recommenders.keras.models.retrieval import sbcnm
+from deep_recommenders.keras.models.retrieval import SBCNM
 
 
 class TestSBCNM(tf.test.TestCase, parameterized.TestCase):
