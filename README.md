@@ -149,7 +149,7 @@ but also hope to help friends and classmates who are interested in the recommend
 
   - **BERT**
     [<sub>
-      *BERT: Pre-training of Dßep Bidirectional Transformers for Language Understanding, Google, NAACL, 2019*
+      *BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding, Google, NAACL, 2019*
     </sub>](https://arxiv.org/abs/1810.04805)
 
 ## Supports
