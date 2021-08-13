@@ -1,0 +1,19 @@
+language: python
+python: "3.7"
+
+notifications:
+  email: false
+
+sudo: false
+
+before_install:
+  - pip install -r requirements.txt
+  - pip install codecov
+
+install: true
+
+script:
+  - /bin/bash tests/testing.sh
+
+after_success:
+  - codeco
