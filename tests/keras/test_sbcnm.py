@@ -9,7 +9,6 @@ import tensorflow as tf
 from absl.testing import parameterized
 
 from deep_recommenders.keras.models.retrieval import sbcnm
-from deep_recommenders.keras.models.retrieval import SBCNM
 
 
 class TestSBCNM(tf.test.TestCase, parameterized.TestCase):
@@ -28,7 +27,7 @@ class TestSBCNM(tf.test.TestCase, parameterized.TestCase):
         self.assertEqual(out_logits.shape[-1], num_hard_negatives + 1)
 
         self.assertAllClose(
-            tf.reduce_sum(out_logits * out_labels, axis=-1), 
+            tf.reduce_sum(out_logits * out_labels, axis=-1),
             tf.reduce_sum(logits * labels, axis=-1))
 
         logits = logits + labels * 1000.0

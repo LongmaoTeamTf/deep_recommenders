@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from typing import Callable, Optional, Union, Text
 
 import tensorflow as tf
 
@@ -18,7 +17,6 @@ class ActivationUnit(tf.keras.layers.Layer):
                  bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
                  bias_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
                  **kwargs):
-        
         super(ActivationUnit, self).__init__(**kwargs)
         
         self._kernel_units = units

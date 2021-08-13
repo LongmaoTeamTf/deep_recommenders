@@ -9,7 +9,6 @@ import numpy as np
 import tensorflow as tf
 
 from deep_recommenders.keras.models.ranking.deepfm import FM
-from deep_recommenders.keras.models.ranking import DeepFM
 
 
 class TestDeepFM(tf.test.TestCase):
