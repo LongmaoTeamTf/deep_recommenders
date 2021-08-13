@@ -7,10 +7,10 @@ notifications:
 sudo: false
 
 before_install:
-  - pip install -r requirements.txt
   - pip install codecov
 
-install: true
+install:
+  - pip install -r requirements.txt
 
 script:
   - /bin/bash tests/testing.sh
