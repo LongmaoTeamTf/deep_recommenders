@@ -13,7 +13,7 @@ class ActivationUnit(tf.keras.layers.Layer):
                  units: int,
                  interacter: Union[None, tf.keras.layers.Layer, Callable] = None,
                  use_bias: bool = True,
-                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu", 
+                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu",
                  kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
                  kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
                  bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
@@ -76,24 +76,14 @@ class ActivationUnit(tf.keras.layers.Layer):
     
     def get_config(self):
         config = {
-            "units":
-                self._kernel_units,
-            "interacter":
-                # tf.keras.models.serialize(self._interacter) \
-                # if isinstance(self._interacter, tf.keras.models.Layer) \
-                # else self._interacter,
-                self._interacter,
+            "units": self._kernel_units,
+            "interacter": self._interacter,
             "use_bias": self._use_bias,
-            "activation":
-                tf.keras.activations.serialize(self._kernel_activation),
-            "kernel_init":
-                tf.keras.initializers.serialize(self._kernel_init),
-            "kernel_regu":
-                tf.keras.regularizers.serialize(self._kernel_regu),
-            "bias_init":
-                tf.keras.initializers.serialize(self._bias_init),
-            "bias_regu":
-                tf.keras.regularizers.serialize(self._bias_regu),
+            "activation": tf.keras.activations.serialize(self._kernel_activation),
+            "kernel_init": tf.keras.initializers.serialize(self._kernel_init),
+            "kernel_regu": tf.keras.regularizers.serialize(self._kernel_regu),
+            "bias_init": tf.keras.initializers.serialize(self._bias_init),
+            "bias_regu": tf.keras.regularizers.serialize(self._bias_regu),
         }
         base_config = super(ActivationUnit, self).get_config()
         return {**base_config, **config}
@@ -101,10 +91,9 @@ class ActivationUnit(tf.keras.layers.Layer):
 
 @tf.keras.utils.register_keras_serializable()
 class Dice(tf.keras.layers.Layer):
-    """Dice Adaptive Activation."""
 
-    def __init__(self, 
-                 epsilon: float = 1e-8, 
+    def __init__(self,
+                 epsilon: float = 1e-8,
                  alpha_initializer: Union[Text, tf.keras.initializers.Initializer] = "zeros",
                  alpha_regularizer: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
                  **kwargs):
@@ -117,7 +106,7 @@ class Dice(tf.keras.layers.Layer):
     def build(self, input_shape):
 
         self.prelu = tf.keras.layers.PReLU(
-            alpha_initializer=self._alpha_initializer, 
+            alpha_initializer=self._alpha_initializer,
             alpha_regularizer=self._alpha_regularizer
         )
         self.built = True
@@ -138,10 +127,8 @@ class Dice(tf.keras.layers.Layer):
     def get_config(self):
         config = {
             "epsilon": self._epsilon,
-            "alpha_initializer": 
-                tf.keras.initializers.serialize(self._alpha_initializer),
-            "alpha_regularizer":
-                tf.keras.regularizers.serialize(self._alpha_regularizer)
+            "alpha_initializer": tf.keras.initializers.serialize(self._alpha_initializer),
+            "alpha_regularizer": tf.keras.regularizers.serialize(self._alpha_regularizer)
         }
         base_config = super(Dice, self).get_config()
         return {**base_config, **config}
