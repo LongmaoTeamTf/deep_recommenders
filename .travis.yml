@@ -1,19 +1,47 @@
 language: python
-python: "3.7"
-
-notifications:
-  email: false
+python:
+  - "3.6"
+  - "3.7"
+env:
+  - TENSORFLOW_VERSION=1.15 MODULE=estimator
+  - TENSORFLOW_VERSION=2.0 MODULE=estimator
+  - TENSORFLOW_VERSION=2.1 MODULE=estimator
+  - TENSORFLOW_VERSION=2.2 MODULE=estimator
+  - TENSORFLOW_VERSION=2.3 MODULE=estimator
+  - TENSORFLOW_VERSION=2.4 MODULE=estimator
+  - TENSORFLOW_VERSION=2.5 MODULE=estimator
+  - TENSORFLOW_VERSION=2.6 MODULE=estimator
+  - TENSORFLOW_VERSION=1.15 MODULE=keras
+  - TENSORFLOW_VERSION=2.0 MODULE=keras
+  - TENSORFLOW_VERSION=2.1 MODULE=keras
+  - TENSORFLOW_VERSION=2.2 MODULE=keras
+  - TENSORFLOW_VERSION=2.3 MODULE=keras
+  - TENSORFLOW_VERSION=2.4 MODULE=keras
+  - TENSORFLOW_VERSION=2.5 MODULE=keras
+  - TENSORFLOW_VERSION=2.6 MODULE=keras
+matrix:
+  allow_failures:
+    - env: TENSORFLOW_VERSION=1.15 MODULE=keras
+    - env: TENSORFLOW_VERSION=2.0 MODULE=keras
+    - env: TENSORFLOW_VERSION=2.1 MODULE=keras
+    - env: TENSORFLOW_VERSION=2.2 MODULE=keras
 
 sudo: false
 
 before_install:
+  - pip install tensorflow==$TENSORFLOW_VERSION
   - pip install codecov
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - /bin/bash tests/testing.sh
+  - /bin/bash tests/testing.sh $MODULE
+
+notifications:
+  email: wangyao.sr@gmail.com
 
 after_success:
   - codecov
+
+
