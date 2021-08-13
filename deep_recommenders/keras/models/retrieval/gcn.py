@@ -7,15 +7,15 @@ import tensorflow as tf
 
 @tf.keras.utils.register_keras_serializable()
 class GCN(tf.keras.layers.Layer):
-    
+
     def __init__(self,
                  units: int,
-                 use_bias: bool = False,
-                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu",
-                 kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
-                 kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
-                 bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
-                 bias_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
+                 use_bias=False,
+                 activation="relu",
+                 kernel_init="truncated_normal",
+                 kernel_regu=None,
+                 bias_init="zeros",
+                 bias_regu=None,
                  **kwargs):
         super().__init__(**kwargs)
         
@@ -73,16 +73,11 @@ class GCN(tf.keras.layers.Layer):
         config = {
             "units": self._units,
             "use_bias": self._use_bias,
-            "activation":
-                tf.keras.activations.serialize(self._kernel_activation),
-            "kernel_init":
-                tf.keras.initializers.serialize(self._kernel_init),
-            "kernel_regu":
-                tf.keras.regularizers.serialize(self._kernel_regu),
-            "bias_init":
-                tf.keras.initializers.serialize(self._bias_init),
-            "bias_regu":
-                tf.keras.regularizers.serialize(self._bias_regu),
+            "activation": tf.keras.activations.serialize(self._kernel_activation),
+            "kernel_init": tf.keras.initializers.serialize(self._kernel_init),
+            "kernel_regu": tf.keras.regularizers.serialize(self._kernel_regu),
+            "bias_init": tf.keras.initializers.serialize(self._bias_init),
+            "bias_regu": tf.keras.regularizers.serialize(self._bias_regu),
         }
         base_config = super(GCN, self).get_config()
         return {**base_config, **config}
