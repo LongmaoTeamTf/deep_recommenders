@@ -5,6 +5,7 @@ import tensorflow as tf
 import tensorflow.keras.backend as K
 
 
+@tf.keras.utils.register_keras_serializable()
 class Embedding(tf.keras.layers.Layer):
 
     def __init__(self, vocab_size, model_dim, **kwargs):
@@ -31,6 +32,7 @@ class Embedding(tf.keras.layers.Layer):
         return input_shape + (self._model_dim,)
 
 
+@tf.keras.utils.register_keras_serializable()
 class ScaledDotProductAttention(tf.keras.layers.Layer):
 
     def __init__(self, masking=True, future=False, dropout_rate=0., **kwargs):
@@ -87,6 +89,7 @@ class ScaledDotProductAttention(tf.keras.layers.Layer):
         return input_shape
 
 
+@tf.keras.utils.register_keras_serializable()
 class MultiHeadAttention(tf.keras.layers.Layer):
 
     def __init__(self, n_heads, head_dim, dropout_rate=.1, masking=True, future=False, trainable=True, **kwargs):

@@ -6,9 +6,10 @@ import tensorflow.keras.backend as K
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.callbacks import Callback
 
-from deep_recommenders.layers.nlp.multi_head_attention import MultiHeadAttention
+from deep_recommenders.keras.models.nlp import MultiHeadAttention
 
 
+@tf.keras.utils.register_keras_serializable()
 class PositionEncoding(Layer):
 
     def __init__(self, model_dim, **kwargs):
@@ -30,6 +31,7 @@ class PositionEncoding(Layer):
         return input_shape
 
 
+@tf.keras.utils.register_keras_serializable()
 class Add(Layer):
 
     def __init__(self, **kwargs):
@@ -43,6 +45,7 @@ class Add(Layer):
         return input_shape[0]
 
 
+@tf.keras.utils.register_keras_serializable()
 class PositionWiseFeedForward(Layer):
     
     def __init__(self, model_dim, inner_dim, trainable=True, **kwargs):
@@ -85,6 +88,7 @@ class PositionWiseFeedForward(Layer):
         return self._model_dim
 
 
+@tf.keras.utils.register_keras_serializable()
 class LayerNormalization(Layer):
 
     def __init__(self, epsilon=1e-8, **kwargs):
@@ -112,6 +116,7 @@ class LayerNormalization(Layer):
         return input_shape
 
 
+@tf.keras.utils.register_keras_serializable()
 class Transformer(Layer):
 
     def __init__(self,
@@ -260,14 +265,26 @@ class Transformer(Layer):
         outputs = K.softmax(linear_projection)
         return outputs
 
-    def call(self, inputs, **kwargs):
-        encoder_inputs, decoder_inputs = inputs
+    def call(self, encoder_inputs, decoder_inputs, **kwargs):
         encoder_encodings, encoder_masks = self.encoder(encoder_inputs)
         encoder_outputs = self.decoder([decoder_inputs, encoder_encodings, encoder_masks])
         return encoder_outputs
 
     def compute_output_shape(self, input_shape):
         return input_shape[0][0], input_shape[0][1], self._vocab_size
+
+    def get_config(self):
+        config = {
+            "vocab_size": self._vocab_size,
+            "model_dim": self._model_dim,
+            "n_heads": self._n_heads,
+            "encoder_stack": self._encoder_stack,
+            "decoder_stack": self._decoder_stack,
+            "feed_forward_size": self._feed_forward_size,
+            "dropout_rate": self._dropout_rate
+        }
+        base_config = super(Transformer, self).get_config()
+        return {**base_config, **config}
 
 
 class Noam(Callback):
