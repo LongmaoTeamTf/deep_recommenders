@@ -16,4 +16,4 @@ script:
   - /bin/bash tests/testing.sh
 
 after_success:
-  - codeco
+  - codecov
