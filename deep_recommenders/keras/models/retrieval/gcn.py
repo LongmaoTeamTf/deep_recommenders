@@ -7,12 +7,11 @@ import tensorflow as tf
 
 @tf.keras.utils.register_keras_serializable()
 class GCN(tf.keras.layers.Layer):
-    """Graph Convolution Network"""
     
     def __init__(self,
-                 units: int, 
+                 units: int,
                  use_bias: bool = False,
-                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu", 
+                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu",
                  kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
                  kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
                  bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
