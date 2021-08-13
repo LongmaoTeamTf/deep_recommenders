@@ -7,7 +7,7 @@ import tensorflow as tf
 
 @tf.keras.utils.register_keras_serializable()
 class ActivationUnit(tf.keras.layers.Layer):
-    
+
     def __init__(self,
                  units: int,
                  interacter: Union[None, tf.keras.layers.Layer, Callable] = None,
