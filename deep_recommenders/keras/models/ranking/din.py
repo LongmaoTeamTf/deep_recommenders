@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
 import tensorflow as tf
 
 
@@ -8,14 +7,14 @@ import tensorflow as tf
 class ActivationUnit(tf.keras.layers.Layer):
 
     def __init__(self,
-                 units: int,
-                 interacter: Union[None, tf.keras.layers.Layer, Callable] = None,
-                 use_bias: bool = True,
-                 activation: Optional[Union[Text, None, tf.keras.layers.Layer]] = "relu",
-                 kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
-                 kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
-                 bias_init: Union[Text, tf.keras.initializers.Initializer] = "zeros",
-                 bias_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
+                 units,
+                 interacter=None,
+                 use_bias=True,
+                 activation="relu",
+                 kernel_init="truncated_normal",
+                 kernel_regu=None,
+                 bias_init="zeros",
+                 bias_regu=None,
                  **kwargs):
         super(ActivationUnit, self).__init__(**kwargs)
         
@@ -91,8 +90,8 @@ class Dice(tf.keras.layers.Layer):
 
     def __init__(self,
                  epsilon: float = 1e-8,
-                 alpha_initializer: Union[Text, tf.keras.initializers.Initializer] = "zeros",
-                 alpha_regularizer: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
+                 alpha_initializer="zeros",
+                 alpha_regularizer=None,
                  **kwargs):
         super(Dice, self).__init__(**kwargs)
         
