@@ -21,10 +21,24 @@ env:
   - TENSORFLOW_VERSION=2.6 MODULE=keras
 matrix:
   allow_failures:
+    - env: TENSORFLOW_VERSION=2.1 MODULE=keras
     - env: TENSORFLOW_VERSION=1.15 MODULE=keras
     - env: TENSORFLOW_VERSION=2.0 MODULE=keras
     - env: TENSORFLOW_VERSION=2.1 MODULE=keras
     - env: TENSORFLOW_VERSION=2.2 MODULE=keras
+  exclude:
+    - python: 3.8
+      env: TENSORFLOW_VERSION=1.15 MODULE=estimator
+    - python: 3.8
+      env: TENSORFLOW_VERSION=2.0 MODULE=estimator
+    - python: 3.8
+      env: TENSORFLOW_VERSION=2.1 MODULE=estimator
+    - python: 3.8
+      env: TENSORFLOW_VERSION=1.15 MODULE=keras
+    - python: 3.8
+      env: TENSORFLOW_VERSION=2.0 MODULE=keras
+    - python: 3.8
+      env: TENSORFLOW_VERSION=2.1 MODULE=keras
 
 sudo: false
 
