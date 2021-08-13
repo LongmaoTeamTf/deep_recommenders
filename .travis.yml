@@ -1,7 +1,7 @@
 language: python
 python:
-  - "3.6"
   - "3.7"
+  - "3.8"
 env:
   - TENSORFLOW_VERSION=1.15 MODULE=estimator
   - TENSORFLOW_VERSION=2.0 MODULE=estimator
@@ -31,12 +31,13 @@ sudo: false
 before_install:
   - pip install tensorflow==$TENSORFLOW_VERSION
   - pip install codecov
+  - pip install coverage
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - /bin/bash tests/testing.sh $MODULE
+  - coverage /bin/bash tests/testing.sh $MODULE
 
 notifications:
   email: wangyao.sr@gmail.com
