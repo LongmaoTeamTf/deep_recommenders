@@ -1,8 +1,10 @@
 # Deep Recommenders
-[![Python](https://img.shields.io/badge/python-3.6_|_3.7-brightgreen)](requirements.txt)
+[![Python](https://img.shields.io/badge/python-3.7_|_3.8-brightgreen)](requirements.txt)
 [![TensorFlow](https://img.shields.io/badge/tensorflow-1.15_|_2.0+-brightgreen)](requirements.txt)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c4b6335acf254697b80714b81e8154d7)](https://www.codacy.com/gh/LongmaoTeamTf/deep_recommenders/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LongmaoTeamTf/deep_recommenders&amp;utm_campaign=Badge_Grade)
+
 [![Codeql](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/codeql-analysis.yml/badge.svg)]()
+[![codecov](https://codecov.io/gh/LongmaoTeamTf/deep_recommenders/branch/master/graph/badge.svg?token=X9VQCCLJJX)](https://codecov.io/gh/LongmaoTeamTf/deep_recommenders)
 [![License](https://img.shields.io/badge/license-Apache_2.0-green)](LICENSE)
 
 Deep Recommenders is an open-source recommendation system algorithm library 
