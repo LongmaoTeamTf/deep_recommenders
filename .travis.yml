@@ -29,15 +29,15 @@ matrix:
 sudo: false
 
 before_install:
+  - pip install pytest-cov==2.4.0
   - pip install tensorflow==$TENSORFLOW_VERSION
   - pip install codecov
-  - pip install coverage
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - coverage /bin/bash tests/testing.sh $MODULE
+  - pytest --cov=deep_recommenders tests/$MODULE
 
 notifications:
   email: wangyao.sr@gmail.com
