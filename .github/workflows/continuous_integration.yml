@@ -17,13 +17,13 @@ jobs:
           - python: 3.8
             tensorflow: "2.1"
           - module: keras
-            tensorlfow: "1.15"
+            tensorflow: "1.15"
           - module: keras
-            tensorlfow: "2.0"
+            tensorflow: "2.0"
           - module: keras
-            tensorlfow: "2.1"
+            tensorflow: "2.1"
           - module: keras
-            tensorlfow: "2.2"
+            tensorflow: "2.2"
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python
