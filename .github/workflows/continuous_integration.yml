@@ -32,8 +32,10 @@ jobs:
           - python: 3.8
             tensorflow: "2.1"
     steps:
-      - name: Use python docker image
-        uses: docker://python:${{ matrix.python }}
+      - uses: actions/setup-python@v2
+          with:
+            python-version: ${{ matrix.python }}
+            architecture: "x64"
       - name: Install dependencies
         run: |
           pip install pytest-cov==2.4.0
