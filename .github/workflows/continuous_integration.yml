@@ -1,0 +1,44 @@
+name: CI
+on: [push]
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: true
+      matrix:
+        python: [3.7, 3.8]
+        tensorflow: [1.15, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
+        module: [estimator, keras]
+        experimental: [false]
+        include:
+          - tensorflow: 1.15
+            module: keras
+            experimental: true
+          - tensorflow: 2.0
+            module: keras
+            experimental: true
+          - tensorflow: 2.1
+            module: keras
+            experimental: true
+          - tensorflow: 2.2
+            module: keras
+            experimental: true
+        exclude:
+          - python: 3.8
+            tensorflow: 1.15
+          - python: 3.8
+            tensorflow: 2.0
+          - python: 3.8
+            tensorflow: 2.1
+    steps:
+      - name: Install dependencies
+        run: |
+          pip install pytest-cov==2.4.0
+          pip install codecov
+          pip install tensorflow==${{ matrix.tensorflow }}
+          pip install -r requirements.txt
+      - name: Set python path environment variables
+        run: export PYTHONPATH=$PYTHONPATH:$pwd
+      - name: Testing
+        run: pytest --cov=deep_recommenders/${{ matrix.module }} tests/${{ matrix.module }}
