@@ -3,7 +3,7 @@
 [![TensorFlow](https://img.shields.io/badge/tensorflow-1.15_|_2.0+-brightgreen)](requirements.txt)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c4b6335acf254697b80714b81e8154d7)](https://www.codacy.com/gh/LongmaoTeamTf/deep_recommenders/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LongmaoTeamTf/deep_recommenders&amp;utm_campaign=Badge_Grade)
 
-[![Codeql](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/codeql-analysis.yml/badge.svg)]()
+[![CodeQL](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/codeql-analysis.yml)
 [![CI](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/LongmaoTeamTf/deep_recommenders/actions/workflows/continuous_integration.yml)
 [![codecov](https://codecov.io/gh/LongmaoTeamTf/deep_recommenders/branch/master/graph/badge.svg?token=X9VQCCLJJX)](https://codecov.io/gh/LongmaoTeamTf/deep_recommenders)
 [![License](https://img.shields.io/badge/license-Apache_2.0-green)](LICENSE)
