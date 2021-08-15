@@ -42,6 +42,7 @@ jobs:
           pip install codecov
           pip install tensorflow==${{ matrix.tensorflow }}
           pip install -r requirements.txt
+        working-directory: ./
       - name: Set python path environment variables
         run: export PYTHONPATH=$PYTHONPATH:$pwd
       - name: Testing
