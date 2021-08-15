@@ -49,7 +49,7 @@ jobs:
           pip install pytest-cov
           pytest --cov=deep_recommenders/${{ matrix.module }} tests/${{ matrix.module }}
         env:
-          - PYTHONPATH: .
+          PYTHONPATH: .
       - name: Coverage with codecov
         run: |
           pip install codecov
