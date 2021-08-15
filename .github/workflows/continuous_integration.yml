@@ -43,9 +43,14 @@ jobs:
           pip install tensorflow==${{ matrix.tensorflow }}
           pip install -r requirements.txt
       - name: Set python path environment variables
-        run: export PYTHONPATH=$PYTHONPATH:$pwd
-      - name: Testing
+        run: export PYTHONPATH=$PYTHONPATH:/
+      - name: Test with pytest
         run: |
-          pip install pytest-cov==2.4.0
-          pip install codecov
+          pip install pytest-cov
           pytest --cov=deep_recommenders/${{ matrix.module }} tests/${{ matrix.module }}
+        env:
+          - PYTHONPATH: .
+      - name: Coverage with codecov
+        run: |
+          pip install codecov
+          codecov
