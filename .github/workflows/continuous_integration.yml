@@ -33,9 +33,9 @@ jobs:
             tensorflow: "2.1"
     steps:
       - uses: actions/setup-python@v2
-          with:
-            python-version: ${{ matrix.python }}
-            architecture: "x64"
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: "x64"
       - name: Install dependencies
         run: |
           pip install pytest-cov==2.4.0
