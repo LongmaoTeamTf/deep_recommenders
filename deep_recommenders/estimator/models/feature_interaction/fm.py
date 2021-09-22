@@ -7,29 +7,46 @@ if tf.__version__ >= "2.0.0":
     import tensorflow.compat.v1 as tf
 
 
-def fm(x: tf.Tensor, num_factors: int = None):
+def fm(x):
     """
-    Factorization Machine
-    :param x: tf.Tensor
-    :param num_factors: the number of latent factors
+    Second order interaction in Factorization Machine
+    :param x:
+        type: tf.Tensor
+        shape: (batch_size, num_features, embedding_dim)
     :return: tf.Tensor
     """
 
-    x_rank = x.get_shape().rank
+    if x.shape.rank != 3:
+        raise ValueError("The rank of `x` should be 3. Got rank = {}.".format(x.shape.rank))
 
-    if num_factors is None:
-        assert x_rank == 3, ValueError("When `num_factors` is None , the rank of `x` should be 3."
-                                       " Got {}.".format(x_rank))
-        x_sum = tf.reduce_sum(x, axis=1)
-        x_square_sum = tf.reduce_sum(tf.pow(x, 2), axis=1)
-    else:
-        assert x_rank == 2, ValueError("When `num_factors` is not None, the rank of `x` should be 2."
-                                       " Got {}.".format(x_rank))
-        initial = tf.random.truncated_normal(shape=(x.get_shape()[-1], num_factors))
-        factors = tf.Variable(initial, name='factors')
-
-        x_sum = tf.linalg.matmul(x, factors, a_is_sparse=True)
-        x_square_sum = tf.linalg.matmul(tf.pow(x, 2), tf.pow(factors, 2), a_is_sparse=True)
+    sum_square = tf.square(tf.reduce_sum(x, axis=1))
+    square_sum = tf.reduce_sum(tf.square(x), axis=1)
 
     return 0.5 * tf.reduce_sum(
-        tf.subtract(tf.pow(x_sum, 2), x_square_sum), axis=1, keepdims=True)
+        tf.subtract(sum_square, square_sum), axis=1, keepdims=True)
+
+
+class FM(object):
+    """
+    Factorization Machine
+    """
+
+    def __init__(self, indicator_columns, embedding_columns):
+        self._indicator_columns = indicator_columns
+        self._embedding_columns = embedding_columns
+
+    def __call__(self, features):
+
+        with tf.variable_scope("linear"):
+            linear_outputs = tf.feature_column.linear_model(features, self._indicator_columns)
+
+        with tf.variable_scope("factorized"):
+            embeddings = []
+            for embedding_column in self._embedding_columns:
+                feature = {embedding_column.key: features.get(embedding_column.key)}
+                embedding = tf.feature_column.input_layer(feature, embedding_column)
+                embeddings.append(embedding)
+            stack_embeddings = tf.stack(embeddings, axis=1)
+            factorized_outputs = fm(stack_embeddings)
+
+        return linear_outputs + factorized_outputs
