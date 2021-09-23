@@ -15,14 +15,15 @@ from deep_recommenders.estimator.models.feature_interaction import fm
 
 class TestFM(tf.test.TestCase):
 
-    def test_fm_with_factors(self):
-        inputs = tf.random_normal(shape=(2, 3))
+    def test_fm(self):
+        inputs = tf.random_normal(shape=(10, 2, 3))
 
         with self.session() as sess:
-            y = fm(inputs, num_factors=5)
+            y = fm(inputs)
             init = tf.global_variables_initializer()
             sess.run(init)
-            sess.run(y)
+            pred = sess.run(y)
+            self.assertAllEqual(pred.shape, (10, 1))
 
 
 if __name__ == '__main__':

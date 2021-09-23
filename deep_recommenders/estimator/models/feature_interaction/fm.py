@@ -35,7 +35,10 @@ class FM(object):
         self._indicator_columns = indicator_columns
         self._embedding_columns = embedding_columns
 
-    def __call__(self, features):
+    def __call__(self, *args, **kwargs):
+        return self.call(*args, **kwargs)
+
+    def call(self, features):
 
         with tf.variable_scope("linear"):
             linear_outputs = tf.feature_column.linear_model(features, self._indicator_columns)
@@ -43,7 +46,8 @@ class FM(object):
         with tf.variable_scope("factorized"):
             embeddings = []
             for embedding_column in self._embedding_columns:
-                feature = {embedding_column.key: features.get(embedding_column.key)}
+                feature_name = embedding_column.name.replace("_embedding", "")
+                feature = {feature_name: features.get(feature_name)}
                 embedding = tf.feature_column.input_layer(feature, embedding_column)
                 embeddings.append(embedding)
             stack_embeddings = tf.stack(embeddings, axis=1)
