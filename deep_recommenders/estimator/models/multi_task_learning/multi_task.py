@@ -6,7 +6,7 @@ if tf.__version__ >= "2.0.0":
     import tensorflow.compat.v1 as tf
 
 
-from deep_recommenders.estimator.models.feature_interaction import DNN
+from deep_recommenders.estimator.models.feature_interaction import dnn
 
 
 def multi_task(inputs,
@@ -21,7 +21,7 @@ def multi_task(inputs,
 
         task_inputs = inputs[i] if isinstance(inputs, list) else inputs
 
-        output = DNN(task_inputs,
+        output = dnn(task_inputs,
                      task_hidden_units,
                      output_activation=task_output_activations[i],
                      **kwargs)
