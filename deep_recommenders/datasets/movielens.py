@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+import random
 import requests
 import zipfile
 import tensorflow as tf
@@ -29,6 +30,16 @@ def _data_shard(filename, num_shards=4):
                 num_shard += 1
             _f.write(line)
             num_lines += 1
+
+
+def _shuffle_data(filename):
+    shuffled_filename = f"{filename}.shuffled"
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    random.shuffle(lines)
+    with open(shuffled_filename, "w") as f:
+        f.writelines(lines)
+    return shuffled_filename
 
 
 def _load_data(filename, columns):
@@ -64,7 +75,8 @@ def serialize_tfrecords(tfrecords_fn, datadir="ml-1m", download=False):
 
     ratings_columns = ["UserID", "MovieID", "Rating", "Timestamp"]
     writer = tf.io.TFRecordWriter(tfrecords_fn)
-    f = open(datadir + "/ratings.dat", "r", encoding="unicode_escape")
+    shuffled_filename = _shuffle_data(datadir + "/ratings.dat")
+    f = open(shuffled_filename, "r", encoding="unicode_escape")
     for line in f:
         ls = line.strip().split("::")
         rating = dict(zip(ratings_columns, ls))
@@ -88,21 +100,16 @@ class MovieLens(object):
         self._columns = ["UserID", "MovieID", "Rating", "Timestamp",
                          "Gender", "Age", "Occupation", "Zip-code",
                          "Title", "Genres"]
-        self._n_ratings = 1000209
-        self._n_users = 6040
-        self._n_movies = 3900
-
-    @property
-    def num_ratings(self):
-        return self._n_ratings
-
-    @property
-    def num_users(self):
-        return self._n_users
-
-    @property
-    def num_movies(self):
-        return self._n_movies
+        self.num_ratings = 1000209
+        self.num_users = 6040
+        self.num_movies = 3952
+        self.gender_vocab = ["F", "M"]
+        self.age_vocab = [1, 18, 25, 35, 45, 50, 56]
+        self.occupation_vocab = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                                 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        self.genres_vocab = ["Action", "Adventure", "Animation", "Children's", "Comedy",
+                             "Crime", "Documentary", "Drama", "Fantasy", "Film-Noir", "Horror",
+                             "Musical", "Mystery", "Romance", "Sci-Fi", "Thriller", "War", "Western"]
 
     def dataset(self, epochs=1, batch_size=256):
 
@@ -114,7 +121,6 @@ class MovieLens(object):
                 features[c] = tf.io.FixedLenFeature([], tf.string)
             features["Genres"] = tf.io.VarLenFeature(tf.string)
             example = tf.io.parse_example(serialized_example, features)
-            example["Genres"] = tf.RaggedTensor.from_sparse(example["Genres"])
             ratings = example.pop("Rating")
             return example, ratings
 
@@ -126,5 +132,5 @@ class MovieLens(object):
 
 
 if __name__ == '__main__':
-    serialize_tfrecords("movielens.tfrecords", download=False)
+    serialize_tfrecords("movielens.tfrecords", download=True)
 
