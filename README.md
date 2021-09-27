@@ -19,7 +19,7 @@ but also hope to help friends and classmates who are interested in the recommend
 ### Ranking
 
   - **FM** 
-    [[Code]](deep_recommenders/keras/models/ranking/deepfm.py) 
+    [[Example]](deep_recommenders/estimator/examples/train_fm_with_movielens.py)
     [<sub>
       *Factorization Machines, Osaka, 2010*
     </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
@@ -36,7 +36,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction, RayCloud, ECIR, 2016*
     </sub>](https://arxiv.org/abs/1601.02376)
   - **DeepFM** 
-    [[Expr]](experiments/deepfm.ipynb) 
+    [[Example]](deep_recommenders/estimator/examples/train_deepfm_with_movielens.py) 
     [<sub>
       *DeepFM: A Factorization-Machine based Neural Network for CTR Prediction, Huawei, IJCAI, 2017*
     </sub>](https://www.ijcai.org/proceedings/2017/0239.pdf)
