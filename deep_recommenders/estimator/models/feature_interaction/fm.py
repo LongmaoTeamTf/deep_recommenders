@@ -44,13 +44,13 @@ class FM(object):
             linear_outputs = tf.feature_column.linear_model(features, self._indicator_columns)
 
         with tf.variable_scope("factorized"):
-            embeddings = []
+            self.embeddings = []
             for embedding_column in self._embedding_columns:
                 feature_name = embedding_column.name.replace("_embedding", "")
                 feature = {feature_name: features.get(feature_name)}
                 embedding = tf.feature_column.input_layer(feature, embedding_column)
-                embeddings.append(embedding)
-            stack_embeddings = tf.stack(embeddings, axis=1)
+                self.embeddings.append(embedding)
+            stack_embeddings = tf.stack(self.embeddings, axis=1)
             factorized_outputs = fm(stack_embeddings)
 
         return linear_outputs + factorized_outputs
