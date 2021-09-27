@@ -19,7 +19,7 @@ but also hope to help friends and classmates who are interested in the recommend
 ### Ranking
 
   - **FM** 
-    [[Example]](deep_recommenders/estimator/examples/train_fm_with_movielens.py) 
+    [[Code]](deep_recommenders/keras/models/ranking/deepfm.py) 
     [<sub>
       *Factorization Machines, Osaka, 2010*
     </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
