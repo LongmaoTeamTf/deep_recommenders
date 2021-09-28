@@ -24,6 +24,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Factorization Machines, Osaka, 2010*
     </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
   - **WDL**
+    [[Example]](deep_recommenders/estimator/examples/train_wdl_with_movielens.py)
     [<sub>
       *Wide & Deep Learning for Recommender Systems, Google, DLRS, 2016*
     </sub>](https://arxiv.org/abs/1606.07792)
