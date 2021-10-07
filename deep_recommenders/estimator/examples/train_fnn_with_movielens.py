@@ -49,9 +49,12 @@ def build_estimator(params, model_dir=None, inter_op=8, intra_op=8):
 
 def main():
     tf.logging.set_verbosity(tf.logging.INFO)
-    estimator = build_estimator({"warm_up_from_fm": "./1632828956"})
-    early_stop_hook = tf.estimator.experimental.stop_if_no_decrease_hook(estimator, "loss", 1000)
+    # First: train FM model with movielens
+    # eg. python train_fm_with_movielens.py
+    # Second: warm up from FM model.
+    estimator = build_estimator({"warm_up_from_fm": "FM"})
 
+    early_stop_hook = tf.estimator.experimental.stop_if_no_decrease_hook(estimator, "loss", 1000)
     movielens = MovielensInputFun()
     train_spec = tf.estimator.TrainSpec(lambda: movielens.training_input_fn,
                                         max_steps=None,
