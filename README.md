@@ -33,6 +33,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Product-based Neural Networks for User Response Prediction, IEEE, 2016*
     </sub>](https://arxiv.org/abs/1611.00144)
   - **FNN**
+    [[Example]](deep_recommenders/estimator/examples/train_fnn_with_movielens.py)
     [<sub>
       *Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction, RayCloud, ECIR, 2016*
     </sub>](https://arxiv.org/abs/1601.02376)
