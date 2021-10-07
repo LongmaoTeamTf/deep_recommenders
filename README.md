@@ -10,7 +10,7 @@
 
 Deep Recommenders is an open-source recommendation system algorithm library 
 built by `tf.estimator` and `tf.keras` that the advanced APIs of TensorFlow.
-  
+
 🤗️ This Library mainly used for self-learning and improvement, 
 but also hope to help friends and classmates who are interested in the recommendation system to make progress together!
 
@@ -23,6 +23,14 @@ but also hope to help friends and classmates who are interested in the recommend
     [<sub>
       *Factorization Machines, Osaka, 2010*
     </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
+  - **FFM**
+    [<sub>
+      *Field-aware Factorization Machines for CTR Prediction, RecSys, 2016*
+    </sub>](https://www.csie.ntu.edu.tw/~cjlin/papers/ffm.pdf)
+  - **LS-PLM**
+    [<sub>
+      *Learning Piece-wise Linear Models from Large Scale Data for Ad Click Prediction, Alibaba, 2017*
+    </sub>](https://arxiv.org/pdf/1704.05194.pdf)
   - **WDL**
     [[Example]](deep_recommenders/estimator/examples/train_wdl_with_movielens.py)
     [<sub>
@@ -37,6 +45,14 @@ but also hope to help friends and classmates who are interested in the recommend
     [<sub>
       *Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction, RayCloud, ECIR, 2016*
     </sub>](https://arxiv.org/abs/1601.02376)
+  - **NFM**
+    [<sub>
+      *Neural Factorization Machines for Sparse Predictive Analytics, SIGIR, 2017*
+    </sub>](https://arxiv.org/pdf/1708.05027.pdf)
+  - **AFM** 
+    [<sub>
+      *Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks, IJCAI, 2017*
+    </sub>](https://www.ijcai.org/proceedings/2017/0435.pdf)
   - **DeepFM** 
     [[Example]](deep_recommenders/estimator/examples/train_deepfm_with_movielens.py) 
     [<sub>
