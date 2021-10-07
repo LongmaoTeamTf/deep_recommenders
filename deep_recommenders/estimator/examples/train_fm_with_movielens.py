@@ -45,6 +45,15 @@ def build_estimator(model_dir=None, inter_op=8, intra_op=8):
                                   config=run_config)
 
 
+def export_saved_model(estimator, export_path):
+    indicator_columns, embedding_columns = build_columns()
+    columns = indicator_columns + embedding_columns
+
+    feature_spec = tf.feature_column.make_parse_example_spec(columns)
+    example_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(feature_spec)
+    estimator.export_saved_model(export_path, example_input_fn)
+
+
 def main():
     tf.logging.set_verbosity(tf.logging.INFO)
     estimator = build_estimator()
@@ -59,6 +68,8 @@ def main():
                                       start_delay_secs=60,
                                       throttle_secs=60)
     tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+
+    export_saved_model(estimator, "FM")
 
 
 if __name__ == '__main__':
