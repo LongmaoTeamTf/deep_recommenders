@@ -8,23 +8,24 @@ if tf.__version__ >= "2.0.0":
 
 def dnn(inputs,
         hidden_units,
-        hidden_activation=tf.nn.relu,
-        output_activation=tf.nn.sigmoid,
-        hidden_dropout=None,
-        initializer=None):
+        activation=tf.nn.relu,
+        batch_normalization=False,
+        dropout=None,
+        **kwargs):
 
     x = inputs
-    for units in hidden_units:
+    for units in hidden_units[:-1]:
         x = tf.layers.dense(x,
                             units,
-                            activation=hidden_activation,
-                            kernel_initializer=initializer)
+                            activation,
+                            **kwargs)
 
-        if hidden_dropout is not None:
-            x = tf.layers.dropout(x, rate=hidden_dropout)
+        if batch_normalization is True:
+            x = tf.nn.batch_normalization(x)
 
-    outputs = tf.layers.dense(x, 1, kernel_initializer=initializer)
+        if dropout is not None:
+            x = tf.nn.dropout(x, rate=dropout)
 
-    if output_activation is not None:
-        outputs = output_activation(outputs)
+    outputs = tf.layers.dense(x, hidden_units[-1], **kwargs)
+
     return outputs
