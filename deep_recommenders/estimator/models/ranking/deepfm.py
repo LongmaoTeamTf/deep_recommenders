@@ -11,10 +11,18 @@ class DeepFM(object):
     def __init__(self,
                  indicator_columns,
                  embedding_columns,
-                 dnn_hidden_units):
+                 dnn_units,
+                 dnn_activation=tf.nn.relu,
+                 dnn_batch_normalization=False,
+                 dnn_dropout=None,
+                 **dnn_kwargs):
         self._indicator_columns = indicator_columns
         self._embedding_columns = embedding_columns
-        self._dnn_hidden_units = dnn_hidden_units
+        self._dnn_hidden_units = dnn_units
+        self._dnn_activation = dnn_activation
+        self._dnn_batch_norm = dnn_batch_normalization
+        self._dnn_dropout = dnn_dropout
+        self._dnn_kwargs = dnn_kwargs
 
     def __call__(self, *args, **kwargs):
         return self.call(*args, **kwargs)
@@ -26,8 +34,11 @@ class DeepFM(object):
         concat_embeddings = tf.concat(fm.embeddings, axis=1)
 
         dnn_outputs = dnn(concat_embeddings,
-                          self._dnn_hidden_units,
-                          output_activation=None)
+                          self._dnn_hidden_units + [1],
+                          activation=self._dnn_activation,
+                          batch_normalization=self._dnn_batch_norm,
+                          dropout=self._dnn_dropout,
+                          **self._dnn_kwargs)
 
         return tf.nn.sigmoid(fm_outputs + dnn_outputs)
 
