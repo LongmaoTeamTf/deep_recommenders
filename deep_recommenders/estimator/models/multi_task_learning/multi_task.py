@@ -11,9 +11,12 @@ from deep_recommenders.estimator.models.feature_interaction import dnn
 
 def multi_task(inputs,
                num_tasks,
-               task_hidden_units,
-               task_output_activations,
-               **kwargs):
+               task_activations,
+               dnn_units,
+               dnn_activation=tf.nn.relu,
+               dnn_batch_normalization=False,
+               dnn_dropout=None,
+               **dnn_kwargs):
 
     outputs = []
 
@@ -21,10 +24,14 @@ def multi_task(inputs,
 
         task_inputs = inputs[i] if isinstance(inputs, list) else inputs
 
-        output = dnn(task_inputs,
-                     task_hidden_units,
-                     output_activation=task_output_activations[i],
-                     **kwargs)
-        outputs.append(output)
+        logits = dnn(task_inputs,
+                     dnn_units + [1],
+                     activation=dnn_activation,
+                     batch_normalization=dnn_batch_normalization,
+                     dropout=dnn_dropout,
+                     **dnn_kwargs)
+        if task_activations[i] is not None:
+            logits = task_activations[i](logits)
+        outputs.append(logits)
 
     return outputs

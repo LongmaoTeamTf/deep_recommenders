@@ -7,10 +7,11 @@ import tensorflow as tf
 if tf.__version__ >= "2.0.0":
     import tensorflow.compat.v1 as tf
 
+from deep_recommenders.estimator.models.feature_interaction import dnn
 from deep_recommenders.estimator.models.multi_task_learning import multi_task
 
 
-def _synthetic_data(num_examples, example_dim=100, c=0.3, p=0.8, m=5):
+def synthetic_data(num_examples, example_dim=100, c=0.3, p=0.8, m=5):
 
     mu1 = np.random.normal(size=example_dim)
     mu1 = (mu1 - np.mean(mu1)) / (np.std(mu1) * np.sqrt(example_dim))
@@ -78,16 +79,13 @@ def one_gate(inputs,
              expert_hidden_units,
              expert_hidden_activation=tf.nn.relu,
              task_hidden_activation=tf.nn.relu,
-             task_initializer=None,
              task_dropout=None):
 
     experts_gate = gating_network(inputs, num_experts)
 
     experts_outputs = []
     for i in range(num_experts):
-        x = inputs
-        for j, units in enumerate(expert_hidden_units):
-            x = tf.layers.dense(x, units, activation=expert_hidden_activation, name="expert{}_dense{}".format(i, j))
+        x = dnn(inputs, expert_hidden_units, activation=expert_hidden_activation)
         experts_outputs.append(x)
 
     experts_outputs = tf.stack(experts_outputs, axis=1)
@@ -99,11 +97,11 @@ def one_gate(inputs,
 
     return multi_task(multi_task_inputs,
                       num_tasks,
-                      task_hidden_units,
                       task_output_activations,
-                      hidden_activation=task_hidden_activation,
-                      hidden_dropout=task_dropout,
-                      initializer=task_initializer)
+                      task_hidden_units,
+                      dnn_activation=task_hidden_activation,
+                      dnn_batch_normalization=task_dropout,
+                      dnn_dropout=task_dropout)
 
 
 def multi_gate(inputs,
@@ -114,17 +112,11 @@ def multi_gate(inputs,
                expert_hidden_units,
                expert_hidden_activation=tf.nn.relu,
                task_hidden_activation=tf.nn.relu,
-               task_initializer=None,
                task_dropout=None):
 
     experts_outputs = []
     for i in range(num_experts):
-        x = inputs
-        for j, units in enumerate(expert_hidden_units[:-1]):
-            x = tf.layers.dense(x, units, activation=expert_hidden_activation, name="expert{}_dense{}".format(i, j))
-
-        x = tf.layers.dense(x, expert_hidden_units[-1], name="expert{}_out".format(i))
-
+        x = dnn(inputs, expert_hidden_units, activation=expert_hidden_activation)
         experts_outputs.append(x)
 
     experts_outputs = tf.stack(experts_outputs, axis=1)
@@ -140,8 +132,8 @@ def multi_gate(inputs,
 
     return multi_task(outputs,
                       num_tasks,
-                      task_hidden_units,
                       task_output_activations,
-                      hidden_activation=task_hidden_activation,
-                      hidden_dropout=task_dropout,
-                      initializer=task_initializer)
+                      task_hidden_units,
+                      dnn_activation=task_hidden_activation,
+                      dnn_batch_normalization=task_dropout,
+                      dnn_dropout=task_dropout)

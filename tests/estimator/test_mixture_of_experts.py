@@ -11,7 +11,7 @@ if tf.__version__ >= "2.0.0":
     tf.disable_eager_execution()
 
 from absl.testing import parameterized
-from deep_recommenders.estimator.models.multi_task_learning import synthetic_data
+from deep_recommenders.estimator.models.multi_task_learning.mixture_of_experts import synthetic_data
 from deep_recommenders.estimator.models.multi_task_learning import OMoE
 from deep_recommenders.estimator.models.multi_task_learning import MMoE
 
@@ -40,7 +40,6 @@ class TestMixtureOfExperts(tf.test.TestCase, parameterized.TestCase):
                        expert_hidden_units=[64, 32],
                        expert_hidden_activation=tf.nn.relu,
                        task_hidden_activation=tf.nn.relu,
-                       task_initializer=None,
                        task_dropout=None)
 
     def test_multi_gate(self):
@@ -58,7 +57,6 @@ class TestMixtureOfExperts(tf.test.TestCase, parameterized.TestCase):
                        expert_hidden_units=[64, 32],
                        expert_hidden_activation=tf.nn.relu,
                        task_hidden_activation=tf.nn.relu,
-                       task_initializer=None,
                        task_dropout=None)
 
 
