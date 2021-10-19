@@ -15,7 +15,7 @@ class ESMM(object):
                  batch_normalization=False,
                  dropout=None,
                  **kwargs):
-        self._feature_columns = feature_columns
+        self._columns = feature_columns
         self._hidden_units = hidden_units
         self._activation = activation
         self._batch_norm = batch_normalization
@@ -27,12 +27,11 @@ class ESMM(object):
 
     def call(self, features):
 
-        dnn_inputs = tf.feature_column.input_layer(features,
-                                                   self._numerical_columns)
+        dnn_inputs = tf.feature_column.input_layer(features, self._columns)
 
         with tf.variable_scope("pCVR"):
             cvr = dnn(dnn_inputs,
-                      self._hidden_units,
+                      self._hidden_units + [1],
                       activation=self._activation,
                       batch_normalization=self._batch_norm,
                       dropout=self._dropout,
@@ -41,7 +40,7 @@ class ESMM(object):
 
         with tf.variable_scope("pCTR"):
             ctr = dnn(dnn_inputs,
-                      self._hidden_units,
+                      self._hidden_units + [1],
                       activation=self._activation,
                       batch_normalization=self._batch_norm,
                       dropout=self._dropout,
