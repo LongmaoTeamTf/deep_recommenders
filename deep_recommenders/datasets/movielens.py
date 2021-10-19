@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 import os
 import random
-import requests
-import zipfile
 import tensorflow as tf
 
 
 def _download_and_unzip(filename="ml-1m.zip"):
+    import requests
+    import zipfile
     url = "https://files.grouplens.org/datasets/movielens/ml-1m.zip"
     r = requests.get(url)
     with open(filename, "wb") as f:
