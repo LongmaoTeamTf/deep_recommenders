@@ -11,53 +11,40 @@ if tf.__version__ >= "2.0.0":
     tf.disable_eager_execution()
 
 from absl.testing import parameterized
-from deep_recommenders.estimator.models.multi_task_learning.mixture_of_experts import synthetic_data
-from deep_recommenders.estimator.models.multi_task_learning import OMoE
+from deep_recommenders.datasets import SyntheticForMultiTask
 from deep_recommenders.estimator.models.multi_task_learning import MMoE
 
 
 class TestMixtureOfExperts(tf.test.TestCase, parameterized.TestCase):
 
-    @parameterized.parameters(42, 256, 1024, 2021)
-    def test_synthetic_data(self, random_seed):
-        np.random.seed(random_seed)
-        _, (y1, y2) = synthetic_data(1000, p=0.8)
-        cor = np.corrcoef(y1, y2)
-        print(cor)
+    @parameterized.parameters(32, 64, 128, 512)
+    def test_mmoe(self, batch_size):
 
-    def test_one_gate(self):
+        def build_columns():
+            return [
+                tf.feature_column.numeric_column("C{}".format(i))
+                for i in range(100)
+            ]
 
-        num_examples = 1000
-        example_dim = 128
+        columns = build_columns()
+        model = MMoE(columns,
+                     num_tasks=2,
+                     num_experts=2,
+                     task_hidden_units=[32, 10],
+                     expert_hidden_units=[64, 32])
 
-        inputs = tf.random.normal(shape=(num_examples, example_dim))
+        dataset = SyntheticForMultiTask(5000)
 
-        outputs = OMoE(inputs,
-                       num_tasks=2,
-                       num_experts=3,
-                       task_hidden_units=[10, 5],
-                       task_output_activations=[None, None],
-                       expert_hidden_units=[64, 32],
-                       expert_hidden_activation=tf.nn.relu,
-                       task_hidden_activation=tf.nn.relu,
-                       task_dropout=None)
-
-    def test_multi_gate(self):
-
-        num_examples = 1000
-        example_dim = 128
-
-        inputs = tf.random.normal(shape=(num_examples, example_dim))
-
-        outputs = MMoE(inputs,
-                       num_tasks=2,
-                       num_experts=3,
-                       task_hidden_units=[10, 5],
-                       task_output_activations=[None, None],
-                       expert_hidden_units=[64, 32],
-                       expert_hidden_activation=tf.nn.relu,
-                       task_hidden_activation=tf.nn.relu,
-                       task_dropout=None)
+        with self.session() as sess:
+            iterator = dataset.input_fn(batch_size=batch_size).make_one_shot_iterator()
+            x, y = iterator.get_next()
+            y_pred = model(x)
+            sess.run(tf.global_variables_initializer())
+            a = sess.run(y_pred[0])
+            b = sess.run(y_pred[1])
+            self.assertAllEqual(len(y_pred), 2)
+            self.assertAllEqual(a.shape, (batch_size, 1))
+            self.assertAllEqual(b.shape, (batch_size, 1))
 
 
 if __name__ == '__main__':
