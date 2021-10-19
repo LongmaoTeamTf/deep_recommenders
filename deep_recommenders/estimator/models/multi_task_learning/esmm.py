@@ -3,6 +3,9 @@
 
 import tensorflow as tf
 
+if tf.__version__ >= "2.0.0":
+    import tensorflow.compat.v1 as tf
+
 from deep_recommenders.estimator.models.feature_interaction import dnn
 
 
