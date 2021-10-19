@@ -33,7 +33,7 @@ class TestESMM(tf.test.TestCase, parameterized.TestCase):
         dataset = SyntheticForMultiTask(5000)
 
         with self.session() as sess:
-            iterator = dataset.input_fn(batch_size=batch_size).make_one_shot_iterator()
+            iterator = tf.data.make_one_shot_iterator(dataset.input_fn(batch_size=batch_size))
             x, y = iterator.get_next()
             p_cvr, p_ctr, p_ctcvr = model(x)
             sess.run(tf.global_variables_initializer())
