@@ -8,132 +8,83 @@ if tf.__version__ >= "2.0.0":
     import tensorflow.compat.v1 as tf
 
 from deep_recommenders.estimator.models.feature_interaction import dnn
-from deep_recommenders.estimator.models.multi_task_learning import multi_task
 
 
-def synthetic_data(num_examples, example_dim=100, c=0.3, p=0.8, m=5):
+class MMoE(object):
 
-    mu1 = np.random.normal(size=example_dim)
-    mu1 = (mu1 - np.mean(mu1)) / (np.std(mu1) * np.sqrt(example_dim))
+    def __init__(self,
+                 feature_columns,
+                 num_tasks,
+                 num_experts,
+                 expert_hidden_units,
+                 task_hidden_units,
+                 task_hidden_activation=tf.nn.relu,
+                 task_batch_normalization=False,
+                 task_dropout=None,
+                 expert_hidden_activation=tf.nn.relu,
+                 expert_batch_normalization=False,
+                 expert_dropout=None):
 
-    mu2 = np.random.normal(size=example_dim)
-    mu2 -= mu2.dot(mu1) * mu1
-    mu2 /= np.linalg.norm(mu2)
+        self._columns = feature_columns
 
-    w1 = c * mu1
-    w2 = c * (p * mu1 + np.sqrt(1. - p ** 2) * mu2)
+        self._num_tasks = num_tasks
+        self._num_experts = num_experts
+        self._expert_hidden_units = expert_hidden_units
+        self._task_hidden_units = task_hidden_units
 
-    alpha = np.random.normal(size=m)
-    beta = np.random.normal(size=m)
+        self._task_hidden_activation = task_hidden_activation
+        self._task_batch_norm = task_batch_normalization
+        self._task_dropout = task_dropout
 
-    examples = np.random.normal(size=(num_examples, example_dim))
+        self._expert_hidden_activation = expert_hidden_activation
+        self._expert_batch_norm = expert_batch_normalization
+        self._expert_dropout = expert_dropout
 
-    w1x = np.matmul(examples, w1)
-    w2x = np.matmul(examples, w2)
+    def __call__(self, *args, **kwargs):
+        return self.call(*args, **kwargs)
 
-    sin1, sin2 = 0., 0.
-    for i in range(m):
-        sin1 += np.sin(alpha[i] * w1x + beta[i])
-        sin2 += np.sin(alpha[i] * w2x + beta[i])
+    def gating_network(self, inputs):
+        """
+        Gating network: y = SoftMax(W * inputs)
+        """
+        x = tf.layers.dense(inputs,
+                            units=self._num_experts,
+                            use_bias=False)
 
-    y1 = w1x + sin1 + np.random.normal(size=num_examples, scale=0.01)
-    y2 = w2x + sin2 + np.random.normal(size=num_examples, scale=0.01)
+        return tf.nn.softmax(x)
 
-    return examples.astype(np.float32), (y1.astype(np.float32), y2.astype(np.float32))
+    def call(self, features):
 
+        inputs = tf.feature_column.input_layer(features, self._columns)
 
-def synthetic_data_input_fn(num_examples, epochs=1, batch_size=256, buffer_size=256, **kwargs):
+        with tf.variable_scope("mixture_of_experts"):
+            experts_outputs = []
+            for _ in range(self._num_experts):
+                x = dnn(inputs,
+                        self._expert_hidden_units,
+                        activation=self._expert_hidden_activation,
+                        batch_normalization=self._expert_batch_norm,
+                        dropout=self._expert_dropout)
+                experts_outputs.append(x)
+            moe_outputs = tf.stack(experts_outputs, axis=1)
 
-    synthetic_data = _synthetic_data(num_examples, **kwargs)
+        with tf.variable_scope("multi_gate"):
+            mg_outputs = []
+            for _ in range(self._num_experts):
+                gate = self.gating_network(inputs)
+                gate = tf.expand_dims(gate, axis=1)
+                output = tf.linalg.matmul(gate, moe_outputs)
+                mg_outputs.append(tf.squeeze(output, axis=1))
 
-    dataset = tf.data.Dataset.from_tensor_slices(synthetic_data)
-    dataset = dataset.batch(batch_size)
-    dataset = dataset.repeat(epochs)
-    dataset = dataset.prefetch(buffer_size)
+        outputs = []
+        for idx in range(self._num_tasks):
+            with tf.variable_scope("task{}".format(idx)):
+                x = dnn(mg_outputs[idx],
+                        self._task_hidden_units + [1],
+                        activation=self._task_hidden_activation,
+                        batch_normalization=self._task_batch_norm,
+                        dropout=self._task_dropout)
 
-    return dataset
+                outputs.append(x)
 
-
-def gating_network(inputs, num_experts, expert_index=None):
-    """
-    Gating network: y = SoftMax(W * inputs)
-    :param inputs: tf.Tensor
-    :param num_experts: Int > 0, number of expert networks.
-    :param expert_index: Int, index of expert network.
-    :return: tf.Tensor
-    """
-
-    x = tf.layers.dense(inputs,
-                        units=num_experts,
-                        use_bias=False,
-                        name="expert{}_gate".format(expert_index))
-
-    return tf.nn.softmax(x)
-
-
-def one_gate(inputs,
-             num_tasks,
-             num_experts,
-             task_hidden_units,
-             task_output_activations,
-             expert_hidden_units,
-             expert_hidden_activation=tf.nn.relu,
-             task_hidden_activation=tf.nn.relu,
-             task_dropout=None):
-
-    experts_gate = gating_network(inputs, num_experts)
-
-    experts_outputs = []
-    for i in range(num_experts):
-        x = dnn(inputs, expert_hidden_units, activation=expert_hidden_activation)
-        experts_outputs.append(x)
-
-    experts_outputs = tf.stack(experts_outputs, axis=1)
-    experts_selector = tf.expand_dims(experts_gate, axis=1)
-
-    outputs = tf.linalg.matmul(experts_selector, experts_outputs)
-
-    multi_task_inputs = tf.squeeze(outputs)
-
-    return multi_task(multi_task_inputs,
-                      num_tasks,
-                      task_output_activations,
-                      task_hidden_units,
-                      dnn_activation=task_hidden_activation,
-                      dnn_batch_normalization=task_dropout,
-                      dnn_dropout=task_dropout)
-
-
-def multi_gate(inputs,
-               num_tasks,
-               num_experts,
-               task_hidden_units,
-               task_output_activations,
-               expert_hidden_units,
-               expert_hidden_activation=tf.nn.relu,
-               task_hidden_activation=tf.nn.relu,
-               task_dropout=None):
-
-    experts_outputs = []
-    for i in range(num_experts):
-        x = dnn(inputs, expert_hidden_units, activation=expert_hidden_activation)
-        experts_outputs.append(x)
-
-    experts_outputs = tf.stack(experts_outputs, axis=1)
-
-    outputs = []
-    for i in range(num_experts):
-        expert_gate = gating_network(inputs, num_experts, expert_index=i)
-        expert_selector = tf.expand_dims(expert_gate, axis=1)
-
-        output = tf.linalg.matmul(expert_selector, experts_outputs)
-
-        outputs.append(tf.squeeze(output))
-
-    return multi_task(outputs,
-                      num_tasks,
-                      task_output_activations,
-                      task_hidden_units,
-                      dnn_activation=task_hidden_activation,
-                      dnn_batch_normalization=task_dropout,
-                      dnn_dropout=task_dropout)
+        return outputs
