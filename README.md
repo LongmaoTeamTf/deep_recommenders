@@ -149,6 +149,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts, Google, KDD, 2018*
     </sub>](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007)
   - **ESMM**
+    [[Example]](examples/train_esmm_with_product.py)
     [<sub>
       *Entire Space Multi-Task Model: An Effective Approach for Estimating Post-Click Conversion Rate, Alibaba, SIGIR, 2018*
     </sub>](https://arxiv.org/pdf/1804.07931.pdf)
