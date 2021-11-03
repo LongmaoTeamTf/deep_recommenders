@@ -107,6 +107,3 @@ class Cross(tf.keras.layers.Layer):
         base_config = super(Cross, self).get_config()
         return {**base_config, **config}
 
-
-class DCN(object):
-    pass

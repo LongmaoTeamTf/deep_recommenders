@@ -128,7 +128,3 @@ class Dice(tf.keras.layers.Layer):
         }
         base_config = super(Dice, self).get_config()
         return {**base_config, **config}
-
-
-class DIN(object):
-    pass

@@ -114,7 +114,3 @@ class CIN(tf.keras.layers.Layer):
         }
         base_config = super(CIN, self).get_config()
         return {**base_config, **config}
-
-
-class XDeepFM(object):
-    pass

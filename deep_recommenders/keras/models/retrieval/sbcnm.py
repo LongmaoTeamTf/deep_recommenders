@@ -161,7 +161,3 @@ class Retrieval(tf.keras.layers.Layer):
 
         with tf.control_dependencies([update_op]):
             return tf.identity(loss)
-
-
-class SBCNM(object):
-    pass
