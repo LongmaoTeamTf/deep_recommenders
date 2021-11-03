@@ -1,81 +1,55 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from typing import Optional, Union, Text
 
 import tensorflow as tf
 
+from deep_recommenders.keras.models.feature_interaction import FM
 
-@tf.keras.utils.register_keras_serializable()
-class FM(tf.keras.layers.Layer):
-    """ Factorization Machine """
 
-    def __init__(self, 
-                 factors: Union[int, None] = 10,
-                 kernel_init: Union[Text, tf.keras.initializers.Initializer] = "truncated_normal",
-                 kernel_regu: Union[Text, None, tf.keras.regularizers.Regularizer] = None,
+class DeepFM(tf.keras.Model):
+
+    def __init__(self,
+                 indicator_columns,
+                 embedding_columns,
+                 dnn_units_size,
+                 dnn_activation="relu",
                  **kwargs):
 
-        super(FM, self).__init__(**kwargs)
-        
-        self._factors = factors
-        self._kernel_init = tf.keras.initializers.get(kernel_init)
-        self._kernel_regu = tf.keras.regularizers.get(kernel_regu)
+        super(DeepFM, self).__init__(**kwargs)
+        self._indicator_columns = indicator_columns
+        self._embedding_columns = embedding_columns
+        self._dnn_units_size = dnn_units_size
+        self._dnn_activation = dnn_activation
 
-        if (self._factors is not None) and (self._factors <= 0):
-            raise ValueError("`factors` should be bigger than 0. Got `factors` = {}".format(self._factors))
+        self._sparse_features_layer = tf.keras.layers.DenseFeatures(self._indicator_columns)
+        self._embedding_features_layer = {
+            c.categorical_column.key: tf.keras.layers.DenseFeatures(c)
+            for c in self._embedding_columns
+        }
+        self._fm = FM()
+        self._dnn = tf.keras.Sequential([
+            tf.keras.layers.Dense(units, activation=self._dnn_activation)
+            for units in self._dnn_units_size
+            ] + [tf.keras.layers.Dense(1)]
+        )
 
-    def build(self, input_shape):
-        last_dim = input_shape[-1]
-
-        if self._factors is not None:
-            self._kernel = self.add_weight(
-                shape=(last_dim, self._factors),
-                initializer=self._kernel_init,
-                regularizer=self._kernel_regu,
-                trainable=True,
-                name="kernel"
-            )
-        self.built = True
-
-    def call(self, x: tf.Tensor, **kwargs):
-
-        if self._factors is None:
-
-            if tf.keras.backend.ndim(x) != 3:
-                raise ValueError("When `factors` is None, `x` dim should be 3. "
-                                 "Got `x` dim = {}".format(tf.keras.backend.ndim(x)))
-
-            x_sum = tf.reduce_sum(x, axis=1)
-            x_square_sum = tf.reduce_sum(tf.pow(x, 2), axis=1)
-        else:
-            if tf.keras.backend.ndim(x) != 2:
-                raise ValueError("When `factors` is not None, `x` dim should be 2. "
-                                 "Got `x` dim = {}".format(tf.keras.backend.ndim(x)))
-
-            x_sum = tf.linalg.matmul(x, self._kernel, a_is_sparse=True)
-            x_square_sum = tf.linalg.matmul(
-                tf.pow(x, 2), tf.pow(self._kernel, 2), a_is_sparse=True)
-
-        outputs = 0.5 * tf.reduce_sum(
-            tf.subtract(
-                tf.pow(x_sum, 2),
-                x_square_sum
-            ), axis=1, keepdims=True)
-
-        return outputs
+    def call(self, inputs, **kwargs):
+        sparse_features = self._sparse_features_layer(inputs)
+        embeddings = []
+        for column_name, column_input in inputs.items():
+            dense_features = self._embedding_features_layer.get(column_name)
+            if dense_features is not None:
+                embedding = dense_features({column_name: column_input})
+                embeddings.append(embedding)
+        stack_embeddings = tf.stack(embeddings, axis=1)
+        concat_embeddings = tf.concat(embeddings, axis=1)
+        outputs = self._fm(sparse_features, stack_embeddings) + self._dnn(concat_embeddings)
+        return tf.keras.activations.sigmoid(outputs)
 
     def get_config(self):
         config = {
-            "factors":
-                self._factors,
-            "kernel_init":
-                tf.keras.initializers.serialize(self._kernel_init),
-            "kernel_regu":
-                tf.keras.regularizers.serialize(self._kernel_regu),
+            "dnn_units_size": self._dnn_units_size,
+            "dnn_activation": self._dnn_activation
         }
-        base_config = super(FM, self).get_config()
+        base_config = super(DeepFM, self).get_config()
         return {**base_config, **config}
-
-
-class DeepFM(object):
-    pass
