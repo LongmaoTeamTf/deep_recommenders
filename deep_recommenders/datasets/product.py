@@ -17,7 +17,9 @@ class ProductDataset(object):
             "user_name", "user_nickname", "user_avatar", "user_type", "user_gender",
             "user_register_date", "user_description", "user_cover", "user_birthday",
             "user_country", "user_city", "user_university", "user_job",
-            "video_category_id", "video_author_id", "video_duration"
+            "video_category_id", "video_author_id", "video_duration",
+            "video_history_play_count", "video_history_like_count", "video_history_collect_count",
+            "video_history_share_count", "video_history_reply_count",
         ]
 
     @property
@@ -30,6 +32,7 @@ class ProductDataset(object):
             self.string, self.string, self.string, self.string,
             self.string, self.string, self.string, self.string,
             self.string, self.string, self.float32,
+            self.float32, self.float32, self.float32, self.float32, self.float32
         ]
 
     @property
