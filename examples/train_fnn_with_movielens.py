@@ -3,9 +3,35 @@
 
 import tensorflow as tf
 
-from build_input_pipeline_on_movielens import build_columns
-from build_input_pipeline_on_movielens import MovielensInputFun
+from deep_recommenders.datasets import MovielensRanking
 from deep_recommenders.estimator.models.ranking import FNN
+
+
+def build_columns():
+    movielens = MovielensRanking()
+    user_id = tf.feature_column.categorical_column_with_hash_bucket(
+        "user_id", movielens.num_users)
+    user_gender = tf.feature_column.categorical_column_with_vocabulary_list(
+        "user_gender", movielens.gender_vocab)
+    user_age = tf.feature_column.categorical_column_with_vocabulary_list(
+        "user_age", movielens.age_vocab)
+    user_occupation = tf.feature_column.categorical_column_with_vocabulary_list(
+        "user_occupation", movielens.occupation_vocab)
+    movie_id = tf.feature_column.categorical_column_with_hash_bucket(
+        "movie_id", movielens.num_movies)
+    movie_genres = tf.feature_column.categorical_column_with_vocabulary_list(
+        "movie_genres", movielens.gender_vocab)
+
+    base_columns = [user_id, user_gender, user_age, user_occupation, movie_id, movie_genres]
+    indicator_columns = [
+        tf.feature_column.indicator_column(c)
+        for c in base_columns
+    ]
+    embedding_columns = [
+        tf.feature_column.embedding_column(c, dimension=16)
+        for c in base_columns
+    ]
+    return indicator_columns, embedding_columns
 
 
 def model_fn(features, labels, mode, params):
@@ -55,14 +81,14 @@ def main():
     estimator = build_estimator({"warm_up_from_fm": "FM"})
 
     early_stop_hook = tf.estimator.experimental.stop_if_no_decrease_hook(estimator, "loss", 1000)
-    movielens = MovielensInputFun()
+    movielens = MovielensRanking()
     train_spec = tf.estimator.TrainSpec(lambda: movielens.training_input_fn,
                                         max_steps=None,
                                         hooks=[early_stop_hook])
     eval_spec = tf.estimator.EvalSpec(lambda: movielens.testing_input_fn,
                                       steps=None,
-                                      start_delay_secs=60,
-                                      throttle_secs=60)
+                                      start_delay_secs=0,
+                                      throttle_secs=0)
     tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
 
