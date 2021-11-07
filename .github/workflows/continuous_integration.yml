@@ -7,7 +7,7 @@ jobs:
       fail-fast: true
       matrix:
         python: [3.7, 3.8]
-        tensorflow: ["1.15", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
+        tensorflow: ["1.15", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5"]
         module: [estimator, keras]
         exclude:
           - python: 3.8
