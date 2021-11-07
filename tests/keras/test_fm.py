@@ -8,7 +8,7 @@ import tempfile
 import numpy as np
 import tensorflow as tf
 
-from deep_recommenders.keras.models.ranking.fm import FM
+from deep_recommenders.keras.models.ranking import FM
 from deep_recommenders.keras.models.ranking import FactorizationMachine
 from deep_recommenders.datasets import MovielensRanking
 
