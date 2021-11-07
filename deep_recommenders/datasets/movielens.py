@@ -96,7 +96,7 @@ def serialize_tfrecords(tfrecords_fn, datadir="ml-1m", download=False):
 class MovieLens(object):
 
     def __init__(self, filename="movielens.tfrecords"):
-        self._filename = os.path.join(os.path.dirname(__file__), filename)
+        self._filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), filename)
         self._columns = ["UserID", "MovieID", "Rating", "Timestamp",
                          "Gender", "Age", "Occupation", "Zip-code",
                          "Title", "Genres"]
