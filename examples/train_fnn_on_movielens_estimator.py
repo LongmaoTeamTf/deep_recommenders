@@ -76,7 +76,7 @@ def build_estimator(params, model_dir=None, inter_op=8, intra_op=8):
 def main():
     tf.logging.set_verbosity(tf.logging.INFO)
     # First: train FM model with movielens
-    # eg. python train_fm_with_movielens.py
+    # eg. python train_fm_on_movielens_estimator.py
     # Second: warm up from FM model.
     estimator = build_estimator({"warm_up_from_fm": "FM"})
 

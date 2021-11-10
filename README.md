@@ -19,7 +19,7 @@ but also hope to help friends and classmates who are interested in the recommend
 ### Ranking
 
   - **FM**
-    [[Estimator]](examples/train_fm_with_movielens.py)
+    [[Estimator]](examples/train_fm_on_movielens_estimator.py)
     [<sub>
       *Factorization Machines, Osaka, 2010*
     </sub>](https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf)
@@ -32,7 +32,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Learning Piece-wise Linear Models from Large Scale Data for Ad Click Prediction, Alibaba, 2017*
     </sub>](https://arxiv.org/pdf/1704.05194.pdf)
   - **WDL**
-    [[Estimator]](examples/train_wdl_with_movielens.py)
+    [[Estimator]](examples/train_wdl_on_movielens_estimator.py)
     [<sub>
       *Wide & Deep Learning for Recommender Systems, Google, DLRS, 2016*
     </sub>](https://arxiv.org/abs/1606.07792)
@@ -41,7 +41,7 @@ but also hope to help friends and classmates who are interested in the recommend
       *Product-based Neural Networks for User Response Prediction, IEEE, 2016*
     </sub>](https://arxiv.org/abs/1611.00144)
   - **FNN**
-    [[Estimator]](examples/train_fnn_with_movielens.py)
+    [[Estimator]](examples/train_fnn_on_movielens_estimator.py)
     [<sub>
       *Deep Learning over Multi-field Categorical Data: A Case Study on User Response Prediction, RayCloud, ECIR, 2016*
     </sub>](https://arxiv.org/abs/1601.02376)
@@ -54,8 +54,8 @@ but also hope to help friends and classmates who are interested in the recommend
       *Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks, IJCAI, 2017*
     </sub>](https://www.ijcai.org/proceedings/2017/0435.pdf)
   - **DeepFM** 
-    [[Estimator]](examples/train_deepfm_with_movielens.py)
-    [[Keras]](examples/train_deepfm_with_movielens_keras.py) 
+    [[Estimator]](examples/train_deepfm_on_movielens_estimator.py)
+    [[Keras]](examples/train_deepfm_on_movielens_keras.py) 
     [<sub>
       *DeepFM: A Factorization-Machine based Neural Network for CTR Prediction, Huawei, IJCAI, 2017*
     </sub>](https://www.ijcai.org/proceedings/2017/0239.pdf)
@@ -139,7 +139,7 @@ but also hope to help friends and classmates who are interested in the recommend
 ### Multi-task learning
 
   - **MMoE**
-    [[Estimator]](examples/train_mmoe_with_synthetic.py)
+    [[Estimator]](examples/train_mmoe_on_synthetic_estimator.py)
     [<sub>
       *Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts, Google, KDD, 2018*
     </sub>](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007)
