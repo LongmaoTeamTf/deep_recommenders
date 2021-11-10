@@ -10,7 +10,6 @@ import tensorflow as tf
 
 from deep_recommenders.keras.models.ranking import FM
 from deep_recommenders.keras.models.ranking import FactorizationMachine
-from deep_recommenders.datasets import MovielensRanking
 
 
 class TestFM(tf.test.TestCase):
@@ -66,13 +65,12 @@ class TestFM(tf.test.TestCase):
         self.assertAllEqual(model_pred, loaded_pred)
 
     def test_model(self):
-        movielens = MovielensRanking()
 
         def build_columns():
             user_id = tf.feature_column.categorical_column_with_hash_bucket(
-                "user_id", movielens.num_users)
+                "user_id", 100)
             movie_id = tf.feature_column.categorical_column_with_hash_bucket(
-                "movie_id", movielens.num_movies)
+                "movie_id", 100)
             base_columns = [user_id, movie_id]
             _indicator_columns = [
                 tf.feature_column.indicator_column(c)
@@ -88,8 +86,10 @@ class TestFM(tf.test.TestCase):
         model = FactorizationMachine(indicator_columns, embedding_columns)
         model.compile(loss=tf.keras.losses.binary_crossentropy,
                       optimizer=tf.keras.optimizers.Adam())
-        dataset = movielens.testing_input_fn.map(
-            lambda x, y: ({"user_id": x["user_id"], "movie_id": x["movie_id"]}, y))
+        dataset = tf.data.Dataset.from_tensor_slices(({
+            "user_id": [["1"]] * 1000,
+            "movie_id": [["2"]] * 1000
+        }, np.random.randint(0, 1, size=(1000, 1))))
         model.fit(dataset,
                   steps_per_epoch=100,
                   verbose=-1)
