@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 
-from deep_recommenders.keras.models.feature_interaction import FM
+from deep_recommenders.keras.models.ranking import FM
 
 
 class DeepFM(tf.keras.Model):
