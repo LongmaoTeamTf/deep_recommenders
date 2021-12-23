@@ -8,61 +8,49 @@ class GCN(tf.keras.layers.Layer):
 
     def __init__(self,
                  units: int,
+                 residual=False,
                  use_bias=False,
                  activation="relu",
-                 kernel_init="truncated_normal",
-                 kernel_regu=None,
-                 bias_init="zeros",
-                 bias_regu=None,
+                 kernel_initializer="truncated_normal",
+                 kernel_regularizer=None,
+                 bias_initializer="zeros",
+                 bias_regularizer=None,
                  **kwargs):
         super().__init__(**kwargs)
         
         self._units = units
+        self._residual = residual
         self._use_bias = use_bias
-        self._kernel_init = tf.keras.initializers.get(kernel_init)
-        self._kernel_regu = tf.keras.regularizers.get(kernel_regu)
-        self._bias_init = tf.keras.initializers.get(bias_init)
-        self._bias_regu = tf.keras.regularizers.get(bias_regu)
-
-        if isinstance(activation, str):
-            self._kernel_activation = tf.keras.activations.get(activation)
-        elif isinstance(activation, tf.keras.layers.Layer):
-            self._kernel_activation = activation
-        else:
-            self._kernel_activation = None
+        self._kernel_initializer = tf.keras.initializers.get(kernel_initializer)
+        self._kernel_regularizer = tf.keras.regularizers.get(kernel_regularizer)
+        self._bias_initializer = tf.keras.initializers.get(bias_initializer)
+        self._bias_regularizer = tf.keras.regularizers.get(bias_regularizer)
+        self._kernel_activation = tf.keras.activations.get(activation)
 
     def build(self, input_shape):
-        last_dim = input_shape[-1]
 
-        self.kernel = self.add_weight(
-            shape=(last_dim, self._units),
-            initializer=self._kernel_init,
-            regularizer=self._kernel_regu,
-            name="kernel"
+        self._kernel = tf.keras.layers.Dense(
+            self._units,
+            activation=self._kernel_activation,
+            kernel_initializer=self._kernel_initializer,
+            kernel_regularizer=self._kernel_regularizer,
+            bias_initializer=self._bias_initializer,
+            bias_regularizer=self._bias_regularizer,
+            use_bias=self._use_bias
         )
-
-        if self._use_bias:
-            self.bias = self.add_weight(
-                shape=(self._units,),
-                initializer=self._bias_init,
-                regularizer=self._bias_regu,
-                name="bias"
-            )
         self.built = True
 
-    def call(self, embeddings, adj, **kwargs):
+    def call(self, features, adj, **kwargs):
 
         if isinstance(adj, tf.SparseTensor):
-            agg_embeddings = tf.sparse.sparse_dense_matmul(adj, embeddings)
+            agg_embeddings = tf.sparse.sparse_dense_matmul(adj, features)
         else:
-            agg_embeddings = tf.linalg.matmul(adj, embeddings)
-        
-        outputs = tf.linalg.matmul(agg_embeddings, self.kernel)
-        if self._use_bias is True:
-            outputs = outputs + self.bias
-            
-        if self._kernel_activation is not None:
-            outputs = self._kernel_activation(outputs)
+            agg_embeddings = tf.linalg.matmul(adj, features)
+
+        outputs = self._kernel(agg_embeddings)
+
+        if self._residual is True:
+            outputs += features
 
         return outputs
 
@@ -71,10 +59,10 @@ class GCN(tf.keras.layers.Layer):
             "units": self._units,
             "use_bias": self._use_bias,
             "activation": tf.keras.activations.serialize(self._kernel_activation),
-            "kernel_init": tf.keras.initializers.serialize(self._kernel_init),
-            "kernel_regu": tf.keras.regularizers.serialize(self._kernel_regu),
-            "bias_init": tf.keras.initializers.serialize(self._bias_init),
-            "bias_regu": tf.keras.regularizers.serialize(self._bias_regu),
+            "kernel_initializer": tf.keras.initializers.serialize(self._kernel_initializer),
+            "kernel_regularizer": tf.keras.regularizers.serialize(self._kernel_regularizer),
+            "bias_initializer": tf.keras.initializers.serialize(self._bias_initializer),
+            "bias_regularizer": tf.keras.regularizers.serialize(self._bias_regularizer),
         }
         base_config = super(GCN, self).get_config()
         return {**base_config, **config}
