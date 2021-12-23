@@ -36,7 +36,7 @@ class TestGCN(tf.test.TestCase, parameterized.TestCase):
         indices = np.mat([coo.row, coo.col]).transpose()
         sparse_adj = tf.SparseTensor(indices, coo.data, coo.shape)
     
-        outputs = GCN(2, kernel_init="ones")(embeddings, sparse_adj)
+        outputs = GCN(2, kernel_initializer="ones")(embeddings, sparse_adj)
 
         self.evaluate(tf.compat.v1.global_variables_initializer())
         self.assertAllClose(outputs, expect_outputs)
@@ -58,7 +58,7 @@ class TestGCN(tf.test.TestCase, parameterized.TestCase):
         dense_outputs = agg_embeddings @ W
         expect_outputs = tf.nn.relu(dense_outputs)
         
-        outputs = GCN(2, kernel_init="ones")(embeddings, adj)
+        outputs = GCN(2, kernel_initializer="ones")(embeddings, adj)
 
         self.evaluate(tf.compat.v1.global_variables_initializer())
         self.assertAllClose(outputs, expect_outputs)
