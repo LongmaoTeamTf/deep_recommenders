@@ -74,23 +74,21 @@ def serialize_tfrecords(tfrecords_fn, datadir="ml-1m", download=False):
                              columns=["MovieID", "Title", "Genres"])
 
     ratings_columns = ["UserID", "MovieID", "Rating", "Timestamp"]
-    writer = tf.io.TFRecordWriter(tfrecords_fn)
-    shuffled_filename = _shuffle_data(datadir + "/ratings.dat")
-    f = open(shuffled_filename, "r", encoding="unicode_escape")
-    for line in f:
-        ls = line.strip().split("::")
-        rating = dict(zip(ratings_columns, ls))
-        rating.update(users_data.get(ls[0]))
-        rating.update(movies_data.get(ls[1]))
-        for c in ["Age", "Occupation", "Rating", "Timestamp"]:
-            rating[c] = int(rating[c])
-        for c in ["UserID", "MovieID", "Gender", "Zip-code", "Title"]:
-            rating[c] = rating[c].encode("utf-8")
-        rating["Genres"] = [x.encode("utf-8") for x in rating["Genres"].split("|")]
-        serialized = _serialize_example(rating)
-        writer.write(serialized)
-    writer.close()
-    f.close()
+    with tf.io.TFRecordWriter(tfrecords_fn) as writer:
+        shuffled_filename = _shuffle_data(datadir + "/ratings.dat")
+        with open(shuffled_filename, "r", encoding="unicode_escape") as f:
+            for line in f:
+                ls = line.strip().split("::")
+                rating = dict(zip(ratings_columns, ls))
+                rating.update(users_data.get(ls[0]))
+                rating.update(movies_data.get(ls[1]))
+                for c in ["Age", "Occupation", "Rating", "Timestamp"]:
+                    rating[c] = int(rating[c])
+                for c in ["UserID", "MovieID", "Gender", "Zip-code", "Title"]:
+                    rating[c] = rating[c].encode("utf-8")
+                rating["Genres"] = [x.encode("utf-8") for x in rating["Genres"].split("|")]
+                serialized = _serialize_example(rating)
+                writer.write(serialized)
 
 
 class MovieLens(object):
